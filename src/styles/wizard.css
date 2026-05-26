@@ -51,12 +51,12 @@
   font-size: clamp(26px, 3vw, 40px);
   font-weight: 800;
   line-height: 1.2;
-  color: #ffffff;
+  color: #FCBF1E;
   margin-bottom: 14px;
 }
 .left-panel__hero p {
   font-size: clamp(14px, 1.5vw, 18px);
-  color: #FCBF1E;
+  color: #ffffff;
   line-height: 1.55;
   font-weight: 400;
 }
@@ -161,7 +161,7 @@
   max-width: 460px;
 }
 .step-subtitle {
-  font-size: var(--font-size-sm);
+  font-size: 16px;
   color: var(--color-text-secondary);
   margin-bottom: var(--spacing-8);
 }
@@ -788,7 +788,7 @@ input[type=range].sunova-slider::-moz-range-thumb {
   }
 
   .step-title {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-2xl);
     max-width: 100%;
   }
 

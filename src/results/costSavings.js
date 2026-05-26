@@ -25,14 +25,14 @@ export function renderCostSavings(container, navigate) {
           <div class="savings-kpi">
             <div>
               <div class="savings-kpi__label">Current Blended Cost</div>
-              <div class="savings-kpi__value">${N(savings.current_blended_cost)}/kWh <span class="savings-kpi__arrow-down">↓</span></div>
+              <div class="savings-kpi__value">${N(savings.current_blended_cost)}/kWh <span class="savings-kpi__arrow-up">↑</span></div>
             </div>
-            <div class="savings-kpi__icon">🏭</div>
+            <div class="savings-kpi__icon">🏠</div>
           </div>
           <div class="savings-kpi">
             <div>
               <div class="savings-kpi__label">${savings.solar_label || 'Solar'} Blended Cost</div>
-              <div class="savings-kpi__value">${N(savings.post_solar_blended_cost)}/kWh <span class="savings-kpi__arrow-up">↑</span></div>
+              <div class="savings-kpi__value">${N(savings.post_solar_blended_cost)}/kWh <span class="savings-kpi__arrow-down">↓</span></div>
             </div>
             <div class="savings-kpi__icon">☀️</div>
           </div>

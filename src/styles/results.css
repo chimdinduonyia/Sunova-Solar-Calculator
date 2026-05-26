@@ -254,8 +254,8 @@
 .savings-kpi__label { font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: 2px; }
 .savings-kpi__value { font-size: var(--font-size-lg); font-weight: 700; color: var(--color-text); }
 .savings-kpi__sub { font-size: var(--font-size-xs); color: var(--color-text-secondary); }
-.savings-kpi__arrow-down { color: var(--color-error); }
-.savings-kpi__arrow-up { color: var(--color-success); }
+.savings-kpi__arrow-down { color: var(--color-success); }
+.savings-kpi__arrow-up { color: var(--color-error); }
 
 .savings-bottom-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;
@@ -631,6 +631,10 @@
 
   .savings-kpi-grid {
     grid-template-columns: 1fr;
+  }
+
+  .savings-kpi {
+    justify-content: space-between;
   }
 
   .final-quote-title {

@@ -1,0 +1,742 @@
+[
+  {
+    "state": "Abuja (FCT)",
+    "zone": "North Central",
+    "daily_yield_kwh_per_kwp": 4.8,
+    "annual_yield_kwh_per_kwp": 1752.0,
+    "monthly": {
+      "jan": 5.1,
+      "feb": 5.3,
+      "mar": 5,
+      "apr": 4.6,
+      "may": 4.3,
+      "jun": 3.9,
+      "jul": 3.7,
+      "aug": 3.8,
+      "sep": 4.2,
+      "oct": 4.7,
+      "nov": 5,
+      "dec": 5.2
+    }
+  },
+  {
+    "state": "Lagos",
+    "zone": "South West",
+    "daily_yield_kwh_per_kwp": 4.2,
+    "annual_yield_kwh_per_kwp": 1533.0,
+    "monthly": {
+      "jan": 4.5,
+      "feb": 4.6,
+      "mar": 4.3,
+      "apr": 4,
+      "may": 3.8,
+      "jun": 3.5,
+      "jul": 3.3,
+      "aug": 3.4,
+      "sep": 3.8,
+      "oct": 4.1,
+      "nov": 4.4,
+      "dec": 4.6
+    }
+  },
+  {
+    "state": "Kano",
+    "zone": "North West",
+    "daily_yield_kwh_per_kwp": 5.5,
+    "annual_yield_kwh_per_kwp": 2007.5,
+    "monthly": {
+      "jan": 5.8,
+      "feb": 6,
+      "mar": 5.7,
+      "apr": 5.3,
+      "may": 5,
+      "jun": 4.5,
+      "jul": 4.2,
+      "aug": 4.3,
+      "sep": 4.8,
+      "oct": 5.3,
+      "nov": 5.6,
+      "dec": 5.9
+    }
+  },
+  {
+    "state": "Maiduguri",
+    "zone": "North East",
+    "daily_yield_kwh_per_kwp": 5.8,
+    "annual_yield_kwh_per_kwp": 2117.0,
+    "monthly": {
+      "jan": 6.1,
+      "feb": 6.3,
+      "mar": 6,
+      "apr": 5.6,
+      "may": 5.3,
+      "jun": 4.8,
+      "jul": 4.5,
+      "aug": 4.6,
+      "sep": 5.1,
+      "oct": 5.6,
+      "nov": 5.9,
+      "dec": 6.2
+    }
+  },
+  {
+    "state": "Enugu",
+    "zone": "South East",
+    "daily_yield_kwh_per_kwp": 4.3,
+    "annual_yield_kwh_per_kwp": 1569.5,
+    "monthly": {
+      "jan": 4.6,
+      "feb": 4.7,
+      "mar": 4.4,
+      "apr": 4.1,
+      "may": 3.9,
+      "jun": 3.6,
+      "jul": 3.4,
+      "aug": 3.5,
+      "sep": 3.9,
+      "oct": 4.2,
+      "nov": 4.5,
+      "dec": 4.7
+    }
+  },
+  {
+    "state": "Port Harcourt",
+    "zone": "South South",
+    "daily_yield_kwh_per_kwp": 3.9,
+    "annual_yield_kwh_per_kwp": 1423.5,
+    "monthly": {
+      "jan": 4.1,
+      "feb": 4.3,
+      "mar": 4,
+      "apr": 3.7,
+      "may": 3.5,
+      "jun": 3.1,
+      "jul": 2.9,
+      "aug": 3,
+      "sep": 3.4,
+      "oct": 3.8,
+      "nov": 4,
+      "dec": 4.3
+    }
+  },
+  {
+    "state": "Ibadan",
+    "zone": "South West",
+    "daily_yield_kwh_per_kwp": 4.4,
+    "annual_yield_kwh_per_kwp": 1606.0,
+    "monthly": {
+      "jan": 4.7,
+      "feb": 4.8,
+      "mar": 4.5,
+      "apr": 4.2,
+      "may": 4,
+      "jun": 3.7,
+      "jul": 3.5,
+      "aug": 3.6,
+      "sep": 4,
+      "oct": 4.3,
+      "nov": 4.6,
+      "dec": 4.8
+    }
+  },
+  {
+    "state": "Kaduna",
+    "zone": "North West",
+    "daily_yield_kwh_per_kwp": 5.2,
+    "annual_yield_kwh_per_kwp": 1898.0,
+    "monthly": {
+      "jan": 5.5,
+      "feb": 5.7,
+      "mar": 5.4,
+      "apr": 5,
+      "may": 4.7,
+      "jun": 4.3,
+      "jul": 4,
+      "aug": 4.1,
+      "sep": 4.6,
+      "oct": 5,
+      "nov": 5.3,
+      "dec": 5.6
+    }
+  },
+  {
+    "state": "Sokoto",
+    "zone": "North West",
+    "daily_yield_kwh_per_kwp": 6,
+    "annual_yield_kwh_per_kwp": 2190,
+    "monthly": {
+      "jan": 6.3,
+      "feb": 6.5,
+      "mar": 6.2,
+      "apr": 5.8,
+      "may": 5.5,
+      "jun": 5,
+      "jul": 4.7,
+      "aug": 4.8,
+      "sep": 5.3,
+      "oct": 5.8,
+      "nov": 6.1,
+      "dec": 6.4
+    }
+  },
+  {
+    "state": "Jos",
+    "zone": "North Central",
+    "daily_yield_kwh_per_kwp": 5,
+    "annual_yield_kwh_per_kwp": 1825,
+    "monthly": {
+      "jan": 5.3,
+      "feb": 5.5,
+      "mar": 5.2,
+      "apr": 4.8,
+      "may": 4.5,
+      "jun": 4.1,
+      "jul": 3.8,
+      "aug": 3.9,
+      "sep": 4.4,
+      "oct": 4.9,
+      "nov": 5.2,
+      "dec": 5.5
+    }
+  },
+  {
+    "state": "Benin City",
+    "zone": "South South",
+    "daily_yield_kwh_per_kwp": 4,
+    "annual_yield_kwh_per_kwp": 1460,
+    "monthly": {
+      "jan": 4.2,
+      "feb": 4.4,
+      "mar": 4.1,
+      "apr": 3.8,
+      "may": 3.6,
+      "jun": 3.2,
+      "jul": 3,
+      "aug": 3.1,
+      "sep": 3.5,
+      "oct": 3.9,
+      "nov": 4.1,
+      "dec": 4.4
+    }
+  },
+  {
+    "state": "Asaba",
+    "zone": "South South",
+    "daily_yield_kwh_per_kwp": 4.1,
+    "annual_yield_kwh_per_kwp": 1496.5,
+    "monthly": {
+      "jan": 4.3,
+      "feb": 4.5,
+      "mar": 4.2,
+      "apr": 3.9,
+      "may": 3.7,
+      "jun": 3.3,
+      "jul": 3.1,
+      "aug": 3.2,
+      "sep": 3.6,
+      "oct": 4,
+      "nov": 4.2,
+      "dec": 4.5
+    }
+  },
+  {
+    "state": "Owerri",
+    "zone": "South East",
+    "daily_yield_kwh_per_kwp": 4.2,
+    "annual_yield_kwh_per_kwp": 1533.0,
+    "monthly": {
+      "jan": 4.4,
+      "feb": 4.6,
+      "mar": 4.3,
+      "apr": 4,
+      "may": 3.8,
+      "jun": 3.4,
+      "jul": 3.2,
+      "aug": 3.3,
+      "sep": 3.7,
+      "oct": 4.1,
+      "nov": 4.3,
+      "dec": 4.6
+    }
+  },
+  {
+    "state": "Calabar",
+    "zone": "South South",
+    "daily_yield_kwh_per_kwp": 3.8,
+    "annual_yield_kwh_per_kwp": 1387.0,
+    "monthly": {
+      "jan": 4,
+      "feb": 4.2,
+      "mar": 3.9,
+      "apr": 3.6,
+      "may": 3.4,
+      "jun": 3,
+      "jul": 2.8,
+      "aug": 2.9,
+      "sep": 3.3,
+      "oct": 3.7,
+      "nov": 3.9,
+      "dec": 4.2
+    }
+  },
+  {
+    "state": "Uyo",
+    "zone": "South South",
+    "daily_yield_kwh_per_kwp": 3.9,
+    "annual_yield_kwh_per_kwp": 1423.5,
+    "monthly": {
+      "jan": 4.1,
+      "feb": 4.3,
+      "mar": 4,
+      "apr": 3.7,
+      "may": 3.5,
+      "jun": 3.1,
+      "jul": 2.9,
+      "aug": 3,
+      "sep": 3.4,
+      "oct": 3.8,
+      "nov": 4,
+      "dec": 4.3
+    }
+  },
+  {
+    "state": "Abeokuta",
+    "zone": "South West",
+    "daily_yield_kwh_per_kwp": 4.3,
+    "annual_yield_kwh_per_kwp": 1569.5,
+    "monthly": {
+      "jan": 4.6,
+      "feb": 4.7,
+      "mar": 4.4,
+      "apr": 4.1,
+      "may": 3.9,
+      "jun": 3.6,
+      "jul": 3.4,
+      "aug": 3.5,
+      "sep": 3.9,
+      "oct": 4.2,
+      "nov": 4.5,
+      "dec": 4.7
+    }
+  },
+  {
+    "state": "Akure",
+    "zone": "South West",
+    "daily_yield_kwh_per_kwp": 4.2,
+    "annual_yield_kwh_per_kwp": 1533.0,
+    "monthly": {
+      "jan": 4.5,
+      "feb": 4.6,
+      "mar": 4.3,
+      "apr": 4,
+      "may": 3.8,
+      "jun": 3.5,
+      "jul": 3.3,
+      "aug": 3.4,
+      "sep": 3.8,
+      "oct": 4.1,
+      "nov": 4.4,
+      "dec": 4.6
+    }
+  },
+  {
+    "state": "Bauchi",
+    "zone": "North East",
+    "daily_yield_kwh_per_kwp": 5.6,
+    "annual_yield_kwh_per_kwp": 2044.0,
+    "monthly": {
+      "jan": 5.9,
+      "feb": 6.1,
+      "mar": 5.8,
+      "apr": 5.4,
+      "may": 5.1,
+      "jun": 4.6,
+      "jul": 4.3,
+      "aug": 4.4,
+      "sep": 4.9,
+      "oct": 5.4,
+      "nov": 5.7,
+      "dec": 6
+    }
+  },
+  {
+    "state": "Gombe",
+    "zone": "North East",
+    "daily_yield_kwh_per_kwp": 5.5,
+    "annual_yield_kwh_per_kwp": 2007.5,
+    "monthly": {
+      "jan": 5.8,
+      "feb": 6,
+      "mar": 5.7,
+      "apr": 5.3,
+      "may": 5,
+      "jun": 4.5,
+      "jul": 4.2,
+      "aug": 4.3,
+      "sep": 4.8,
+      "oct": 5.3,
+      "nov": 5.6,
+      "dec": 5.9
+    }
+  },
+  {
+    "state": "Ilorin",
+    "zone": "North Central",
+    "daily_yield_kwh_per_kwp": 4.9,
+    "annual_yield_kwh_per_kwp": 1788.5,
+    "monthly": {
+      "jan": 5.2,
+      "feb": 5.4,
+      "mar": 5.1,
+      "apr": 4.7,
+      "may": 4.4,
+      "jun": 4,
+      "jul": 3.7,
+      "aug": 3.8,
+      "sep": 4.3,
+      "oct": 4.8,
+      "nov": 5.1,
+      "dec": 5.4
+    }
+  },
+  {
+    "state": "Lokoja",
+    "zone": "North Central",
+    "daily_yield_kwh_per_kwp": 4.8,
+    "annual_yield_kwh_per_kwp": 1752.0,
+    "monthly": {
+      "jan": 5.1,
+      "feb": 5.3,
+      "mar": 5,
+      "apr": 4.6,
+      "may": 4.3,
+      "jun": 3.9,
+      "jul": 3.7,
+      "aug": 3.8,
+      "sep": 4.2,
+      "oct": 4.7,
+      "nov": 5,
+      "dec": 5.2
+    }
+  },
+  {
+    "state": "Makurdi",
+    "zone": "North Central",
+    "daily_yield_kwh_per_kwp": 4.7,
+    "annual_yield_kwh_per_kwp": 1715.5,
+    "monthly": {
+      "jan": 5,
+      "feb": 5.2,
+      "mar": 4.9,
+      "apr": 4.5,
+      "may": 4.2,
+      "jun": 3.8,
+      "jul": 3.6,
+      "aug": 3.7,
+      "sep": 4.1,
+      "oct": 4.6,
+      "nov": 4.9,
+      "dec": 5.1
+    }
+  },
+  {
+    "state": "Minna",
+    "zone": "North Central",
+    "daily_yield_kwh_per_kwp": 5,
+    "annual_yield_kwh_per_kwp": 1825,
+    "monthly": {
+      "jan": 5.3,
+      "feb": 5.5,
+      "mar": 5.2,
+      "apr": 4.8,
+      "may": 4.5,
+      "jun": 4.1,
+      "jul": 3.8,
+      "aug": 3.9,
+      "sep": 4.4,
+      "oct": 4.9,
+      "nov": 5.2,
+      "dec": 5.5
+    }
+  },
+  {
+    "state": "Umuahia",
+    "zone": "South East",
+    "daily_yield_kwh_per_kwp": 4.1,
+    "annual_yield_kwh_per_kwp": 1496.5,
+    "monthly": {
+      "jan": 4.3,
+      "feb": 4.5,
+      "mar": 4.2,
+      "apr": 3.9,
+      "may": 3.7,
+      "jun": 3.3,
+      "jul": 3.1,
+      "aug": 3.2,
+      "sep": 3.6,
+      "oct": 4,
+      "nov": 4.2,
+      "dec": 4.5
+    }
+  },
+  {
+    "state": "Yola",
+    "zone": "North East",
+    "daily_yield_kwh_per_kwp": 5.4,
+    "annual_yield_kwh_per_kwp": 1971.0,
+    "monthly": {
+      "jan": 5.7,
+      "feb": 5.9,
+      "mar": 5.6,
+      "apr": 5.2,
+      "may": 4.9,
+      "jun": 4.4,
+      "jul": 4.1,
+      "aug": 4.2,
+      "sep": 4.7,
+      "oct": 5.2,
+      "nov": 5.5,
+      "dec": 5.8
+    }
+  },
+  {
+    "state": "Zamfara",
+    "zone": "North West",
+    "daily_yield_kwh_per_kwp": 5.7,
+    "annual_yield_kwh_per_kwp": 2080.5,
+    "monthly": {
+      "jan": 6,
+      "feb": 6.2,
+      "mar": 5.9,
+      "apr": 5.5,
+      "may": 5.2,
+      "jun": 4.7,
+      "jul": 4.4,
+      "aug": 4.5,
+      "sep": 5,
+      "oct": 5.5,
+      "nov": 5.8,
+      "dec": 6.1
+    }
+  },
+  {
+    "state": "Lafia",
+    "zone": "North Central",
+    "daily_yield_kwh_per_kwp": 4.9,
+    "annual_yield_kwh_per_kwp": 1788.5,
+    "monthly": {
+      "jan": 5.2,
+      "feb": 5.4,
+      "mar": 5.1,
+      "apr": 4.7,
+      "may": 4.4,
+      "jun": 4,
+      "jul": 3.7,
+      "aug": 3.8,
+      "sep": 4.3,
+      "oct": 4.8,
+      "nov": 5.1,
+      "dec": 5.4
+    }
+  },
+  {
+    "state": "Birnin Kebbi",
+    "zone": "North West",
+    "daily_yield_kwh_per_kwp": 5.8,
+    "annual_yield_kwh_per_kwp": 2117.0,
+    "monthly": {
+      "jan": 6.1,
+      "feb": 6.3,
+      "mar": 6,
+      "apr": 5.6,
+      "may": 5.3,
+      "jun": 4.8,
+      "jul": 4.5,
+      "aug": 4.6,
+      "sep": 5.1,
+      "oct": 5.6,
+      "nov": 5.9,
+      "dec": 6.2
+    }
+  },
+  {
+    "state": "Dutse",
+    "zone": "North West",
+    "daily_yield_kwh_per_kwp": 5.6,
+    "annual_yield_kwh_per_kwp": 2044.0,
+    "monthly": {
+      "jan": 5.9,
+      "feb": 6.1,
+      "mar": 5.8,
+      "apr": 5.4,
+      "may": 5.1,
+      "jun": 4.6,
+      "jul": 4.3,
+      "aug": 4.4,
+      "sep": 4.9,
+      "oct": 5.4,
+      "nov": 5.7,
+      "dec": 6
+    }
+  },
+  {
+    "state": "Damaturu",
+    "zone": "North East",
+    "daily_yield_kwh_per_kwp": 5.7,
+    "annual_yield_kwh_per_kwp": 2080.5,
+    "monthly": {
+      "jan": 6,
+      "feb": 6.2,
+      "mar": 5.9,
+      "apr": 5.5,
+      "may": 5.2,
+      "jun": 4.7,
+      "jul": 4.4,
+      "aug": 4.5,
+      "sep": 5,
+      "oct": 5.5,
+      "nov": 5.8,
+      "dec": 6.1
+    }
+  },
+  {
+    "state": "Jalingo",
+    "zone": "North East",
+    "daily_yield_kwh_per_kwp": 5.1,
+    "annual_yield_kwh_per_kwp": 1861.5,
+    "monthly": {
+      "jan": 5.4,
+      "feb": 5.6,
+      "mar": 5.3,
+      "apr": 4.9,
+      "may": 4.6,
+      "jun": 4.2,
+      "jul": 3.9,
+      "aug": 4,
+      "sep": 4.5,
+      "oct": 5,
+      "nov": 5.3,
+      "dec": 5.6
+    }
+  },
+  {
+    "state": "Ado Ekiti",
+    "zone": "South West",
+    "daily_yield_kwh_per_kwp": 4.3,
+    "annual_yield_kwh_per_kwp": 1569.5,
+    "monthly": {
+      "jan": 4.6,
+      "feb": 4.7,
+      "mar": 4.4,
+      "apr": 4.1,
+      "may": 3.9,
+      "jun": 3.6,
+      "jul": 3.4,
+      "aug": 3.5,
+      "sep": 3.9,
+      "oct": 4.2,
+      "nov": 4.5,
+      "dec": 4.7
+    }
+  },
+  {
+    "state": "Abakaliki",
+    "zone": "South East",
+    "daily_yield_kwh_per_kwp": 4.2,
+    "annual_yield_kwh_per_kwp": 1533.0,
+    "monthly": {
+      "jan": 4.5,
+      "feb": 4.6,
+      "mar": 4.3,
+      "apr": 4,
+      "may": 3.8,
+      "jun": 3.5,
+      "jul": 3.3,
+      "aug": 3.4,
+      "sep": 3.8,
+      "oct": 4.1,
+      "nov": 4.4,
+      "dec": 4.6
+    }
+  },
+  {
+    "state": "Awka",
+    "zone": "South East",
+    "daily_yield_kwh_per_kwp": 4.2,
+    "annual_yield_kwh_per_kwp": 1533.0,
+    "monthly": {
+      "jan": 4.5,
+      "feb": 4.6,
+      "mar": 4.3,
+      "apr": 4,
+      "may": 3.8,
+      "jun": 3.5,
+      "jul": 3.3,
+      "aug": 3.4,
+      "sep": 3.8,
+      "oct": 4.1,
+      "nov": 4.4,
+      "dec": 4.6
+    }
+  },
+  {
+    "state": "Ikeja",
+    "zone": "South West",
+    "daily_yield_kwh_per_kwp": 4.2,
+    "annual_yield_kwh_per_kwp": 1533.0,
+    "monthly": {
+      "jan": 4.5,
+      "feb": 4.6,
+      "mar": 4.3,
+      "apr": 4,
+      "may": 3.8,
+      "jun": 3.5,
+      "jul": 3.3,
+      "aug": 3.4,
+      "sep": 3.8,
+      "oct": 4.1,
+      "nov": 4.4,
+      "dec": 4.6
+    }
+  },
+  {
+    "state": "Osogbo",
+    "zone": "South West",
+    "daily_yield_kwh_per_kwp": 4.3,
+    "annual_yield_kwh_per_kwp": 1569.5,
+    "monthly": {
+      "jan": 4.6,
+      "feb": 4.7,
+      "mar": 4.4,
+      "apr": 4.1,
+      "may": 3.9,
+      "jun": 3.6,
+      "jul": 3.4,
+      "aug": 3.5,
+      "sep": 3.9,
+      "oct": 4.2,
+      "nov": 4.5,
+      "dec": 4.7
+    }
+  },
+  {
+    "state": "Owerri",
+    "zone": "South East",
+    "daily_yield_kwh_per_kwp": 4.1,
+    "annual_yield_kwh_per_kwp": 1496.5,
+    "monthly": {
+      "jan": 4.3,
+      "feb": 4.5,
+      "mar": 4.2,
+      "apr": 3.9,
+      "may": 3.7,
+      "jun": 3.3,
+      "jul": 3.1,
+      "aug": 3.2,
+      "sep": 3.6,
+      "oct": 4,
+      "nov": 4.2,
+      "dec": 4.5
+    }
+  }
+]

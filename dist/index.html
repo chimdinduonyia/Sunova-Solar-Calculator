@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sunova – Solar Sizing for Nigerian Homes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Noto+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script type="module" crossorigin src="/assets/index-B_nQv17l.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CH79n_a_.css">
+</head>
+<body>
+  <div id="app">
+    <!-- wizard layout -->
+    <div id="wizard-layout" class="wizard-layout">
+      <aside class="left-panel">
+        <div class="left-panel__overlay">
+          <div class="logo">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="14" cy="14" r="13" stroke="white" stroke-width="2"/>
+              <path d="M14 6L11 14H14L10 22L18 13H14L17 6H14Z" fill="#FCBF1E"/>
+            </svg>
+            <span>Sunova</span>
+          </div>
+          <div class="left-panel__hero">
+            <h2>Your energy,<br>sized in minutes.</h2>
+            <p>Answer 6 quick questions and get an accurate solar system recommendation tailored to your Nigerian home.</p>
+          </div>
+        </div>
+      </aside>
+      <main class="right-panel">
+        <div class="mobile-top-bar">
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="14" cy="14" r="13" stroke="#111827" stroke-width="2"/>
+            <path d="M14 6L11 14H14L10 22L18 13H14L17 6H14Z" fill="#FCBF1E"/>
+          </svg>
+          <span>Sunova</span>
+        </div>
+        <div id="wizard-content"></div>
+      </main>
+    </div>
+
+    <!-- results layout -->
+    <div id="results-layout" class="results-layout hidden">
+      <aside class="results-sidebar">
+        <div class="results-sidebar__logo">
+          <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="13" stroke="#111827" stroke-width="2"/>
+            <path d="M14 6L11 14H14L10 22L18 13H14L17 6H14Z" fill="#FCBF1E"/>
+          </svg>
+          <span>Sunova</span>
+        </div>
+        <nav id="results-nav" class="results-sidebar__nav"></nav>
+        <div id="results-actions" class="results-sidebar__actions"></div>
+      </aside>
+      <div id="results-content" class="results-main"></div>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+
+</body>
+</html>

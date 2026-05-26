@@ -46,6 +46,19 @@
 
     <!-- results layout -->
     <div id="results-layout" class="results-layout hidden">
+      <div class="results-mobile-topbar">
+        <button class="hamburger-btn" id="results-hamburger" aria-label="Open navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="results-mobile-topbar__logo">
+          <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="13" stroke="#111827" stroke-width="2"/>
+            <path d="M14 6L11 14H14L10 22L18 13H14L17 6H14Z" fill="#FCBF1E"/>
+          </svg>
+          <span>Sunova</span>
+        </div>
+      </div>
+      <div class="offcanvas-backdrop" id="offcanvas-backdrop"></div>
       <aside class="results-sidebar">
         <div class="results-sidebar__logo">
           <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
@@ -53,6 +66,7 @@
             <path d="M14 6L11 14H14L10 22L18 13H14L17 6H14Z" fill="#FCBF1E"/>
           </svg>
           <span>Sunova</span>
+          <button class="offcanvas-close-btn" id="offcanvas-close-btn" aria-label="Close navigation">✕</button>
         </div>
         <nav id="results-nav" class="results-sidebar__nav"></nav>
         <div id="results-actions" class="results-sidebar__actions"></div>

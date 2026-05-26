@@ -54,6 +54,7 @@ const renderers = {
 };
 
 let _current = 'step1';
+let _mobileNavBound = false;
 
 export function navigate(route) {
   _current = route;
@@ -79,6 +80,7 @@ function render() {
     wizardLayout.classList.add('hidden');
     resultsLayout.classList.remove('hidden');
     renderResultsNav();
+    bindMobileNav();
     const container = document.getElementById('results-content');
     container.innerHTML = '';
     container.classList.remove('page-enter');
@@ -115,6 +117,34 @@ function renderResultsNav() {
   `;
   document.getElementById('adjust-energy-btn')?.addEventListener('click', () => navigate('step1'));
   document.getElementById('adjust-home-btn')?.addEventListener('click', () => navigate('step5'));
+}
+
+function bindMobileNav() {
+  if (_mobileNavBound) return;
+  _mobileNavBound = true;
+
+  const hamburger  = document.getElementById('results-hamburger');
+  const closeBtn   = document.getElementById('offcanvas-close-btn');
+  const backdrop   = document.getElementById('offcanvas-backdrop');
+  const sidebar    = document.querySelector('.results-sidebar');
+
+  function openDrawer() {
+    sidebar.classList.add('is-open');
+    backdrop.classList.add('is-visible');
+  }
+  function closeDrawer() {
+    sidebar.classList.remove('is-open');
+    backdrop.classList.remove('is-visible');
+  }
+
+  hamburger?.addEventListener('click', openDrawer);
+  closeBtn?.addEventListener('click', closeDrawer);
+  backdrop?.addEventListener('click', closeDrawer);
+
+  // Close drawer when a nav item is clicked (delegate to stable sidebar parent)
+  sidebar?.addEventListener('click', e => {
+    if (e.target.closest('[data-route]')) closeDrawer();
+  });
 }
 
 export function init() {

@@ -46,9 +46,8 @@ export function renderStep3(container, navigate) {
             <div style="display:flex;align-items:center;gap:16px">
               <div class="tag tag--amber">${state.tariffBand}</div>
               <div style="font-size:13px;color:var(--color-text-secondary)" id="tariff-desc">
-                ${tariffs.find(t => t.band === state.tariffBand)?.customer_type || ''}
-                , ${tariffs.find(t => t.band === state.tariffBand)?.hours_of_supply || ''} hrs supply/day
-                , ₦${tariffs.find(t => t.band === state.tariffBand)?.tariff_naira_per_kwh || ''}/kWh
+                ${tariffs.find(t => t.band === state.tariffBand)?.hours_of_supply || ''} hrs supply/day
+                &nbsp;·&nbsp; ₦${tariffs.find(t => t.band === state.tariffBand)?.tariff_naira_per_kwh || ''}/kWh
               </div>
             </div>
           </div>

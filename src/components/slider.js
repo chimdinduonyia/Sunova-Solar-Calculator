@@ -2,6 +2,10 @@ export function formatNaira(val) {
   return '₦' + Number(val).toLocaleString('en-NG');
 }
 
+function parseNaira(str) {
+  return parseInt(String(str).replace(/[₦,\s]/g, ''), 10) || 0;
+}
+
 function thumbOffset(pct) {
   return (14 - (pct / 100) * 28).toFixed(1);
 }
@@ -21,7 +25,15 @@ export function renderSlider({ id, value, min, max, step = 1000, ticks, label = 
     <div class="slider-wrapper">
       <div style="text-align:center;margin-bottom:16px">
         <div class="slider-bubble">
-          <span class="slider-bubble__val" id="${id}-val">${formatFn(value)}</span>
+          <input
+            type="text"
+            class="slider-bubble__val"
+            id="${id}-val"
+            value="${formatFn(value)}"
+            inputmode="numeric"
+            autocomplete="off"
+            aria-label="Monthly spend in Naira"
+          />
           <span class="slider-bubble__label">${label}</span>
         </div>
       </div>
@@ -52,15 +64,17 @@ export function bindSlider(id, formatFn = formatNaira, onChange) {
   const tooltip = document.getElementById(`${id}-tooltip`);
   if (!input || !valEl) return;
 
+  const min  = Number(input.min);
+  const max  = Number(input.max);
+  const step = Number(input.step) || 1;
+
   function update() {
     const val = Number(input.value);
-    const min = Number(input.min);
-    const max = Number(input.max);
     const pct = ((val - min) / (max - min)) * 100;
     const offset = thumbOffset(pct);
 
     input.style.background = `linear-gradient(to right, var(--color-primary) ${pct}%, var(--color-border) ${pct}%)`;
-    valEl.textContent = formatFn(val);
+    valEl.value = formatFn(val);
 
     if (tooltip) {
       tooltip.style.left = `calc(${pct}% + ${offset}px)`;
@@ -82,6 +96,25 @@ export function bindSlider(id, formatFn = formatNaira, onChange) {
 
   input.addEventListener('input', update);
   input.addEventListener('change', update);
+
+  // Allow the displayed value to be edited directly
+  valEl.addEventListener('focus', () => {
+    // Show the raw number so the user can type over it easily
+    valEl.value = parseNaira(valEl.value) || '';
+    valEl.select();
+  });
+
+  valEl.addEventListener('blur', () => {
+    const raw = parseNaira(valEl.value);
+    const clamped = Math.max(min, Math.min(max, raw || min));
+    const snapped = Math.round((clamped - min) / step) * step + min;
+    input.value = snapped;
+    update();
+  });
+
+  valEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter') valEl.blur();
+  });
 
   if (tooltip) {
     const show = () => tooltip.classList.add('visible');

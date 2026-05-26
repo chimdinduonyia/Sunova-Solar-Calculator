@@ -117,7 +117,7 @@ export function renderLoadProfile(container, navigate) {
   container.innerHTML = `
     <div style="padding:40px 40px 60px">
       <h1 style="font-size:36px;font-weight:800;margin-bottom:6px">Your Energy Profile</h1>
-      <p style="color:var(--color-text-secondary);margin-bottom:32px">See how you consume energy in your house</p>
+      <p style="color:var(--color-text-secondary);font-size:16px;margin-bottom:32px">See how you consume energy in your house</p>
 
       <div class="load-profile-grid">
         <div>

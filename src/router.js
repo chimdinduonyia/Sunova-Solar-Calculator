@@ -74,6 +74,7 @@ function render() {
     const container = document.getElementById('wizard-content');
     container.innerHTML = '';
     renderers[_current](container, navigate);
+    document.querySelector('.right-panel').scrollTop = 0;
   } else {
     wizardLayout.classList.add('hidden');
     resultsLayout.classList.remove('hidden');

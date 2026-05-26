@@ -5,10 +5,12 @@ export function renderRadioCards({ cards, selected, name }) {
         <div class="radio-card ${selected === card.id ? 'selected' : ''}" data-value="${card.id}">
           <div class="radio-card__radio"></div>
           <div class="radio-card__img-placeholder">${card.emoji || '⚡'}</div>
-          ${card.label ? `<div class="radio-card__label">${card.label}</div>` : ''}
-          <div class="radio-card__name">${card.name}</div>
-          ${card.desc ? `<div class="radio-card__desc">${card.desc}</div>` : ''}
-          ${card.extra || ''}
+          <div class="radio-card__content">
+            ${card.label ? `<div class="radio-card__label">${card.label}</div>` : ''}
+            <div class="radio-card__name">${card.name}</div>
+            ${card.desc ? `<div class="radio-card__desc">${card.desc}</div>` : ''}
+            ${card.extra || ''}
+          </div>
         </div>
       `).join('')}
     </div>

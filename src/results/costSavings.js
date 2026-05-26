@@ -13,8 +13,8 @@ export function renderCostSavings(container, navigate) {
       <div class="card cost-section" style="margin-bottom:0">
         <div class="page-header-row" style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px">
           <div>
-            <h2 style="font-size:28px;font-weight:800;margin-bottom:4px">Cost Savings Breakdown</h2>
-            <p style="color:var(--color-text-secondary);font-size:13px">See how much you save overtime with solar power</p>
+            <h2 style="font-size:32px;font-weight:800;margin-bottom:4px">Cost Savings Breakdown</h2>
+            <p style="color:var(--color-text-secondary);font-size:16px">See how much you save overtime with solar power</p>
           </div>
           <button class="btn btn--outline btn--sm" onclick="window._navigate('solarPVSystem')">
             ⚙️ View Solar PV System

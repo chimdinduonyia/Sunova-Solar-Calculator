@@ -72,8 +72,8 @@ export function renderSolarPVSystem(container, navigate) {
       <div class="card pv-section" style="margin-bottom:0">
         <div class="page-header-row" style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
           <div>
-            <h2 style="font-size:28px;font-weight:800;margin-bottom:4px">Solar PV System</h2>
-            <p style="color:var(--color-text-secondary);font-size:13px">Here is the breakdown of your solar PV system</p>
+            <h2 style="font-size:32px;font-weight:800;margin-bottom:4px">Your personalized solar PV system</h2>
+            <p style="color:var(--color-text-secondary);font-size:16px">Here is the breakdown of your solar PV system</p>
           </div>
           <button class="btn btn--outline btn--sm" onclick="window._navigate('costSavings')">
             ⚙️ View Savings Breakdown

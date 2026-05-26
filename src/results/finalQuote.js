@@ -51,8 +51,8 @@ export function renderFinalQuote(container, navigate) {
 
       <div class="page-header-row" style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px">
         <div>
-          <h2 style="font-size:28px;font-weight:800;margin-bottom:4px">Your Solar Quote</h2>
-          <p style="color:var(--color-text-secondary);font-size:13px">System specifications, financial readiness &amp; product breakdown</p>
+          <h2 style="font-size:32px;font-weight:800;margin-bottom:4px">Your Solar Quote</h2>
+          <p style="color:var(--color-text-secondary);font-size:16px">System specifications, financial readiness &amp; product breakdown</p>
         </div>
         <div style="display:flex;gap:10px;flex-shrink:0">
           <button class="btn btn--outline btn--sm" onclick="window._navigate('costSavings')">← Back to Savings</button>

@@ -479,6 +479,27 @@
   border-top: 1.5px solid var(--color-border-light);
 }
 
+/* ── Appliance prompt modal feature rows ── */
+.appliance-prompt-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--color-border-light);
+  border-radius: var(--radius-md);
+}
+.appliance-prompt-feature__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 2px;
+}
+.appliance-prompt-feature__desc {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
 /* ── Responsive: mobile (≤768px) ── */
 @media (max-width: 768px) {
   /* Results sidebar transforms into a horizontal tab bar */
@@ -490,36 +511,48 @@
     width: 100%;
     min-width: unset;
     height: auto;
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
+    flex-direction: column;
+    overflow: visible;
     border-right: none;
     border-bottom: 1.5px solid var(--color-border);
     flex-shrink: 0;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
   }
-  .results-sidebar::-webkit-scrollbar {
+
+  /* Hide only the logo */
+  .results-sidebar__logo {
     display: none;
   }
 
-  /* Hide logo and actions from tab bar */
-  .results-sidebar__logo,
-  .results-sidebar__actions {
-    display: none;
-  }
-
+  /* Tab row */
   .results-sidebar__nav {
-    flex: 1;
+    flex: unset;
+    width: 100%;
     flex-direction: row;
     padding: 0;
     gap: 0;
     overflow-x: auto;
     overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
   .results-sidebar__nav::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Action buttons row — shown below the tabs */
+  .results-sidebar__actions {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    padding: 8px 12px;
+    border-top: 1px solid var(--color-border-light);
+    flex-shrink: 0;
+  }
+  .results-sidebar__actions .btn {
+    flex: 1;
+    margin-top: 0 !important;
+    font-size: 11px;
+    padding: 7px 8px;
   }
 
   /* Tab items: horizontal with amber active underline */

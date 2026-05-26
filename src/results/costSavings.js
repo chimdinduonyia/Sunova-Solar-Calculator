@@ -124,10 +124,69 @@ export function renderCostSavings(container, navigate) {
         </div>
       ` : ''}
     </div>
+
+    ${!hasAppliances ? `
+      <div class="assumptions-overlay" id="appliance-prompt-overlay" role="dialog" aria-modal="true" aria-labelledby="appliance-prompt-title">
+        <div class="modal-card" style="max-width:460px">
+          <div class="modal-header">
+            <h3 class="modal-title" id="appliance-prompt-title">Make your results more accurate</h3>
+            <button class="modal-close" id="appliance-prompt-close" aria-label="Close">✕</button>
+          </div>
+          <div class="modal-body">
+            <p style="font-size:14px;line-height:1.7;color:var(--color-text-secondary);margin:0 0 20px">
+              Your estimate is based on spending data alone. Tell us which appliances you run and when, and we will calculate a precise load profile and upgrade your confidence score from <strong style="color:var(--color-error)">Low</strong> to <strong style="color:var(--color-success)">High</strong>.
+            </p>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="appliance-prompt-feature">
+                <span style="font-size:26px">📊</span>
+                <div>
+                  <div class="appliance-prompt-feature__title">Hourly load curve</div>
+                  <div class="appliance-prompt-feature__desc">See exactly when your home draws the most power</div>
+                </div>
+              </div>
+              <div class="appliance-prompt-feature">
+                <span style="font-size:26px">📅</span>
+                <div>
+                  <div class="appliance-prompt-feature__title">Seasonal forecast</div>
+                  <div class="appliance-prompt-feature__desc">Understand your peak and low consumption months</div>
+                </div>
+              </div>
+              <div class="appliance-prompt-feature">
+                <span style="font-size:26px">🎯</span>
+                <div>
+                  <div class="appliance-prompt-feature__title">Right-sized solar system</div>
+                  <div class="appliance-prompt-feature__desc">Panel count, battery, and inverter sized to your real usage</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer" style="justify-content:flex-end">
+            <button class="btn btn--primary btn--lg" id="appliance-prompt-cta" style="width:100%">Add My Appliances →</button>
+          </div>
+        </div>
+      </div>
+    ` : ''}
   `;
 
   window._navigate = navigate;
   document.getElementById('view-quote-btn').addEventListener('click', () => navigate('finalQuote'));
+
+  if (!hasAppliances) {
+    const overlay = document.getElementById('appliance-prompt-overlay');
+
+    const openPrompt = () => overlay.classList.add('assumptions-overlay--visible');
+    const closePrompt = () => overlay.classList.remove('assumptions-overlay--visible');
+
+    setTimeout(openPrompt, 420);
+
+    // Only the X button closes the modal — no outside-click, no Escape
+    document.getElementById('appliance-prompt-close').addEventListener('click', closePrompt);
+    document.getElementById('appliance-prompt-cta').addEventListener('click', () => {
+      closePrompt();
+      navigate('step5');
+    });
+  }
+
   drawCashflowCanvas(savings);
   drawComparison(savings);
 }

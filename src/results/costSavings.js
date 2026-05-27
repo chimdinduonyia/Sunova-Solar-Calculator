@@ -178,7 +178,7 @@ export function renderCostSavings(container, navigate) {
     const openPrompt = () => overlay.classList.add('assumptions-overlay--visible');
     const closePrompt = () => overlay.classList.remove('assumptions-overlay--visible');
 
-    setTimeout(openPrompt, 2000);
+    setTimeout(openPrompt, 5000);
 
     // Only the X button closes the modal — no outside-click, no Escape
     document.getElementById('appliance-prompt-close').addEventListener('click', closePrompt);

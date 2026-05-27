@@ -86,7 +86,7 @@ export function renderSolarPVSystem(container, navigate) {
           </div>
           <div style="display:flex;gap:8px;flex-shrink:0">
             <button class="btn btn--outline" onclick="window._navigate('loadProfile')">📊 Load Summary</button>
-            <button class="btn btn--outline" onclick="window._navigate('costSavings')">⚙️ Cost Savings</button>
+            <button class="btn btn--outline" onclick="window._navigate('costSavings')">💰 Cost Savings</button>
           </div>
         </div>
 

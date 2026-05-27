@@ -66,14 +66,12 @@ export function renderStep3(container, navigate) {
       </div>
 
       <div class="step-footer">
-        <button class="btn btn--outline btn--lg" id="skip-btn">Skip</button>
         <button class="btn btn--primary btn--lg" id="continue-btn" ${!state.tariffBand ? 'disabled' : ''}>${primaryBtnLabel}</button>
       </div>
     </div>
   `;
 
   document.getElementById('back-btn').addEventListener('click', () => navigate('step2'));
-  document.getElementById('skip-btn').addEventListener('click', handlePrimary);
   document.getElementById('continue-btn').addEventListener('click', handlePrimary);
 
   document.querySelectorAll('.tariff-pill').forEach(pill => {

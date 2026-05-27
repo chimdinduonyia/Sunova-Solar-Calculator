@@ -111,7 +111,6 @@ export function renderStep4(container, navigate) {
       </div>
 
       <div class="step-footer">
-        <button class="btn btn--outline btn--lg" id="skip-btn">Skip</button>
         <button class="btn btn--primary btn--lg" id="continue-btn" ${!state.generatorSize ? 'disabled' : ''}>Generate Results</button>
       </div>
     </div>
@@ -120,7 +119,6 @@ export function renderStep4(container, navigate) {
   document.getElementById('back-btn').addEventListener('click', () => {
     navigate(getState().powerSource === 'generator_only' ? 'step2' : 'step3');
   });
-  document.getElementById('skip-btn').addEventListener('click', () => { computeResults(); navigate('costSavings'); });
   document.getElementById('continue-btn').addEventListener('click', () => { computeResults(); navigate('costSavings'); });
 
   bindSlider('fuel-spend-slider', formatNaira, val => setState({ fuelSpend: val }));

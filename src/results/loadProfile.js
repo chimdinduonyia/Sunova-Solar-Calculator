@@ -163,7 +163,7 @@ export function renderLoadProfile(container, navigate) {
               <h2>Your Solar PV<br>System is <span>Ready</span></h2>
               <p>Get your personalized energy data with accurate recommendation to boost your energy efficiency and overall usage.</p>
               <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <button class="btn btn--outline" onclick="window._navigate('costSavings')">⚙️ Cost Savings</button>
+                <button class="btn btn--outline" onclick="window._navigate('costSavings')">💰 Cost Savings</button>
                 <button class="btn btn--primary" onclick="window._navigate('solarPVSystem')">View Solar PV System</button>
               </div>
             </div>

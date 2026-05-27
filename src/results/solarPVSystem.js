@@ -37,7 +37,7 @@ export function renderSolarPVSystem(container, navigate) {
   const { powerSource } = getState();
   const gridRelianceLabel = powerSource === 'grid_only'      ? 'Grid Reliance (Grid)'
                           : powerSource === 'generator_only' ? 'Grid Reliance (Gen)'
-                          :                                    '${gridRelianceLabel}';
+                          :                                    'Grid Reliance (Grid + Gen)';
 
   // Tracks which appliances are included in solar sizing.
   // Seeded from state so selections survive page-to-page navigation.

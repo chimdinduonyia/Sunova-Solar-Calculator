@@ -5,7 +5,6 @@ export function calcDispatch({
   dailyYield,
   dod = 0.80,
   batteryEfficiency = 0.95,
-  initialSoC = 0.5,
   energyMix = 'grid_and_generator',
   sunriseHour = 6,
   sunsetHour = 18
@@ -20,11 +19,22 @@ export function calcDispatch({
     total_raw > 0 ? (pvKWp * dailyYield * r) / total_raw : 0
   );
 
-  // Step 2: dispatch simulation with SoC tracking
+  // Step 2: estimate starting SoC at midnight
+  // Assume battery is fully charged at sunset, simulate hours 18–23 with no
+  // solar to find how much charge remains when the main simulation starts at midnight.
   const maxSoC = batteryKWh;
   const minSoC = batteryKWh * (1 - dod);
-  let soc = initialSoC * batteryKWh;
 
+  let eveningSoC = maxSoC;
+  for (let h = sunsetHour; h < 24; h++) {
+    const demand     = hourlyProfile[h] || 0;
+    const avail      = Math.max(0, eveningSoC - minSoC);
+    const discharge  = Math.min(demand, avail * batteryEfficiency);
+    eveningSoC      -= discharge / batteryEfficiency;
+  }
+  let soc = Math.max(minSoC, eveningSoC);
+
+  // Step 3: dispatch simulation with SoC tracking
   const hours = Array.from({ length: 24 }, (_, h) => {
     const demand = hourlyProfile[h] || 0;
     const solar  = solar_available[h];

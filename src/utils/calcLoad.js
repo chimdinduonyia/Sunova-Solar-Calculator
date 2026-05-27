@@ -155,7 +155,7 @@ function resolveGenerator(generatorSize, genEfficiencyData) {
 }
 
 function resolveFuelPrice(fuelTypeStr, locationState, fuelPricesData) {
-  const hardDefaults = { AGO: 1380, PMS: 1050 };
+  const hardDefaults = { AGO: 1800, PMS: 1300 };
   if (!fuelPricesData || fuelPricesData.length === 0) return hardDefaults[fuelTypeStr] || 1100;
 
   const keyword = fuelTypeStr === 'AGO' ? 'AGO' : 'PMS';

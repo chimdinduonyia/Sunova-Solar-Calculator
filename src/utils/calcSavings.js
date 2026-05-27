@@ -32,7 +32,7 @@ function resolveGenerator(generatorSize, genData) {
 }
 
 function resolveFuelPrice(fuelTypeStr, locationState, fuelPricesData) {
-  const hardDefaults = { AGO: 1380, PMS: 1050 };
+  const hardDefaults = { AGO: 1800, PMS: 1300 };
   if (!fuelPricesData?.length) return hardDefaults[fuelTypeStr] || 1100;
   const keyword  = fuelTypeStr === 'AGO' ? 'AGO' : 'PMS';
   const matching = fuelPricesData.filter(f => f.fuel_type.includes(keyword));

@@ -12,7 +12,24 @@ export function computeResults() {
   const fuelPrices    = getData('fuel_prices')          || [];
   const genData       = getData('generator_efficiency') || [];
 
-  const load     = calcLoad(state, applianceData, tariffData, fuelPrices, genData);
+  // Strip stale customSchedule rows for appliances no longer in the full list
+  const currentNames = new Set((state.appliances || []).map(a => a.name));
+
+  // If the user has narrowed solar coverage via the interactive profile, size the
+  // system for only those appliances. null means "cover everything".
+  const solarNames = state.solarAppliances
+    ? new Set(state.solarAppliances)
+    : currentNames;
+
+  const cleanState = {
+    ...state,
+    appliances: (state.appliances || []).filter(a => solarNames.has(a.name)),
+    customSchedule: state.customSchedule
+      ? state.customSchedule.filter(row => solarNames.has(row.name))
+      : null,
+  };
+
+  const load     = calcLoad(cleanState, applianceData, tariffData, fuelPrices, genData);
   const solar    = calcSolar(load, state.location);
   const battery  = calcBattery(load, state.goal, state.backupHours);
   const dispatch = calcDispatch({

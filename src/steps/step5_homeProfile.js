@@ -236,7 +236,15 @@ export function renderStep5(container, navigate) {
     });
 
     document.getElementById('add-appliances-confirm').addEventListener('click', () => {
-      setState({ appliances: Object.values(selections).filter(a => a.qty > 0) });
+      const newAppliances = Object.values(selections).filter(a => a.qty > 0);
+      const newNames = new Set(newAppliances.map(a => a.name));
+      const existingSchedule = getState().customSchedule;
+      setState({
+        appliances: newAppliances,
+        customSchedule: existingSchedule
+          ? existingSchedule.filter(row => newNames.has(row.name))
+          : null,
+      });
       closeModal();
       render();
     });

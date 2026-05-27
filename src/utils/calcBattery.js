@@ -3,6 +3,12 @@ const BATTERY_EFFICIENCY = 0.95;   // round-trip charge/discharge efficiency
 const BACKUP_WIN_START   = 18;     // backup window start hour (6 pm)
 const BACKUP_WIN_END     = 23;     // backup window end hour  (11 pm, inclusive)
 
+// Night hours solar cannot contribute: 6 pm–midnight + midnight–6 am
+const NIGHT_HOURS = [18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5];
+
+// Off-grid autonomy multiplier: 1.5 = covers one full overcast day on top of a normal night
+const OFFGRID_AUTONOMY_DAYS = 1.5;
+
 // Standard LiFePO4 battery sizes available on the Nigerian market (kWh gross)
 const BATTERY_SIZES_KWH = [5, 10, 15, 20, 25, 30, 40, 50, 60, 80, 100];
 
@@ -30,12 +36,20 @@ export function calcBattery(load, goal, backupHoursOverride) {
   if (avgBackupLoad_kW === 0) avgBackupLoad_kW = peakDemandKW * 0.6;
 
   // Energy sizing:
-  // - offgrid: battery must carry the entire daily load through the night and
-  //            low-irradiance periods → size for full daily kWh consumption.
+  // - offgrid: battery covers the nighttime load (6 pm – 6 am) only — solar handles
+  //            daytime demand directly. An autonomy factor of 1.5 adds headroom for
+  //            one overcast day where panels underperform.
+  //            Fallback when no hourly profile: 50% of daily load (rough night share).
   // - backup / reduce_bill: battery only covers the evening backup window.
-  const energyNeeded_kWh = goal === 'offgrid'
-    ? dailyKWh
-    : avgBackupLoad_kW * backupHours;
+  let energyNeeded_kWh;
+  if (goal === 'offgrid') {
+    const nightlyKWh = hourlyProfile.length === 24
+      ? NIGHT_HOURS.reduce((s, h) => s + (hourlyProfile[h] || 0), 0)
+      : dailyKWh * 0.5;
+    energyNeeded_kWh = nightlyKWh * OFFGRID_AUTONOMY_DAYS;
+  } else {
+    energyNeeded_kWh = avgBackupLoad_kW * backupHours;
+  }
 
   const batteryKWh_net    = energyNeeded_kWh / DOD;
   const batteryKWh_gross  = batteryKWh_net   / BATTERY_EFFICIENCY;

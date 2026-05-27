@@ -479,6 +479,62 @@
   border-top: 1.5px solid var(--color-border-light);
 }
 
+/* ── Confidence score tooltip ── */
+.confidence-tooltip-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.confidence-tooltip-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-text-muted);
+  background: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.confidence-tooltip-btn:hover {
+  border-color: var(--color-text-secondary);
+  color: var(--color-text-secondary);
+}
+.confidence-tooltip-box {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  background: var(--color-text);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.6;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  z-index: 100;
+  pointer-events: none;
+}
+.confidence-tooltip-box::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--color-text);
+}
+.confidence-tooltip-wrap:hover .confidence-tooltip-box,
+.confidence-tooltip-wrap.is-open .confidence-tooltip-box {
+  display: block;
+}
+
 /* ── Appliance prompt modal feature rows ── */
 .appliance-prompt-feature {
   display: flex;

@@ -8,6 +8,7 @@ const _state = {
   houseType: null,
   rooms: 0,
   appliances: [],
+  solarAppliances: null,
   customSchedule: null,
   goal: null,
   backupHours: 4,

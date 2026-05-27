@@ -8,6 +8,7 @@ import { renderLoadProfile } from './results/loadProfile.js';
 import { renderSolarPVSystem } from './results/solarPVSystem.js';
 import { renderCostSavings } from './results/costSavings.js';
 import { renderFinalQuote } from './results/finalQuote.js';
+import { computeResults } from './utils/computeResults.js';
 
 const WIZARD_ROUTES  = ['step1', 'step2', 'step3', 'step4', 'step5', 'step6'];
 const RESULTS_ROUTES = ['costSavings', 'loadProfile', 'solarPVSystem', 'finalQuote'];
@@ -79,6 +80,7 @@ function render() {
   } else {
     wizardLayout.classList.add('hidden');
     resultsLayout.classList.remove('hidden');
+    computeResults();
     renderResultsNav();
     bindMobileNav();
     const container = document.getElementById('results-content');

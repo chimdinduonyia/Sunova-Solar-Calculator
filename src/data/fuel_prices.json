@@ -1,64 +1,64 @@
 [
   {
     "fuel_type": "AGO (Diesel)",
-    "price_per_litre_naira": 1350,
-    "last_updated": "Update me",
+    "price_per_litre_naira": 1800,
+    "last_updated": "2026-05-27",
     "source": "NNPCL / IPMAN",
     "state": "Lagos",
-    "notes": "Depot price; retail ~\u20a61,400+"
+    "notes": ""
   },
   {
     "fuel_type": "AGO (Diesel)",
-    "price_per_litre_naira": 1370,
-    "last_updated": "Update me",
+    "price_per_litre_naira": 1800,
+    "last_updated": "2026-05-27",
     "source": "NNPCL / IPMAN",
     "state": "Abuja",
     "notes": ""
   },
   {
     "fuel_type": "AGO (Diesel)",
-    "price_per_litre_naira": 1400,
-    "last_updated": "Update me",
+    "price_per_litre_naira": 1800,
+    "last_updated": "2026-05-27",
     "source": "NNPCL / IPMAN",
     "state": "Kano",
     "notes": ""
   },
   {
     "fuel_type": "AGO (Diesel)",
-    "price_per_litre_naira": 1420,
-    "last_updated": "Update me",
+    "price_per_litre_naira": 1800,
+    "last_updated": "2026-05-27",
     "source": "NNPCL / IPMAN",
     "state": "Port Harcourt",
-    "notes": "Higher transport cost"
+    "notes": ""
   },
   {
     "fuel_type": "PMS (Petrol)",
-    "price_per_litre_naira": 1030,
-    "last_updated": "Update me",
+    "price_per_litre_naira": 1300,
+    "last_updated": "2026-05-27",
     "source": "NNPCL",
     "state": "Lagos",
-    "notes": "Pump price"
+    "notes": ""
   },
   {
     "fuel_type": "PMS (Petrol)",
-    "price_per_litre_naira": 1050,
-    "last_updated": "Update me",
+    "price_per_litre_naira": 1300,
+    "last_updated": "2026-05-27",
     "source": "NNPCL",
     "state": "Abuja",
     "notes": ""
   },
   {
     "fuel_type": "PMS (Petrol)",
-    "price_per_litre_naira": 1080,
-    "last_updated": "Update me",
+    "price_per_litre_naira": 1300,
+    "last_updated": "2026-05-27",
     "source": "NNPCL",
     "state": "Kano",
     "notes": ""
   },
   {
     "fuel_type": "PMS (Petrol)",
-    "price_per_litre_naira": 1100,
-    "last_updated": "Update me",
+    "price_per_litre_naira": 1300,
+    "last_updated": "2026-05-27",
     "source": "NNPCL",
     "state": "Port Harcourt",
     "notes": ""

@@ -1,7 +1,10 @@
-const PANEL_WATT      = 400;    // W per panel
-const PERF_RATIO      = 0.75;   // system performance ratio (PR)
-const POWER_FACTOR    = 0.80;   // inverter power factor
-const INST_M2_PER_KWP = 6.5;   // installation area per kWp
+const PANEL_WATT        = 400;    // W per panel
+const PERF_RATIO        = 0.75;   // system performance ratio (PR)
+const POWER_FACTOR      = 0.80;   // inverter power factor
+const INST_M2_PER_KWP   = 6.5;   // installation area per kWp
+const BATTERY_RT_EFF    = 0.9025; // round-trip battery efficiency (0.95 charge × 0.95 discharge)
+const SOLAR_START_HOUR  = 6;
+const SOLAR_END_HOUR    = 18;
 
 const INVERTER_SIZES_KVA = [3, 5, 7.5, 10, 12.5, 15, 20, 25, 30];
 
@@ -14,12 +17,34 @@ export function calcSolar(load, location) {
   const peakDemandKW = load.peakKW;
   const psh          = location?.daily_yield_kwh_per_kwp  || 4.5;
   const annualYield  = location?.annual_yield_kwh_per_kwp || 1642;
+  const hourlyProfile = load.hourlyProfile || [];
+
+  // Split load into daytime (solar covers directly) and nighttime (must flow
+  // through the battery, incurring round-trip efficiency losses on the way in and out).
+  let daytimeKWh = 0, nighttimeKWh = 0;
+  if (hourlyProfile.length === 24) {
+    for (let h = 0; h < 24; h++) {
+      if (h >= SOLAR_START_HOUR && h < SOLAR_END_HOUR) daytimeKWh += hourlyProfile[h];
+      else nighttimeKWh += hourlyProfile[h];
+    }
+  } else {
+    daytimeKWh  = dailyKWh * 0.5;
+    nighttimeKWh = dailyKWh * 0.5;
+  }
+
+  // Effective energy the panels must produce:
+  //   daytime load is served directly (no battery loss)
+  //   nighttime load must be pre-charged into the battery, so divide by round-trip
+  //   efficiency to find how much the panels must generate for that portion.
+  //
+  //   effectiveDailyKWh = daytimeKWh + nighttimeKWh / 0.9025
+  const effectiveDailyKWh = daytimeKWh + nighttimeKWh / BATTERY_RT_EFF;
 
   // Method 1 — peak sun hours
-  const pvKWp_method1 = dailyKWh / (psh * PERF_RATIO);
+  const pvKWp_method1 = effectiveDailyKWh / (psh * PERF_RATIO);
 
   // Method 2 — annual yield
-  const pvKWp_method2 = (dailyKWh * 365) / annualYield;
+  const pvKWp_method2 = (effectiveDailyKWh * 365) / annualYield;
 
   // Use the larger of the two
   const pvKWp_required = Math.max(pvKWp_method1, pvKWp_method2);

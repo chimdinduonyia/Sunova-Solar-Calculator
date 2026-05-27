@@ -1,8 +1,9 @@
-import { getState, getData } from '../state.js';
+import { getState, setState, getData } from '../state.js';
 import { calcLoad } from '../utils/calcLoad.js';
 import { calcSolar } from '../utils/calcSolar.js';
 import { calcBattery } from '../utils/calcBattery.js';
 import { calcDispatch } from '../utils/calcDispatch.js';
+import { computeResults } from '../utils/computeResults.js';
 
 const escAttr = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 
@@ -33,9 +34,17 @@ export function renderSolarPVSystem(container, navigate) {
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const hasRealAppliances = appliances && appliances.length > 0;
 
-  // Tracks which appliances are currently active in the interactive profile.
-  // Lives in this closure — resets to all-checked on every fresh navigation.
-  const activeNames = new Set(appliances.map(a => a.name));
+  const { powerSource } = getState();
+  const gridRelianceLabel = powerSource === 'grid_only'      ? 'Grid Reliance (Grid)'
+                          : powerSource === 'generator_only' ? 'Grid Reliance (Gen)'
+                          :                                    '${gridRelianceLabel}';
+
+  // Tracks which appliances are included in solar sizing.
+  // Seeded from state so selections survive page-to-page navigation.
+  const { solarAppliances } = getState();
+  const activeNames = solarAppliances
+    ? new Set(solarAppliances)
+    : new Set(appliances.map(a => a.name));
 
   function computeLive() {
     const state = getState();
@@ -119,7 +128,15 @@ export function renderSolarPVSystem(container, navigate) {
           </div>
 
           <div class="card">
-            <div class="section-title" style="margin-bottom:8px">Confidence Score</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <div class="section-title" style="margin-bottom:0">Confidence Score</div>
+              <div class="confidence-tooltip-wrap">
+                <button class="confidence-tooltip-btn" aria-label="What is the confidence score?">?</button>
+                <div class="confidence-tooltip-box" role="tooltip">
+                  Measures how closely your appliance list accounts for your actual energy spend. A <strong>High</strong> score means your listed appliances explain nearly all of your monthly bills, giving you an accurate solar size. A <strong>Low</strong> score means a large portion of your consumption is unaccounted for, so the sizing is based on estimates. Add more appliances and set their schedules to raise your score.
+                </div>
+              </div>
+            </div>
             <div class="gauge-legend" style="margin-bottom:8px">
               <span><span class="gauge-dot" style="background:#10B981"></span>High</span>
               <span><span class="gauge-dot" style="background:#F59E0B"></span>Medium</span>
@@ -141,8 +158,8 @@ export function renderSolarPVSystem(container, navigate) {
           <div class="card" style="overflow:hidden">
             <div class="section-title" style="margin-bottom:6px">Interactive Profile</div>
             ${hasRealAppliances ? `
-              <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px">Toggle appliances to see how your system responds</div>
-              <div class="interactive-profile" style="padding:0;max-height:210px;overflow-y:auto">
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Check the appliances you want solar to cover &nbsp;<span id="solar-selection-indicator" style="color:var(--color-text-muted);font-weight:400">(${activeNames.size}/${appliances.length} selected)</span></div>
+              <div class="interactive-profile" style="padding:0;max-height:176px;overflow-y:auto">
                 ${appliances.map(a => `
                   <div class="profile-appliance-row" data-name="${escAttr(a.name)}" style="cursor:pointer;user-select:none">
                     <div class="checkbox ${activeNames.has(a.name) ? 'checked' : ''}"></div>
@@ -198,7 +215,7 @@ export function renderSolarPVSystem(container, navigate) {
           <div class="card">
             <div class="section-title" style="margin-bottom:8px">Hourly Energy Dispatch Simulation</div>
             <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--color-text-secondary)">
-              <div id="dispatch-stat-reliance">Grid reliance <strong>${Math.round(dispatch.gridReliance_before*100)}% → ${Math.round(dispatch.gridReliance_after*100)}%</strong></div>
+              <div id="dispatch-stat-reliance">${gridRelianceLabel} <strong>${Math.round(dispatch.gridReliance_before*100)}% → ${Math.round(dispatch.gridReliance_after*100)}%</strong></div>
               <div id="dispatch-stat-grid">Avg daily grid use <strong>${dispatch.totalDemand.toFixed(1)} → ${dispatch.avgDailyGridKWh} kWh</strong></div>
               <div id="dispatch-stat-surplus">Avg daily surplus <strong>${dispatch.dailySurplusKWh} kWh</strong></div>
             </div>
@@ -230,6 +247,14 @@ export function renderSolarPVSystem(container, navigate) {
 
   window._navigate = navigate;
   document.getElementById('pv-view-quote-btn').addEventListener('click', () => navigate('finalQuote'));
+
+  // Confidence tooltip — click toggles on mobile, hover handles desktop via CSS
+  const tooltipWrap = document.querySelector('.confidence-tooltip-wrap');
+  tooltipWrap?.querySelector('.confidence-tooltip-btn')?.addEventListener('click', e => {
+    e.stopPropagation();
+    tooltipWrap.classList.toggle('is-open');
+  });
+  document.addEventListener('click', () => tooltipWrap?.classList.remove('is-open'));
   drawGenChart(solar, months);
   drawGaugeChart(load.confidenceScore);
   requestAnimationFrame(() => drawDispatchCanvas('dispatch-canvas', dispatch));
@@ -246,6 +271,17 @@ export function renderSolarPVSystem(container, navigate) {
           activeNames.add(name);
           cb.classList.add('checked');
         }
+
+        // Persist selection to state — null when everything is selected (default)
+        const allSelected = activeNames.size === appliances.length;
+        setState({ solarAppliances: allSelected ? null : [...activeNames] });
+
+        // Update indicator count
+        const indicator = document.getElementById('solar-selection-indicator');
+        if (indicator) {
+          indicator.textContent = `(${activeNames.size}/${appliances.length} selected)`;
+        }
+
         updateLive();
       });
     });
@@ -272,13 +308,17 @@ export function renderSolarPVSystem(container, navigate) {
     $('spec-backup-app').textContent   = `${b.backup_hours_appliances}hrs`;
     $('spec-backup-home').textContent  = `${b.backup_hours_whole_home}hrs`;
 
-    $('dispatch-stat-reliance').innerHTML = `Grid reliance <strong>${Math.round(d.gridReliance_before*100)}% → ${Math.round(d.gridReliance_after*100)}%</strong>`;
+    $('dispatch-stat-reliance').innerHTML = `${gridRelianceLabel} <strong>${Math.round(d.gridReliance_before*100)}% → ${Math.round(d.gridReliance_after*100)}%</strong>`;
     $('dispatch-stat-grid').innerHTML     = `Avg daily grid use <strong>${d.totalDemand.toFixed(1)} → ${d.avgDailyGridKWh} kWh</strong>`;
     $('dispatch-stat-surplus').innerHTML  = `Avg daily surplus <strong>${d.dailySurplusKWh} kWh</strong>`;
 
     drawGenChart(s, months);
     drawGaugeChart(l.confidenceScore);
     drawDispatchCanvas('dispatch-canvas', d);
+
+    // Keep state.results in sync so Final Quote and Cost Savings reflect
+    // the current appliance selection without requiring a page navigation.
+    computeResults();
   }
 }
 
@@ -468,7 +508,7 @@ function drawDispatchCanvas(canvasId, dispatch) {
         <div><span style="color:${COLORS.battery}">■</span> Battery: ${d.battery_to_load.toFixed(2)} kW</div>
         <div><span style="color:${COLORS.grid}">■</span> ${dispatch.gridLabel}: ${d.grid_to_load.toFixed(2)} kW</div>
         <div><span style="color:${COLORS.charge}">■</span> Charging: ${d.solar_to_charge.toFixed(2)} kW</div>
-        <div style="margin-top:5px;padding-top:5px;border-top:1px solid #374151;color:#A8B4C4;font-size:10px">SoC: ${d.soc_pct.toFixed(1)}%</div>
+        <div style="margin-top:5px;padding-top:5px;border-top:1px solid #374151;color:#A8B4C4;font-size:10px">Battery Level (SoC): ${d.soc_pct.toFixed(1)}%</div>
       `;
     }
   });

@@ -231,12 +231,13 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
   }
 
   // ── Labels for chart axes ─────────────────────────────────────────────
-  const current_label = energyMix === 'grid_only'       ? 'Grid'
+  const current_label = energyMix === 'grid_only'      ? 'Grid'
     : energyMix === 'generator_only' ? 'Generator'
-    : 'Grid + Gen';
-  const solar_label = solarGoal === 'offgrid'   ? 'Solar'
-    : gen_fraction > 0.01 ? 'Solar + Grid + Gen'
-    : 'Solar + Grid';
+    :                                  'Grid + Gen';
+  const solar_label = solarGoal === 'offgrid'       ? 'Solar'
+    : energyMix === 'grid_only'      ? 'Solar + Grid'
+    : energyMix === 'generator_only' ? 'Solar + Generator'
+    :                                  'Solar + Grid + Gen';
 
   return {
     // System cost

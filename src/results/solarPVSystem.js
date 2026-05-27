@@ -213,11 +213,22 @@ export function renderSolarPVSystem(container, navigate) {
             </div>
           </div>
         </div>
+
+        <div class="cta-row" style="display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding:28px 32px;background:var(--color-white);border-radius:var(--radius-lg)">
+          <div>
+            <div style="font-size:var(--font-size-lg);font-weight:800;margin-bottom:4px">Ready to get your solar system?</div>
+            <div style="font-size:var(--font-size-sm);color:var(--color-text-secondary)">See a detailed breakdown with product specifications, pricing, and installer options.</div>
+          </div>
+          <button class="btn btn--primary btn--lg" id="pv-view-quote-btn" style="flex-shrink:0;margin-left:24px">
+            See Your Quote →
+          </button>
+        </div>
       </div>
     </div>
   `;
 
   window._navigate = navigate;
+  document.getElementById('pv-view-quote-btn').addEventListener('click', () => navigate('finalQuote'));
   drawGenChart(solar, months);
   drawGaugeChart(load.confidenceScore);
   requestAnimationFrame(() => drawDispatchCanvas('dispatch-canvas', dispatch));

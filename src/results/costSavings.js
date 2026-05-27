@@ -16,9 +16,10 @@ export function renderCostSavings(container, navigate) {
             <h2 style="font-size:32px;font-weight:800;margin-bottom:4px">Cost Savings Breakdown</h2>
             <p style="color:var(--color-text-secondary);font-size:16px">See how much you save overtime with solar power</p>
           </div>
-          <button class="btn btn--outline btn--sm" onclick="window._navigate('solarPVSystem')">
-            ⚙️ View Solar PV System
-          </button>
+          <div style="display:flex;gap:8px;flex-shrink:0">
+            <button class="btn btn--outline" onclick="window._navigate('loadProfile')">📊 Load Summary</button>
+            <button class="btn btn--outline" onclick="window._navigate('solarPVSystem')">⚙️ Solar PV System</button>
+          </div>
         </div>
 
         <div class="savings-kpi-grid">
@@ -80,7 +81,7 @@ export function renderCostSavings(container, navigate) {
 
         <div class="savings-bottom-grid">
           <div class="card">
-            <div class="section-title" style="margin-bottom:16px">25-Year Cash Flow</div>
+            <div class="section-title" style="margin-bottom:16px">25-Year Cumulative Savings</div>
             <div style="position:relative">
               <canvas id="cashflow-chart" style="width:100%;height:280px;display:block"></canvas>
               <div id="cashflow-tooltip" style="display:none;position:absolute;background:rgba(17,24,39,0.88);color:#fff;font-size:11px;padding:5px 9px;border-radius:6px;pointer-events:none;white-space:nowrap;font-family:Outfit,sans-serif"></div>

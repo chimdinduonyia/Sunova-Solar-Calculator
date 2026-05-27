@@ -75,9 +75,10 @@ export function renderSolarPVSystem(container, navigate) {
             <h2 style="font-size:32px;font-weight:800;margin-bottom:4px">Your personalized solar PV system</h2>
             <p style="color:var(--color-text-secondary);font-size:16px">Here is the breakdown of your solar PV system</p>
           </div>
-          <button class="btn btn--outline btn--sm" onclick="window._navigate('costSavings')">
-            ⚙️ View Savings Breakdown
-          </button>
+          <div style="display:flex;gap:8px;flex-shrink:0">
+            <button class="btn btn--outline" onclick="window._navigate('loadProfile')">📊 Load Summary</button>
+            <button class="btn btn--outline" onclick="window._navigate('costSavings')">⚙️ Cost Savings</button>
+          </div>
         </div>
 
         <div class="section-title" style="margin-bottom:12px">System Specs</div>

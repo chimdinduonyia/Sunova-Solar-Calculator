@@ -28,14 +28,14 @@ export function renderCostSavings(container, navigate) {
               <div class="savings-kpi__label">Current Blended Cost</div>
               <div class="savings-kpi__value">${N(savings.current_blended_cost)}/kWh <span class="savings-kpi__arrow-up">↑</span></div>
             </div>
-            <div class="savings-kpi__icon">🏠</div>
+            <div class="savings-kpi__icon"><img src="/icons/current_blended_cost.png" width="64" height="64" style="object-fit:contain"></div>
           </div>
           <div class="savings-kpi">
             <div>
               <div class="savings-kpi__label">${savings.solar_label || 'Solar'} Blended Cost</div>
               <div class="savings-kpi__value">${N(savings.post_solar_blended_cost)}/kWh <span class="savings-kpi__arrow-down">↓</span></div>
             </div>
-            <div class="savings-kpi__icon">☀️</div>
+            <div class="savings-kpi__icon"><img src="/icons/solar_blended_cost.png" width="64" height="64" style="object-fit:contain"></div>
           </div>
           <div class="savings-kpi">
             <div>
@@ -43,21 +43,21 @@ export function renderCostSavings(container, navigate) {
               <div class="savings-kpi__value">${N(savings.fuel_naira_saved_annual)}</div>
               <div class="savings-kpi__sub"><span class="pill--amber">${(savings.litres_saved_per_year || 0).toLocaleString()} Lt Saved/Year</span></div>
             </div>
-            <div class="savings-kpi__icon">⛽</div>
+            <div class="savings-kpi__icon"><img src="/icons/fuel_savings.png" width="64" height="64" style="object-fit:contain"></div>
           </div>
           <div class="savings-kpi">
             <div>
               <div class="savings-kpi__label">ROI</div>
               <div class="savings-kpi__value">${savings.ROI}%</div>
             </div>
-            <div class="savings-kpi__icon">📈</div>
+            <div class="savings-kpi__icon"><img src="/icons/return_on_investment.png" width="64" height="64" style="object-fit:contain"></div>
           </div>
           <div class="savings-kpi">
             <div>
               <div class="savings-kpi__label">Payback Period</div>
               <div class="savings-kpi__value">${savings.simple_payback_years} Years</div>
             </div>
-            <div class="savings-kpi__icon">⏱️</div>
+            <div class="savings-kpi__icon"><img src="/icons/payback_period.png" width="64" height="64" style="object-fit:contain"></div>
           </div>
           <div class="savings-kpi">
             <div>
@@ -65,7 +65,7 @@ export function renderCostSavings(container, navigate) {
               <div class="savings-kpi__value">${N(savings.lifetime_savings)}</div>
               <div class="savings-kpi__sub"><span class="pill--amber">Over 25 Years</span></div>
             </div>
-            <div class="savings-kpi__icon">💰</div>
+            <div class="savings-kpi__icon"><img src="/icons/lifetime_savings.png" width="64" height="64" style="object-fit:contain"></div>
           </div>
         </div>
 
@@ -75,7 +75,7 @@ export function renderCostSavings(container, navigate) {
               <div class="savings-kpi__label">Carbon Emission Avoided</div>
               <div class="savings-kpi__value">${savings.co2_avoided_tonnes} tCO₂/Year</div>
             </div>
-            <div class="savings-kpi__icon">🌱</div>
+            <div class="savings-kpi__icon"><img src="/icons/emissions_avoided.png" width="64" height="64" style="object-fit:contain"></div>
           </div>
         </div>
 

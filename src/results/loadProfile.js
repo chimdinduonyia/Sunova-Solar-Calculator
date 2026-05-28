@@ -135,9 +135,9 @@ export function renderLoadProfile(container, navigate) {
             </div>
           </div>
 
-          <div class="card" style="margin-bottom:20px;background:#FAFAFA;border:none">
+          <div class="card" style="margin-bottom:20px;background:#FAFAFA;border:none;position:relative;overflow:hidden">
             <div class="section-title" style="margin-bottom:12px">Solar Irradiance</div>
-            <div class="solar-irradiance-card">
+            <div class="solar-irradiance-card" style="position:relative;z-index:1">
               <div class="irradiance-stats">
                 <div class="irradiance-stat-card">
                   <div class="label">Peak Sun Hours</div>
@@ -150,8 +150,9 @@ export function renderLoadProfile(container, navigate) {
                   <div class="label" style="font-size:10px;margin-top:2px">kWh / kWp</div>
                 </div>
               </div>
-              <div class="irradiance-sun">☀️</div>
             </div>
+            <img src="/icons/solar_irradiance_stats.png"
+              style="position:absolute;right:-12px;bottom:-18px;width:188px;height:188px;object-fit:contain;opacity:0.88;pointer-events:none;z-index:0">
           </div>
 
           ${consumptionCard}

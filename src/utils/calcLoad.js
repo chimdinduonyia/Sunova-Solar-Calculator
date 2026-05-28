@@ -71,7 +71,14 @@ export function calcLoad(state, applianceData, tariffData, fuelPricesData, genEf
   // authoritative daily total shown on the summary card. Preserve the
   // spending-based figure only for confidence scoring below.
   const topDownDailyKWh = totalDailyKWh;
-  if (ganttTotalKWh > 0) totalDailyKWh = ganttTotalKWh;
+  if (ganttTotalKWh > 0) {
+    if (topDownDailyKWh > 0) {
+      const scale = ganttTotalKWh / topDownDailyKWh;
+      dailyGridKWh = parseFloat((dailyGridKWh * scale).toFixed(2));
+      dailyGenKWh  = parseFloat((dailyGenKWh  * scale).toFixed(2));
+    }
+    totalDailyKWh = ganttTotalKWh;
+  }
 
   // ── STEP 3: HOURLY PROFILE FOR CHART ─────────────────────────────
   // Use raw Gantt sums so each bar shows the actual combined load of

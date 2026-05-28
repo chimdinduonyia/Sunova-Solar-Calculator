@@ -5,9 +5,9 @@ import { renderRadioCards, bindRadioCards } from '../components/radioCard.js';
 import { computeResults } from '../utils/computeResults.js';
 
 const GOALS = [
-  { id: 'reduce_bill', emoji: '📄', name: 'Reduce Bill', desc: 'Reduce my monthly bill effectively' },
-  { id: 'backup', emoji: '⚡', name: 'Backup Power', desc: 'Have some backup power' },
-  { id: 'offgrid', emoji: '🏡', name: 'Off-Grid', desc: 'Go completely off-grid' }
+  { id: 'reduce_bill', emoji: `<img src="/icons/reduce_my_bill.png" width="72" height="72" style="object-fit:contain">`,  name: 'Reduce Bill',   desc: 'Reduce my monthly bill effectively' },
+  { id: 'backup',      emoji: `<img src="/icons/backup_power.png" width="72" height="72" style="object-fit:contain">`,    name: 'Backup Power',  desc: 'Have some backup power' },
+  { id: 'offgrid',     emoji: `<img src="/icons/off_grid.png" width="72" height="72" style="object-fit:contain">`,        name: 'Off-Grid',      desc: 'Go completely off-grid' }
 ];
 
 export function renderStep6(container, navigate) {

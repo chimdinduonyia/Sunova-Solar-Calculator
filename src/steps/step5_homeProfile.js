@@ -7,9 +7,9 @@ import { computeResults } from '../utils/computeResults.js';
 const escAttr = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 
 const HOUSE_TYPES = [
-  { id: 'bungalow', emoji: '🏠', name: 'Bungalow' },
-  { id: 'duplex', emoji: '🏡', name: 'Duplex' },
-  { id: 'terrace', emoji: '🏘️', name: 'Terrace House' }
+  { id: 'bungalow', emoji: `<img src="/icons/bungalow.png" width="72" height="72" style="object-fit:contain">`, name: 'Bungalow' },
+  { id: 'duplex',   emoji: `<img src="/icons/duplex_home_type.png" width="72" height="72" style="object-fit:contain">`,   name: 'Duplex' },
+  { id: 'terrace',  emoji: `<img src="/icons/terrace_house_type.png" width="72" height="72" style="object-fit:contain">`, name: 'Terrace House' }
 ];
 
 function renderHouseCards(selectedType, rooms) {

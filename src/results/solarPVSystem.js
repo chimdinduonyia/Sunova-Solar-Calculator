@@ -93,6 +93,8 @@ export function renderSolarPVSystem(container, navigate) {
 
   const { load, solar, battery, dispatch } = computeLive();
 
+  const tip = text => `<span class="confidence-tooltip-wrap" style="display:inline-flex;vertical-align:middle;margin-left:4px"><button class="confidence-tooltip-btn" type="button">?</button><span class="confidence-tooltip-box">${text}</span></span>`;
+
   container.innerHTML = `
     <div style="padding:40px 40px 60px">
       <div class="card pv-section" style="margin-bottom:0">
@@ -110,25 +112,25 @@ export function renderSolarPVSystem(container, navigate) {
         <div class="section-title" style="margin-bottom:12px">System Specs</div>
         <div class="system-specs" style="margin-bottom:32px">
           <div class="spec-card">
-            <div class="spec-card__label">Solar PV</div>
+            <div class="spec-card__label">Solar PV ${tip('The total power output of your panels under ideal sunlight. A larger system generates more electricity and covers more of your daily load.')}</div>
             <div class="spec-card__value" id="spec-solar-kwp">${solar.panel_kwp} kWp</div>
             <div class="spec-card__sub" id="spec-solar-count">Capacity · ${solar.panel_count} panels</div>
             <div style="font-size:36px;margin-top:8px">🔆</div>
           </div>
           <div class="spec-card">
-            <div class="spec-card__label">Inverter</div>
+            <div class="spec-card__label">Inverter ${tip('Converts solar DC power to AC electricity for your home. Sized to handle your peak demand without cutting out.')}</div>
             <div class="spec-card__value" id="spec-inverter-kva">${solar.inverter_kva} kVA</div>
             <div class="spec-card__sub">Rating</div>
             <div style="font-size:36px;margin-top:8px">⚡</div>
           </div>
           <div class="spec-card">
-            <div class="spec-card__label">Battery</div>
+            <div class="spec-card__label">Battery ${tip('Total energy storage capacity. This determines how long your home can run on stored solar power when there is no sunlight.')}</div>
             <div class="spec-card__value" id="spec-battery-kwh">${battery.battery_kwh} kWh</div>
             <div class="spec-card__sub" id="spec-battery-units">Storage · ${battery.battery_units_48v} units</div>
             <div style="font-size:36px;margin-top:8px">🔋</div>
           </div>
           <div class="spec-card">
-            <div class="spec-card__label">Installation Space</div>
+            <div class="spec-card__label">Installation Space ${tip('The approximate roof area needed to mount all your solar panels.')}</div>
             <div class="spec-card__value" id="spec-area-m2">${solar.installation_m2} m²</div>
             <div class="spec-card__sub">Required</div>
             <div style="font-size:36px;margin-top:8px">📐</div>
@@ -260,13 +262,18 @@ export function renderSolarPVSystem(container, navigate) {
   window._navigate = navigate;
   document.getElementById('pv-view-quote-btn').addEventListener('click', () => navigate('finalQuote'));
 
-  // Confidence tooltip — click toggles on mobile, hover handles desktop via CSS
-  const tooltipWrap = document.querySelector('.confidence-tooltip-wrap');
-  tooltipWrap?.querySelector('.confidence-tooltip-btn')?.addEventListener('click', e => {
-    e.stopPropagation();
-    tooltipWrap.classList.toggle('is-open');
+  // Tooltip click-to-open for mobile (hover handles desktop via CSS)
+  document.querySelectorAll('.confidence-tooltip-wrap').forEach(wrap => {
+    wrap.querySelector('.confidence-tooltip-btn')?.addEventListener('click', e => {
+      e.stopPropagation();
+      const isOpen = wrap.classList.contains('is-open');
+      document.querySelectorAll('.confidence-tooltip-wrap.is-open').forEach(w => w.classList.remove('is-open'));
+      if (!isOpen) wrap.classList.add('is-open');
+    });
   });
-  document.addEventListener('click', () => tooltipWrap?.classList.remove('is-open'));
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.confidence-tooltip-wrap.is-open').forEach(w => w.classList.remove('is-open'));
+  });
   drawGenChart(solar, months);
   drawGaugeChart(load.confidenceScore);
   document.getElementById('spec-confidence-prompt').innerHTML = confidencePromptInner(load.confidenceReason, load.confidenceLabel);

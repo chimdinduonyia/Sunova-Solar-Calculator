@@ -8,6 +8,8 @@ export function renderCostSavings(container, navigate) {
   const { savings } = state.results;
   const hasAppliances = state.appliances && state.appliances.length > 0;
 
+  const tip = text => `<span class="confidence-tooltip-wrap" style="display:inline-flex;vertical-align:middle;margin-left:4px"><button class="confidence-tooltip-btn" type="button">?</button><span class="confidence-tooltip-box">${text}</span></span>`;
+
   container.innerHTML = `
     <div style="padding:40px 40px 60px">
       <div class="card cost-section" style="margin-bottom:0">
@@ -25,21 +27,21 @@ export function renderCostSavings(container, navigate) {
         <div class="savings-kpi-grid">
           <div class="savings-kpi">
             <div>
-              <div class="savings-kpi__label">Current Blended Cost</div>
+              <div class="savings-kpi__label">Current Energy Cost ${tip('The average cost you pay per kWh right now, based on your current grid tariff and/or generator fuel spend.')}</div>
               <div class="savings-kpi__value">${N(savings.current_blended_cost)}/kWh <span class="savings-kpi__arrow-up">↑</span></div>
             </div>
             <div class="savings-kpi__icon"><img src="/icons/current_blended_cost.png" width="64" height="64" style="object-fit:contain"></div>
           </div>
           <div class="savings-kpi">
             <div>
-              <div class="savings-kpi__label">${savings.solar_label || 'Solar'} Blended Cost</div>
+              <div class="savings-kpi__label">Energy Cost with Solar ${tip('Your estimated cost per kWh after solar is installed, blending the solar generation cost with any remaining grid or generator usage.')}</div>
               <div class="savings-kpi__value">${N(savings.post_solar_blended_cost)}/kWh <span class="savings-kpi__arrow-down">↓</span></div>
             </div>
             <div class="savings-kpi__icon"><img src="/icons/solar_blended_cost.png" width="64" height="64" style="object-fit:contain"></div>
           </div>
           <div class="savings-kpi">
             <div>
-              <div class="savings-kpi__label">Annual Fuel Savings</div>
+              <div class="savings-kpi__label">Annual Fuel Savings ${tip('How much you save on generator fuel each year by replacing that consumption with solar power.')}</div>
               <div class="savings-kpi__value">${N(savings.fuel_naira_saved_annual)}</div>
               <div class="savings-kpi__sub"><span class="pill--amber">${(savings.litres_saved_per_year || 0).toLocaleString()} Lt Saved/Year</span></div>
             </div>
@@ -47,21 +49,21 @@ export function renderCostSavings(container, navigate) {
           </div>
           <div class="savings-kpi">
             <div>
-              <div class="savings-kpi__label">ROI</div>
+              <div class="savings-kpi__label">ROI ${tip('Total return on investment over 25 years. Calculated as total savings minus total costs, as a percentage of the initial system cost.')}</div>
               <div class="savings-kpi__value">${savings.ROI}%</div>
             </div>
             <div class="savings-kpi__icon"><img src="/icons/return_on_investment.png" width="64" height="64" style="object-fit:contain"></div>
           </div>
           <div class="savings-kpi">
             <div>
-              <div class="savings-kpi__label">Payback Period</div>
+              <div class="savings-kpi__label">Payback Period ${tip('How many years before your accumulated energy savings fully recover the cost of the solar system.')}</div>
               <div class="savings-kpi__value">${savings.simple_payback_years} Years</div>
             </div>
             <div class="savings-kpi__icon"><img src="/icons/payback_period.png" width="64" height="64" style="object-fit:contain"></div>
           </div>
           <div class="savings-kpi">
             <div>
-              <div class="savings-kpi__label">Lifetime Savings</div>
+              <div class="savings-kpi__label">Lifetime Savings ${tip('Your total net savings over 25 years, after deducting the initial system cost and a battery replacement at year 10.')}</div>
               <div class="savings-kpi__value">${N(savings.lifetime_savings)}</div>
               <div class="savings-kpi__sub"><span class="pill--amber">Over 25 Years</span></div>
             </div>
@@ -72,7 +74,7 @@ export function renderCostSavings(container, navigate) {
         <div class="card" style="margin-bottom:24px;margin-top:0">
           <div class="savings-kpi" style="border:none;padding:0">
             <div>
-              <div class="savings-kpi__label">Carbon Emission Avoided</div>
+              <div class="savings-kpi__label">Carbon Emission Avoided ${tip('The CO₂ emissions your solar system prevents each year by replacing fossil fuel electricity with clean solar energy.')}</div>
               <div class="savings-kpi__value">${savings.co2_avoided_tonnes} tCO₂/Year</div>
             </div>
             <div class="savings-kpi__icon"><img src="/icons/emissions_avoided.png" width="64" height="64" style="object-fit:contain"></div>
@@ -171,6 +173,19 @@ export function renderCostSavings(container, navigate) {
 
   window._navigate = navigate;
   document.getElementById('view-quote-btn').addEventListener('click', () => navigate('finalQuote'));
+
+  // Tooltip click-to-open for mobile (hover handles desktop via CSS)
+  document.querySelectorAll('.confidence-tooltip-wrap').forEach(wrap => {
+    wrap.querySelector('.confidence-tooltip-btn')?.addEventListener('click', e => {
+      e.stopPropagation();
+      const isOpen = wrap.classList.contains('is-open');
+      document.querySelectorAll('.confidence-tooltip-wrap.is-open').forEach(w => w.classList.remove('is-open'));
+      if (!isOpen) wrap.classList.add('is-open');
+    });
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.confidence-tooltip-wrap.is-open').forEach(w => w.classList.remove('is-open'));
+  });
 
   if (!hasAppliances) {
     const overlay = document.getElementById('appliance-prompt-overlay');

@@ -70,6 +70,7 @@ export function calcLoad(state, applianceData, tariffData, fuelPricesData, genEf
   // When appliances are entered, the Gantt sum (kW × 1h = kWh per slot) is the
   // authoritative daily total shown on the summary card. Preserve the
   // spending-based figure only for confidence scoring below.
+  const hasSpendingData = (dailyGridKWh + dailyGenKWh) > 0;
   const topDownDailyKWh = totalDailyKWh;
   if (ganttTotalKWh > 0) {
     if (topDownDailyKWh > 0) {
@@ -94,21 +95,30 @@ export function calcLoad(state, applianceData, tariffData, fuelPricesData, genEf
   const unaccountedKWh = Math.max(0, totalDailyKWh - ganttTotalKWh);
 
   // ── STEP 5: CONFIDENCE SCORE ────────────────────────────────────────
+  // Based on variance between the two independent estimates.
+  // No appliances → Low (30). Appliances only, no spend → Medium (55).
+  // Both present → score by normalised variance (symmetric, 0–1).
 
   let confidenceScore, confidenceLabel;
-  if (ganttTotalKWh === 0 || topDownDailyKWh === 0) {
+  if (ganttTotalKWh === 0) {
     confidenceScore = 30;
     confidenceLabel = 'Low';
+  } else if (!hasSpendingData) {
+    confidenceScore = 55;
+    confidenceLabel = 'Medium';
   } else {
-    const ratio = Math.min(ganttTotalKWh / topDownDailyKWh, 1);
-    if (ratio >= 0.85) {
-      confidenceScore = Math.min(99, Math.round(90 + ratio * 10));
+    const variance = Math.abs(ganttTotalKWh - topDownDailyKWh) / Math.max(ganttTotalKWh, topDownDailyKWh);
+    if (variance <= 0.25) {
+      // High: 99 → 85 as variance rises from 0 → 25%
+      confidenceScore = Math.round(99 - (variance / 0.25) * 14);
       confidenceLabel = 'High';
-    } else if (ratio >= 0.60) {
-      confidenceScore = Math.min(99, Math.round(60 + ratio * 30));
+    } else if (variance <= 0.60) {
+      // Medium: 84 → 55 as variance rises from 25% → 60%
+      confidenceScore = Math.round(84 - ((variance - 0.25) / 0.35) * 29);
       confidenceLabel = 'Medium';
     } else {
-      confidenceScore = Math.min(99, Math.round(ratio * 100));
+      // Low: 54 → 30 as variance rises from 60% → 100%
+      confidenceScore = Math.max(30, Math.round(54 - ((variance - 0.60) / 0.40) * 24));
       confidenceLabel = 'Low';
     }
   }
@@ -130,6 +140,10 @@ export function calcLoad(state, applianceData, tariffData, fuelPricesData, genEf
     peakKW,
     confidenceScore,
     confidenceLabel,
+    confidenceReason: ganttTotalKWh === 0        ? 'no_appliances'
+                    : !hasSpendingData           ? 'no_spending'
+                    : confidenceLabel === 'High' ? 'ok'
+                    :                              'variance',
     monthlyKWh: parseFloat((totalDailyKWh * 30).toFixed(1))
   };
 }

@@ -297,7 +297,7 @@
 .bom-table { width: 100%; border-collapse: collapse; margin-top: var(--spacing-4); }
 .bom-table th { font-size: var(--font-size-xs); color: var(--color-text-muted); text-align: left; padding: 8px 0; border-bottom: 1.5px solid var(--color-border); font-weight: 500; }
 .bom-table td { font-size: var(--font-size-sm); padding: 12px 0; border-bottom: 1px solid var(--color-border-light); vertical-align: top; }
-.bom-table td:first-child { font-weight: 500; }
+.bom-table td:first-child { font-weight: 500; padding-right: 24px; }
 .bom-table td .bom-sku { display: block; font-size: var(--font-size-xs); color: var(--color-text-muted); }
 .bom-table td:last-child { font-weight: 600; }
 

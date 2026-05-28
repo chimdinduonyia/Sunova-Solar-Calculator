@@ -1,4 +1,4 @@
-const PANEL_WATT        = 400;    // W per panel
+const PANEL_WATT        = 585;    // W per panel — Jinko Solar 585W Mono PERC Half-Cell
 const PERF_RATIO        = 0.75;   // system performance ratio (PR)
 const POWER_FACTOR      = 0.80;   // inverter power factor
 const INST_M2_PER_KWP   = 6.5;   // installation area per kWp

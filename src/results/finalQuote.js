@@ -15,14 +15,14 @@ export function renderFinalQuote(container, navigate) {
 
   const bom = [
     {
-      product: `JA Solar ${Math.round(solar.panel_kwp * 1000 / solar.panel_count)}W Mono PERC Half-Cell`,
-      sku: `JA-${Math.round(solar.panel_kwp * 1000 / solar.panel_count)}M-HC`,
+      product: `Jinko Solar 585W Mono PERC Half-Cell`,
+      sku: `JK-585M-HC`,
       category: 'Solar Panel',
       qty: solar.panel_count
     },
     {
-      product: `Sunsynk ${Math.ceil(solar.inverter_kva)}kW Hybrid Inverter`,
-      sku: `SUNK-HYB-${Math.ceil(solar.inverter_kva)}KW`,
+      product: `DEYE ${solar.inverter_kva}kW Hybrid Inverter`,
+      sku: `DEYE-HYB-${solar.inverter_kva}KW`,
       category: 'Inverter',
       qty: 1
     },

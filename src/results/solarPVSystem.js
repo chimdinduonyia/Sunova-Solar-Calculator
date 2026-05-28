@@ -19,7 +19,24 @@ function annualGenText(kwh) {
 }
 
 function confidenceLabel(score) {
-  return score >= 80 ? 'High' : score >= 60 ? 'Medium' : 'Low';
+  return score >= 85 ? 'High' : score >= 55 ? 'Medium' : 'Low';
+}
+
+function confidencePromptInner(reason, label) {
+  const s = (html) => `<div style="padding:12px 14px;background:var(--color-primary-bg);border:1.5px solid var(--color-primary-light);border-radius:var(--radius-md);font-size:12px;line-height:1.6;color:var(--color-text-secondary)">${html}</div>`;
+  if (reason === 'no_appliances') {
+    return s(`<strong style="color:var(--color-text)">Boost your confidence score.</strong> Add your appliances and usage schedule to get a <strong>High</strong> confidence result.<div style="margin-top:10px"><button class="btn btn--primary btn--sm" onclick="window._navigate('step5')">Add Appliances →</button></div>`);
+  }
+  if (reason === 'no_spending') {
+    return s(`<strong style="color:var(--color-text)">Single-source estimate.</strong> Your sizing is based on your appliance list only. We have no energy spend data to cross-check against.`);
+  }
+  if (reason === 'variance' && label === 'Low') {
+    return s(`<strong style="color:var(--color-text)">Your bills and appliance list don't match up.</strong> One suggests you use a lot more electricity than the other. Check that your spending figure and appliance list both reflect what you actually use, so we can size your solar system accurately.<div style="margin-top:10px"><button class="btn btn--primary btn--sm" onclick="window._navigate('step5')">Review Appliances →</button></div>`);
+  }
+  if (reason === 'variance') {
+    return s(`<strong style="color:var(--color-text)">Nearly there.</strong> Your bills and appliance list are close but not a perfect match. Your solar recommendation is still a good estimate. Adding more appliances or adjusting your schedule can bring it closer.`);
+  }
+  return '';
 }
 
 export function renderSolarPVSystem(container, navigate) {
@@ -133,7 +150,7 @@ export function renderSolarPVSystem(container, navigate) {
               <div class="confidence-tooltip-wrap">
                 <button class="confidence-tooltip-btn" aria-label="What is the confidence score?">?</button>
                 <div class="confidence-tooltip-box" role="tooltip">
-                  Measures how closely your appliance list accounts for your actual energy spend. A <strong>High</strong> score means your listed appliances explain nearly all of your monthly bills, giving you an accurate solar size. A <strong>Low</strong> score means a large portion of your consumption is unaccounted for, so the sizing is based on estimates. Add more appliances and set their schedules to raise your score.
+                  Measures agreement between your energy spend and your appliance list. A <strong>High</strong> score means both data sources suggest similar consumption, giving you an accurate solar size. A <strong>Low</strong> score means the two sources diverge significantly. Review your appliances or spending figures to improve accuracy.
                 </div>
               </div>
             </div>
@@ -147,12 +164,7 @@ export function renderSolarPVSystem(container, navigate) {
               <div id="spec-confidence-label" style="font-size:18px;font-weight:700;margin-top:-20px">${load.confidenceLabel || confidenceLabel(load.confidenceScore)}</div>
               <div id="spec-confidence-score" style="font-size:13px;color:var(--color-text-secondary)">${load.confidenceScore}% Confidence</div>
             </div>
-            ${load.confidenceScore < 60 ? `
-              <div style="margin-top:14px;padding:12px 14px;background:var(--color-primary-bg);border:1.5px solid var(--color-primary-light);border-radius:var(--radius-md);font-size:12px;line-height:1.6;color:var(--color-text-secondary)">
-                <strong style="color:var(--color-text)">Boost your confidence score.</strong> Add your appliances and usage schedule to get a <strong>High</strong> confidence result.
-                <div style="margin-top:10px"><button class="btn btn--primary btn--sm" onclick="window._navigate('step5')">Add Appliances →</button></div>
-              </div>
-            ` : ''}
+            <div id="spec-confidence-prompt" style="margin-top:14px"></div>
           </div>
 
           <div class="card" style="overflow:hidden">
@@ -257,6 +269,7 @@ export function renderSolarPVSystem(container, navigate) {
   document.addEventListener('click', () => tooltipWrap?.classList.remove('is-open'));
   drawGenChart(solar, months);
   drawGaugeChart(load.confidenceScore);
+  document.getElementById('spec-confidence-prompt').innerHTML = confidencePromptInner(load.confidenceReason, load.confidenceLabel);
   requestAnimationFrame(() => drawDispatchCanvas('dispatch-canvas', dispatch));
 
   if (hasRealAppliances) {
@@ -314,6 +327,8 @@ export function renderSolarPVSystem(container, navigate) {
 
     drawGenChart(s, months);
     drawGaugeChart(l.confidenceScore);
+    const promptEl = $('spec-confidence-prompt');
+    if (promptEl) promptEl.innerHTML = confidencePromptInner(l.confidenceReason, l.confidenceLabel);
     drawDispatchCanvas('dispatch-canvas', d);
 
     // Keep state.results in sync so Final Quote and Cost Savings reflect
@@ -344,7 +359,7 @@ function drawGaugeChart(pct) {
   if (!canvas) return;
   Chart.getChart(canvas)?.destroy();
   const ctx   = canvas.getContext('2d');
-  const color = pct >= 80 ? '#10B981' : pct >= 60 ? '#F59E0B' : '#EF4444';
+  const color = pct >= 85 ? '#10B981' : pct >= 55 ? '#F59E0B' : '#EF4444';
   new Chart(ctx, {
     type: 'doughnut',
     data: {

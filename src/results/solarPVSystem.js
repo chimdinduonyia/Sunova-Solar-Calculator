@@ -18,6 +18,50 @@ function annualGenText(kwh) {
     : `${kwh.toLocaleString()} kWh/yr`;
 }
 
+function syncFinalQuote() {
+  const { results: r, budget } = getState() || {};
+  if (!r) return;
+  const $ = id => document.getElementById(id);
+  const NF = v => '₦' + Number(v).toLocaleString('en-NG');
+
+  const sc      = r.savings.total_system_cost;
+  const covered = budget >= sc;
+  const fillPct = Math.min(100, Math.round((budget / sc) * 100));
+
+  if ($('fq-solar-kwp'))    $('fq-solar-kwp').textContent    = `${r.solar.panel_kwp.toFixed(1)} kWp`;
+  if ($('fq-solar-count'))  $('fq-solar-count').textContent  = `${r.solar.panel_count} panels`;
+  if ($('fq-inverter-kva')) $('fq-inverter-kva').textContent = `${r.solar.inverter_kva.toFixed(1)} kVA`;
+  if ($('fq-battery-kwh'))  $('fq-battery-kwh').textContent  = `${r.battery.battery_kwh.toFixed(1)} kWh`;
+  if ($('fq-system-cost'))  $('fq-system-cost').textContent  = NF(sc);
+
+  const fill = $('fq-budget-fill');
+  if (fill) fill.style.width = `${fillPct}%`;
+
+  const delta = $('fq-budget-delta');
+  if (delta) {
+    delta.style.color = covered ? 'var(--color-success)' : 'var(--color-error)';
+    delta.textContent = covered ? `+${NF(budget - sc)} surplus` : `${NF(sc - budget)} gap`;
+  }
+
+  const tbody = $('fq-boq-body');
+  if (tbody) {
+    const s = r.solar, b = r.battery;
+    const rows = [
+      { product: 'Jinko Solar 585W Mono PERC Half-Cell', sku: 'JK-585M-HC',         category: 'Solar Panel', qty: s.panel_count },
+      { product: `DEYE ${s.inverter_kva}kW Hybrid Inverter`, sku: `DEYE-HYB-${s.inverter_kva}KW`, category: 'Inverter',    qty: 1 },
+      { product: '48V LiFePO4 Battery 5kWh',              sku: 'BAT-LFP-48V-5K',   category: 'Battery',     qty: b.battery_units_48v },
+      { product: 'Roof Mounting Kit (Tile / Metal)',       sku: 'MNT-ROOF-TILE',     category: 'Mounting',    qty: Math.ceil(s.panel_count / 4) },
+      { product: '4mm² DC Solar Cable (Red + Black)',      sku: 'CBL-DC-4MM-PAIR',   category: 'Cabling',     qty: `${Math.ceil(s.panel_kwp * 10)}m` }
+    ];
+    tbody.innerHTML = rows.map(row => `
+      <tr>
+        <td><span class="bom-product">${row.product}</span><span class="bom-sku">${row.sku}</span></td>
+        <td>${row.category}</td>
+        <td style="text-align:right">${row.qty}</td>
+      </tr>`).join('');
+  }
+}
+
 function syncProfileCardHeight() {
   const cCard = document.getElementById('pv-confidence-card');
   const pCard = document.getElementById('pv-profile-card');
@@ -403,6 +447,7 @@ export function renderSolarPVSystem(container, navigate) {
     // Keep state.results in sync so Final Quote and Cost Savings reflect
     // the current appliance selection without requiring a page navigation.
     computeResults();
+    syncFinalQuote();
   }
 }
 

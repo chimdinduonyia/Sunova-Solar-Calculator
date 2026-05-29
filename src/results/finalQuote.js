@@ -78,11 +78,11 @@ export function renderFinalQuote(container, navigate) {
               <span>System Cost: ${N(systemCost)}</span>
             </div>
             <div class="financial-readiness-bar">
-              <div class="financial-readiness-bar__fill" style="width:${fillPct}%"></div>
+              <div class="financial-readiness-bar__fill" id="fq-budget-fill" style="width:${fillPct}%"></div>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
               <span style="font-size:12px;color:var(--color-text-secondary)">Your Budget: <strong>${N(budget)}</strong></span>
-              <span style="font-size:12px;font-weight:700;color:${budgetCovered ? 'var(--color-success)' : 'var(--color-error)'}">
+              <span id="fq-budget-delta" style="font-size:12px;font-weight:700;color:${budgetCovered ? 'var(--color-success)' : 'var(--color-error)'}">
                 ${budgetCovered ? `+${N(budget - systemCost)} surplus` : `${N(systemCost - budget)} gap`}
               </span>
             </div>
@@ -93,22 +93,23 @@ export function renderFinalQuote(container, navigate) {
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
               <div>
                 <div class="label">Solar Capacity</div>
-                <div class="value value--amber">${solar.panel_kwp.toFixed(1)} kWp</div>
+                <div class="value value--amber" id="fq-solar-kwp">${solar.panel_kwp.toFixed(1)} kWp</div>
+                <div style="font-size:11px;color:var(--color-text-muted)" id="fq-solar-count">${solar.panel_count} panels</div>
               </div>
               <div>
                 <div class="label">Inverter Size</div>
-                <div class="value value--amber">${solar.inverter_kva.toFixed(1)} kVA</div>
+                <div class="value value--amber" id="fq-inverter-kva">${solar.inverter_kva.toFixed(1)} kVA</div>
               </div>
               <div>
                 <div class="label">Battery Storage</div>
-                <div class="value value--amber">${results.battery.battery_kwh.toFixed(1)} kWh</div>
+                <div class="value value--amber" id="fq-battery-kwh">${results.battery.battery_kwh.toFixed(1)} kWh</div>
               </div>
               <div>
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
                   <span class="label" style="margin-bottom:0">Est. System Cost</span>
                   <button class="assumptions-btn" id="show-assumptions-btn" title="View pricing assumptions">ⓘ</button>
                 </div>
-                <div class="value value--amber">${N(systemCost)}</div>
+                <div class="value value--amber" id="fq-system-cost">${N(systemCost)}</div>
                 <div class="indicative-tag">Indicative estimate</div>
               </div>
             </div>
@@ -127,7 +128,7 @@ export function renderFinalQuote(container, navigate) {
                   <th style="text-align:right">Qty</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="fq-boq-body">
                 ${bom.map(row => `
                   <tr>
                     <td>

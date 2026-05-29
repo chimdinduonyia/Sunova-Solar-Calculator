@@ -36,7 +36,7 @@ export function calcBattery(load, goal, backupHoursOverride) {
   if (avgBackupLoad_kW === 0) avgBackupLoad_kW = peakDemandKW * 0.6;
 
   // Energy sizing:
-  // - offgrid: battery covers the nighttime load (6 pm – 6 am) only — solar handles
+  // - offgrid: battery covers the nighttime load (6 pm to 6 am) only; solar handles
   //            daytime demand directly. An autonomy factor of 1.5 adds headroom for
   //            one overcast day where panels underperform.
   //            Fallback when no hourly profile: 50% of daily load (rough night share).

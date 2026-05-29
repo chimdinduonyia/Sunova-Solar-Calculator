@@ -45,7 +45,7 @@ export function renderStep2(container, navigate) {
 
   document.getElementById('back-btn').addEventListener('click', () => navigate('step1'));
 
-  // Every selection immediately advances — no Continue button needed
+  // Every selection immediately advances; no Continue button needed
   bindRadioCards('power-source', val => {
     setState({ powerSource: val });
     navigate(val === 'generator_only' ? 'step4' : 'step3');

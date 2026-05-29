@@ -297,7 +297,7 @@
   font-size: var(--font-size-xl);
   font-weight: 800;
   display: block;
-  /* Input reset — looks like plain text */
+  /* Input reset: looks like plain text */
   border: none;
   outline: none;
   background: transparent;

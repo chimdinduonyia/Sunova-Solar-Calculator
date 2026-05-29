@@ -11,7 +11,7 @@ const GRID_EMISSION_FACTOR    = 0.43;   // kgCO₂/kWh
 const PMS_EMISSION_FACTOR     = 0.65;   // kgCO₂/kWh
 const AGO_EMISSION_FACTOR     = 0.70;   // kgCO₂/kWh
 
-// Mirror calcLoad.js's resolveGenerator — keeps kWh/litre consistent across both utils
+// Mirror calcLoad.js's resolveGenerator; keeps kWh/litre consistent across both utils
 const GEN_SIZE_MAP = {
   small:  { types: ['Small Portable'],          preferFuel: 'PMS', defaultKwh: 2.27 },
   medium: { types: ['Mid-size'],                preferFuel: 'PMS', defaultKwh: 3.38 },
@@ -66,7 +66,7 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
   const tariffObj            = tariffData?.find(t => t.band === state.tariffBand);
   const tariff_naira_per_kwh = tariffObj?.tariff_naira_per_kwh || 194;
 
-  // Generator — resolved using same logic as calcLoad for consistency
+  // Generator: resolved using same logic as calcLoad for consistency
   const { fuelTypeStr, kwhPerLitre } = resolveGenerator(state.generatorSize, genData);
   const locationStateName = state.location?.state || '';
   const fuelPricePerLitre = resolveFuelPrice(fuelTypeStr, locationStateName, fuelPrices);

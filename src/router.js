@@ -1,19 +1,16 @@
 import { renderStep1 } from './steps/step1_location.js';
-import { renderStep2 } from './steps/step2_powerSource.js';
-import { renderStep3 } from './steps/step3_gridSpend.js';
-import { renderStep4 } from './steps/step4_fuelSpend.js';
-import { renderStep5 } from './steps/step5_homeProfile.js';
-import { renderStep6 } from './steps/step6_goals.js';
-import { renderLoadProfile } from './results/loadProfile.js';
+import { renderStep2 } from './steps/step2_energySpend.js';
+import { renderStep3 } from './steps/step6_goals.js';
+import { renderLoadProfile }   from './results/loadProfile.js';
 import { renderSolarPVSystem } from './results/solarPVSystem.js';
-import { renderCostSavings } from './results/costSavings.js';
-import { renderFinalQuote } from './results/finalQuote.js';
+import { renderCostSavings }   from './results/costSavings.js';
+import { renderFinalQuote }    from './results/finalQuote.js';
+import { renderAddAppliances } from './results/addAppliances.js';
 import { computeResults } from './utils/computeResults.js';
 
-const WIZARD_ROUTES  = ['step1', 'step2', 'step3', 'step4', 'step5', 'step6'];
-const RESULTS_ROUTES = ['costSavings', 'loadProfile', 'solarPVSystem', 'finalQuote'];
+const WIZARD_ROUTES  = ['step1', 'step2', 'step3'];
+const SCROLL_ROUTES  = ['costSavings', 'loadProfile', 'solarPVSystem', 'finalQuote'];
 
-// Tab order: Cost Savings shown first after Generate Results
 const TABS = [
   {
     route: 'costSavings',
@@ -38,6 +35,12 @@ const TABS = [
     label: 'Final Quote',
     sublabel: 'System &amp; BOM',
     paths: `<rect x="3" y="1" width="10" height="14" rx="1"/><line x1="6" y1="5" x2="10" y2="5"/><line x1="6" y1="8" x2="10" y2="8"/><line x1="6" y1="11" x2="8.5" y2="11"/>`
+  },
+  {
+    route: 'addAppliances',
+    label: 'Add Appliances',
+    sublabel: 'Customise Profile',
+    paths: `<rect x="1" y="3" width="14" height="10" rx="1.5"/><line x1="5" y1="6" x2="11" y2="6"/><line x1="5" y1="9" x2="9" y2="9"/><line x1="12" y1="11" x2="15" y2="14"/>`
   }
 ];
 
@@ -45,60 +48,163 @@ const renderers = {
   step1: renderStep1,
   step2: renderStep2,
   step3: renderStep3,
-  step4: renderStep4,
-  step5: renderStep5,
-  step6: renderStep6,
   costSavings:   renderCostSavings,
   loadProfile:   renderLoadProfile,
   solarPVSystem: renderSolarPVSystem,
-  finalQuote:    renderFinalQuote
+  finalQuote:    renderFinalQuote,
+  addAppliances: renderAddAppliances,
 };
 
-let _current = 'step1';
+let _current       = 'step1';
+let _isScrollMode  = false;
 let _mobileNavBound = false;
+let _scrollCleanup = null;
 
 export function navigate(route) {
+  // Within scroll view: scroll to section without re-rendering
+  if (_isScrollMode && SCROLL_ROUTES.includes(route)) {
+    _current = route;
+    scrollToSection(route);
+    setActiveTab(route);
+    return;
+  }
+
   _current = route;
-  render();
+
+  if (SCROLL_ROUTES.includes(route)) {
+    _isScrollMode = true;
+    renderScrollMode(route);
+  } else {
+    _isScrollMode = false;
+    render();
+  }
 }
 
-export function getCurrentRoute() {
-  return _current;
+export function getCurrentRoute() { return _current; }
+
+// ── Scroll mode (all 4 result sections in one tall page) ──────────────────
+
+function renderScrollMode(scrollTo) {
+  const wizardLayout  = document.getElementById('wizard-layout');
+  const resultsLayout = document.getElementById('results-layout');
+
+  wizardLayout.classList.add('hidden');
+  resultsLayout.classList.remove('hidden');
+
+  computeResults();
+  renderResultsNav();
+  bindMobileNav();
+
+  if (_scrollCleanup) { _scrollCleanup(); _scrollCleanup = null; }
+
+  const container = document.getElementById('results-content');
+  container.innerHTML = `
+    <div id="section-costSavings"   data-section="costSavings"></div>
+    <div id="section-loadProfile"   data-section="loadProfile"></div>
+    <div id="section-solarPVSystem" data-section="solarPVSystem"></div>
+    <div id="section-finalQuote"    data-section="finalQuote"></div>
+  `;
+
+  renderCostSavings(document.getElementById('section-costSavings'), navigate);
+  renderLoadProfile(document.getElementById('section-loadProfile'), navigate);
+  renderSolarPVSystem(document.getElementById('section-solarPVSystem'), navigate);
+  renderFinalQuote(document.getElementById('section-finalQuote'), navigate);
+
+  _scrollCleanup = initScrollSpy();
+
+  if (scrollTo) {
+    requestAnimationFrame(() => scrollToSection(scrollTo));
+  }
 }
+
+function getScrollContainer() {
+  const panel = document.querySelector('.right-panel');
+  return (panel && panel.scrollHeight > panel.clientHeight) ? panel : null;
+}
+
+function scrollToSection(route) {
+  const el        = document.getElementById(`section-${route}`);
+  if (!el) return;
+  const panel = getScrollContainer();
+  if (panel) {
+    const panelRect = panel.getBoundingClientRect();
+    const elRect    = el.getBoundingClientRect();
+    panel.scrollTo({ top: panel.scrollTop + elRect.top - panelRect.top, behavior: 'smooth' });
+  } else {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function initScrollSpy() {
+  const panel = getScrollContainer();
+  const target = panel || window;
+
+  function onScroll() {
+    const viewH       = panel ? panel.clientHeight : window.innerHeight;
+    const viewTop     = panel ? panel.getBoundingClientRect().top : 0;
+    const triggerLine = viewTop + viewH * 0.3;
+    let activeRoute   = SCROLL_ROUTES[0];
+
+    for (const route of SCROLL_ROUTES) {
+      const el = document.getElementById(`section-${route}`);
+      if (!el) continue;
+      if (el.getBoundingClientRect().top <= triggerLine) activeRoute = route;
+    }
+
+    if (activeRoute !== _current) {
+      _current = activeRoute;
+      setActiveTab(activeRoute);
+    }
+  }
+
+  target.addEventListener('scroll', onScroll, { passive: true });
+  return () => target.removeEventListener('scroll', onScroll);
+}
+
+function setActiveTab(route) {
+  document.querySelectorAll('#results-nav [data-route]').forEach(el => {
+    el.classList.toggle('active', el.dataset.route === route);
+  });
+}
+
+// ── Single-page (wizard + addAppliances) mode ─────────────────────────────
 
 function render() {
   const wizardLayout  = document.getElementById('wizard-layout');
   const resultsLayout = document.getElementById('results-layout');
+
+  if (_scrollCleanup) { _scrollCleanup(); _scrollCleanup = null; }
 
   if (WIZARD_ROUTES.includes(_current)) {
     wizardLayout.classList.remove('hidden');
     resultsLayout.classList.add('hidden');
     const container = document.getElementById('wizard-content');
     container.innerHTML = '';
-    renderers[_current](container, navigate);
+    const r = { step1: renderStep1, step2: renderStep2, step3: renderStep3 };
+    r[_current](container, navigate);
     document.querySelector('.right-panel').scrollTop = 0;
-  } else {
+  } else if (_current === 'addAppliances') {
     wizardLayout.classList.add('hidden');
     resultsLayout.classList.remove('hidden');
-    computeResults();
     renderResultsNav();
     bindMobileNav();
     const container = document.getElementById('results-content');
     container.innerHTML = '';
-    container.classList.remove('page-enter');
-    void container.offsetWidth;
-    container.classList.add('page-enter');
-    renderers[_current](container, navigate);
-    setTimeout(() => container.classList.remove('page-enter'), 300);
+    renderAddAppliances(container, navigate);
+    document.querySelector('.right-panel').scrollTop = 0;
   }
 }
+
+// ── Results nav ───────────────────────────────────────────────────────────
 
 function renderResultsNav() {
   const nav       = document.getElementById('results-nav');
   const actionsEl = document.getElementById('results-actions');
 
+  const activeRoute = _isScrollMode ? _current : _current;
+
   nav.innerHTML = TABS.map(tab => `
-    <div class="results-nav__item${tab.route === _current ? ' active' : ''}" data-route="${tab.route}">
+    <div class="results-nav__item${tab.route === activeRoute ? ' active' : ''}" data-route="${tab.route}">
       <svg class="results-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         ${tab.paths}
       </svg>
@@ -115,38 +221,26 @@ function renderResultsNav() {
 
   actionsEl.innerHTML = `
     <button class="btn btn--outline btn--sm btn--full" id="adjust-energy-btn">Adjust Energy Data</button>
-    <button class="btn btn--outline btn--sm btn--full" id="adjust-home-btn" style="margin-top:8px">Adjust Home Profile</button>
   `;
   document.getElementById('adjust-energy-btn')?.addEventListener('click', () => navigate('step1'));
-  document.getElementById('adjust-home-btn')?.addEventListener('click', () => navigate('step5'));
 }
 
 function bindMobileNav() {
   if (_mobileNavBound) return;
   _mobileNavBound = true;
 
-  const hamburger  = document.getElementById('results-hamburger');
-  const closeBtn   = document.getElementById('offcanvas-close-btn');
-  const backdrop   = document.getElementById('offcanvas-backdrop');
-  const sidebar    = document.querySelector('.results-sidebar');
+  const hamburger = document.getElementById('results-hamburger');
+  const closeBtn  = document.getElementById('offcanvas-close-btn');
+  const backdrop  = document.getElementById('offcanvas-backdrop');
+  const sidebar   = document.querySelector('.results-sidebar');
 
-  function openDrawer() {
-    sidebar.classList.add('is-open');
-    backdrop.classList.add('is-visible');
-  }
-  function closeDrawer() {
-    sidebar.classList.remove('is-open');
-    backdrop.classList.remove('is-visible');
-  }
+  function openDrawer()  { sidebar.classList.add('is-open');    backdrop.classList.add('is-visible'); }
+  function closeDrawer() { sidebar.classList.remove('is-open'); backdrop.classList.remove('is-visible'); }
 
   hamburger?.addEventListener('click', openDrawer);
   closeBtn?.addEventListener('click', closeDrawer);
   backdrop?.addEventListener('click', closeDrawer);
-
-  // Close drawer when a nav item is clicked (delegate to stable sidebar parent)
-  sidebar?.addEventListener('click', e => {
-    if (e.target.closest('[data-route]')) closeDrawer();
-  });
+  sidebar?.addEventListener('click', e => { if (e.target.closest('[data-route]')) closeDrawer(); });
 }
 
 export function init() {

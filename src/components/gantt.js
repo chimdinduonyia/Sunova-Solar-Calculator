@@ -65,7 +65,7 @@ function fmtHour(h) {
   return hh === 0 ? '12am' : hh < 12 ? `${hh}am` : hh === 12 ? '12pm' : `${hh - 12}pm`;
 }
 
-// Shared drag state — only one drag active at a time
+// Shared drag state: only one drag active at a time
 const _drag = { active: false, type: null, rowIdx: null, segIdx: null,
                 startX: null, origStart: null, origEnd: null, trackWidth: null };
 

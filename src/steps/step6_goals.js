@@ -10,6 +10,7 @@ const GOALS = [
   { id: 'offgrid',     emoji: `<img src="/icons/off_grid.png" width="72" height="72" style="object-fit:contain">`,        name: 'Off-Grid',      desc: 'Go completely off-grid' }
 ];
 
+export { renderStep6 as renderStep3 };
 export function renderStep6(container, navigate) {
   const state = getState();
 
@@ -17,7 +18,7 @@ export function renderStep6(container, navigate) {
     <div class="wizard-step">
       <div class="wizard-header">
         <button class="back-btn" id="back-btn">← Back</button>
-        ${renderProgressBar(6)}
+        ${renderProgressBar(3)}
         <div style="width:90px"></div>
       </div>
 
@@ -46,7 +47,7 @@ export function renderStep6(container, navigate) {
     </div>
   `;
 
-  document.getElementById('back-btn').addEventListener('click', () => navigate('step5'));
+  document.getElementById('back-btn').addEventListener('click', () => navigate('step2'));
 
   function injectBackupCounter() {
     document.querySelector('.backup-hours-inject')?.remove();

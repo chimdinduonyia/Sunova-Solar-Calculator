@@ -8,7 +8,7 @@ export function renderFinalQuote(container, navigate) {
   const { solar, battery, savings } = results;
 
   // Use calcSavings cost model (includes battery + BOS) as the authoritative figure.
-  // solar.estimated_cost is a legacy estimate that omits battery — never show it here.
+  // solar.estimated_cost is a legacy estimate that omits battery; never show it here.
   const systemCost = savings.total_system_cost;
   const fillPct = Math.min(100, Math.round((budget / systemCost) * 100));
   const budgetCovered = budget >= systemCost;

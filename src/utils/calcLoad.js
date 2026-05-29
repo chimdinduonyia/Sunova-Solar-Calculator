@@ -33,7 +33,7 @@ export function calcLoad(state, applianceData, tariffData, fuelPricesData, genEf
     }
   }
 
-  // 1c. Total — fall back to appliance-based estimate if top-down yields nothing
+  // 1c. Total: fall back to appliance-based estimate if top-down yields nothing
   let totalDailyKWh = dailyGridKWh + dailyGenKWh;
   if (totalDailyKWh < 1) {
     totalDailyKWh = estimateFallbackDaily(appliances, applianceData);

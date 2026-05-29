@@ -3,7 +3,7 @@ import { getState, getData } from '../state.js';
 const N = v => '₦' + Number(v).toLocaleString('en-NG');
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-// Monthly cooling demand index per climate zone (raw — normalised before use)
+// Monthly cooling demand index per climate zone (raw, normalised before use)
 const COOLING_INDEX = {
   north:  [0.60, 0.80, 1.30, 1.45, 1.30, 0.85, 0.70, 0.72, 0.90, 1.10, 0.75, 0.60],
   middle: [0.75, 0.90, 1.25, 1.35, 1.15, 0.82, 0.68, 0.70, 0.85, 1.05, 0.85, 0.72],
@@ -163,8 +163,7 @@ export function renderLoadProfile(container, navigate) {
             <div class="pv-ready-card__overlay">
               <h2>Your Solar PV<br>System is <span>Ready</span></h2>
               <p>Get your personalized energy data with accurate recommendation to boost your energy efficiency and overall usage.</p>
-              <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <button class="btn btn--outline" onclick="window._navigate('costSavings')">💰 Cost Savings</button>
+              <div>
                 <button class="btn btn--primary" onclick="window._navigate('solarPVSystem')">View Solar PV System</button>
               </div>
             </div>
@@ -172,16 +171,6 @@ export function renderLoadProfile(container, navigate) {
         </div>
       </div>
 
-      ${!hasAppliances ? `
-        <div class="refine-prompt-card">
-          <div class="refine-prompt-card__icon">⚡</div>
-          <div class="refine-prompt-card__body">
-            <div class="refine-prompt-card__title">Your estimate is based on spending. Make it sharper</div>
-            <div class="refine-prompt-card__desc">Right now we derived your energy demand from your monthly bills. Tell us which appliances you run and when, and we'll calculate an hourly load curve, a seasonal monthly forecast, and push your confidence score from Low to High.</div>
-            <button class="btn btn--primary" onclick="window._navigate('step5')">Add Appliances &amp; Set Goals →</button>
-          </div>
-        </div>
-      ` : ''}
     </div>
   `;
 

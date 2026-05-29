@@ -1,4 +1,4 @@
-/* ── Results layout — sidebar + main ── */
+/* ── Results layout: sidebar + main ── */
 .results-layout {
   display: flex;
   flex-direction: row;
@@ -360,7 +360,7 @@
   pointer-events: all;
 }
 
-/* ── Modal card — rigid flex column so only body scrolls ── */
+/* ── Modal card: rigid flex column so only body scrolls ── */
 .modal-card {
   background: var(--color-white);
   border-radius: var(--radius-xl);
@@ -678,7 +678,7 @@
     margin-top: 0 !important;
   }
 
-  /* Nav items — keep desktop demarcation + hover styles */
+  /* Nav items: keep desktop demarcation + hover styles */
   .results-nav__item {
     flex-direction: row;
     align-items: center;
@@ -701,7 +701,7 @@
     display: block;
   }
 
-  /* Close button — only visible inside mobile drawer */
+  /* Close button: only visible inside mobile drawer */
   .offcanvas-close-btn {
     display: flex;
     align-items: center;
@@ -750,9 +750,21 @@
     gap: 12px !important;
   }
 
-  /* Reduce page padding on mobile */
-  .results-main > div {
-    padding: 20px 16px 40px !important;
+  /* Prevent horizontal scroll */
+  .results-main {
+    overflow-x: hidden;
+  }
+
+  /* In scroll mode the padded content div is: results-main > section-div > content-div.
+     In single-page mode (addAppliances) it is: results-main > content-div.
+     Target by section IDs so we never accidentally double-pad. */
+  #section-costSavings   > div:first-child,
+  #section-loadProfile   > div:first-child,
+  #section-solarPVSystem > div:first-child,
+  #section-finalQuote    > div:first-child,
+  .results-main > div[style*="padding"] {
+    padding-left:  16px !important;
+    padding-right: 16px !important;
   }
 
   /* Stack all multi-column grids to single column */
@@ -762,6 +774,13 @@
   .solar-three-col,
   .storage-details {
     grid-template-columns: 1fr !important;
+  }
+
+  /* System spec cards: force 2×2 on mobile */
+  .system-specs {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: var(--spacing-3);
   }
 
   .final-quote-grid {
@@ -779,6 +798,29 @@
   .final-quote-title {
     font-size: var(--font-size-2xl);
     max-width: 100%;
+  }
+
+  /* Ensure canvas charts never overflow their container */
+  canvas {
+    max-width: 100% !important;
+  }
+
+  /* Ensure tables don't bust out */
+  .bom-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  /* Refine prompt card: stack emoji above content on mobile */
+  .refine-prompt-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 20px;
+  }
+
+  .refine-prompt-card__icon {
+    margin-top: 0;
   }
 
   /* Assumptions modal fills screen on mobile */

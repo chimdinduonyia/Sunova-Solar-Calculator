@@ -133,6 +133,9 @@ export function renderLoadProfile(container, navigate) {
               ${fuelSpend && powerSource !== 'grid_only' ? `<div class="assumption-item"><div class="label">Generator Spend</div><div class="value">${N(fuelSpend)}</div></div>` : ''}
               <div class="assumption-item"><div class="label">Location</div><div class="value">${location?.state || 'N/A'}</div></div>
             </div>
+            <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--color-border-light)">
+              <button class="btn btn--outline btn--sm" onclick="window._navigate('step1')">Adjust Assumptions</button>
+            </div>
           </div>
 
           <div class="card" style="margin-bottom:20px;background:#FAFAFA;border:none;position:relative;overflow:hidden">

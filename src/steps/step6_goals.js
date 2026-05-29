@@ -1,4 +1,5 @@
 import { getState, setState } from '../state.js';
+import { showPreloader } from '../preloader.js';
 import { renderProgressBar } from '../components/progressBar.js';
 import { renderSlider, bindSlider, formatNaira } from '../components/slider.js';
 import { renderRadioCards, bindRadioCards } from '../components/radioCard.js';
@@ -95,7 +96,7 @@ export function renderStep6(container, navigate) {
 
   document.getElementById('generate-btn').addEventListener('click', () => {
     computeResults();
-    navigate('costSavings');
+    showPreloader(() => navigate('costSavings'));
   });
 }
 

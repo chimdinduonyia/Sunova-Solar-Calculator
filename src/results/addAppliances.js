@@ -91,13 +91,11 @@ export function renderAddAppliances(container, navigate) {
     const s = getState();
 
     container.innerHTML = `
-      <div style="padding:40px 40px 60px">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px">
-          <div>
-            <h2 style="font-size:32px;font-weight:800;margin-bottom:4px">Home Profile &amp; Appliances</h2>
-            <p style="color:var(--color-text-secondary);font-size:16px">Add your appliances to sharpen your solar recommendation</p>
-          </div>
-          <button class="btn btn--primary btn--lg" id="done-btn" style="flex-shrink:0;margin-left:24px">Update Results →</button>
+      <div style="display:flex;flex-direction:column;min-height:100%">
+      <div style="flex:1;padding:40px 40px 32px">
+        <div style="margin-bottom:32px">
+          <h2 style="font-size:32px;font-weight:800;margin-bottom:4px">Home Profile &amp; Appliances</h2>
+          <p style="color:var(--color-text-secondary);font-size:16px">Add your appliances to sharpen your solar recommendation</p>
         </div>
 
         <div class="section-title" style="margin-bottom:14px">Choose your house type</div>
@@ -134,6 +132,10 @@ export function renderAddAppliances(container, navigate) {
         </div>
 
         ${s.appliances.length > 0 ? '<div id="gantt-section" style="margin-top:32px"></div>' : ''}
+      </div>
+      <div class="step-footer" style="padding-left:40px;padding-right:40px">
+        <button class="btn btn--primary btn--lg" id="done-btn">Update Results →</button>
+      </div>
       </div>
     `;
 
@@ -242,13 +244,17 @@ export function renderAddAppliances(container, navigate) {
     });
   }
 
-  // Auto-show "why add appliances" modal after 2 seconds
+  // Auto-show "why add appliances" modal after 2 seconds, but only when the
+  // user has not yet added any appliances (no need to re-educate them).
   const whyOverlay = document.createElement('div');
   whyOverlay.innerHTML = WHY_MODAL_HTML;
   document.body.appendChild(whyOverlay.firstElementChild);
 
   const overlay = document.getElementById('why-appliances-overlay');
-  let _whyTimer = setTimeout(() => { if (overlay) overlay.classList.add('assumptions-overlay--visible'); }, 2000);
+  const hasExistingAppliances = (getState().appliances || []).length > 0;
+  let _whyTimer = hasExistingAppliances
+    ? null
+    : setTimeout(() => { if (overlay) overlay.classList.add('assumptions-overlay--visible'); }, 2000);
 
   function closeWhy() {
     if (overlay) overlay.remove();

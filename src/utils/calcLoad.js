@@ -144,6 +144,10 @@ export function calcLoad(state, applianceData, tariffData, fuelPricesData, genEf
                     : !hasSpendingData           ? 'no_spending'
                     : confidenceLabel === 'High' ? 'ok'
                     :                              'variance',
+    confidenceDirection: (!hasSpendingData || ganttTotalKWh === 0) ? null
+                       : ganttTotalKWh > topDownDailyKWh           ? 'appliances_higher'
+                       : ganttTotalKWh < topDownDailyKWh           ? 'spending_higher'
+                       :                                             'matched',
     monthlyKWh: parseFloat((totalDailyKWh * 30).toFixed(1))
   };
 }

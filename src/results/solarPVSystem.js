@@ -18,11 +18,23 @@ function annualGenText(kwh) {
     : `${kwh.toLocaleString()} kWh/yr`;
 }
 
+function syncProfileCardHeight() {
+  const cCard = document.getElementById('pv-confidence-card');
+  const pCard = document.getElementById('pv-profile-card');
+  if (!cCard || !pCard) return;
+  // Temporarily collapse grid stretch to read the confidence card's natural height,
+  // not the stretched height that already includes the profile card's influence.
+  cCard.style.alignSelf = 'start';
+  const naturalH = cCard.getBoundingClientRect().height;
+  cCard.style.alignSelf = '';
+  pCard.style.maxHeight = naturalH + 'px';
+}
+
 function confidenceLabel(score) {
   return score >= 85 ? 'High' : score >= 55 ? 'Medium' : 'Low';
 }
 
-function confidencePromptInner(reason, label) {
+function confidencePromptInner(reason, label, direction) {
   const s = (html) => `<div style="padding:12px 14px;background:var(--color-primary-bg);border:1.5px solid var(--color-primary-light);border-radius:var(--radius-md);font-size:12px;line-height:1.6;color:var(--color-text-secondary)">${html}</div>`;
   if (reason === 'no_appliances') {
     return s(`<strong style="color:var(--color-text)">Boost your confidence score.</strong> Add your appliances and usage schedule to get a <strong>High</strong> confidence result.<div style="margin-top:10px"><button class="btn btn--primary btn--sm" onclick="window._navigate('addAppliances')">Add Appliances →</button></div>`);
@@ -31,10 +43,16 @@ function confidencePromptInner(reason, label) {
     return s(`<strong style="color:var(--color-text)">Single-source estimate.</strong> Your sizing is based on your appliance list only. We have no energy spend data to cross-check against.`);
   }
   if (reason === 'variance' && label === 'Low') {
-    return s(`<strong style="color:var(--color-text)">Your bills and appliance list don't match up.</strong> One suggests you use a lot more electricity than the other. Check that your spending figure and appliance list both reflect what you actually use, so we can size your solar system accurately.<div style="margin-top:10px"><button class="btn btn--primary btn--sm" onclick="window._navigate('addAppliances')">Review Appliances →</button></div>`);
+    const detail = direction === 'appliances_higher'
+      ? `Your appliance list suggests a much higher consumption than your energy spend implies. Please review your appliance list and make sure it reflects what you actually run.`
+      : `Your energy spend implies a much higher load than your appliance list accounts for. Some appliances or heavy loads may be missing from your list.`;
+    return s(`<strong style="color:var(--color-text)">Your bills and appliance list don't match up.</strong> ${detail}<div style="margin-top:10px"><button class="btn btn--primary btn--sm" onclick="window._navigate('addAppliances')">Update Appliance List</button></div>`);
   }
   if (reason === 'variance') {
-    return s(`<strong style="color:var(--color-text)">Nearly there.</strong> Your bills and appliance list are close but not a perfect match. Your solar recommendation is still a good estimate. Adding more appliances or adjusting your schedule can bring it closer.`);
+    const detail = direction === 'appliances_higher'
+      ? `Your appliance list suggests slightly more consumption than your energy spend.`
+      : `Your energy spend suggests slightly more consumption than your appliance list.`;
+    return s(`<strong style="color:var(--color-text)">Nearly there.</strong> ${detail} Your sizing is a reasonable estimate. Adjusting your appliance list can bring it closer.<div style="margin-top:10px"><button class="btn btn--primary btn--sm" onclick="window._navigate('addAppliances')">Update Appliance List</button></div>`);
   }
   return '';
 }
@@ -147,7 +165,7 @@ export function renderSolarPVSystem(container, navigate) {
               <canvas id="gen-chart" height="160"></canvas>
             </div>
 
-            <div class="card">
+            <div class="card" id="pv-confidence-card">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
                 <div class="section-title" style="margin-bottom:0">Confidence Score</div>
                 <div class="confidence-tooltip-wrap">
@@ -170,10 +188,10 @@ export function renderSolarPVSystem(container, navigate) {
               <div id="spec-confidence-prompt" style="margin-top:14px"></div>
             </div>
 
-            <div class="card" style="overflow:hidden">
-              <div class="section-title" style="margin-bottom:6px">Interactive Profile</div>
-              <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Check the appliances you want solar to cover &nbsp;<span id="solar-selection-indicator" style="color:var(--color-text-muted);font-weight:400">(${activeNames.size}/${appliances.length} selected)</span></div>
-              <div class="interactive-profile" style="padding:0;max-height:176px;overflow-y:auto">
+            <div class="card" id="pv-profile-card" style="overflow:hidden;display:flex;flex-direction:column;min-height:0">
+              <div class="section-title" style="margin-bottom:6px;flex-shrink:0">Interactive Profile</div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;flex-shrink:0">Check the appliances you want solar to cover &nbsp;<span id="solar-selection-indicator" style="color:var(--color-text-muted);font-weight:400">(${activeNames.size}/${appliances.length} selected)</span></div>
+              <div class="interactive-profile" style="padding:0;overflow-y:auto;flex:1;min-height:0">
                 ${appliances.map(a => `
                   <div class="profile-appliance-row" data-name="${escAttr(a.name)}" style="cursor:pointer;user-select:none">
                     <div class="checkbox ${activeNames.has(a.name) ? 'checked' : ''}"></div>
@@ -204,7 +222,7 @@ export function renderSolarPVSystem(container, navigate) {
                 </div>
               </div>
             </div>
-            <div class="card">
+            <div class="card" style="margin-top:24px">
               <div class="section-title" style="margin-bottom:8px">Hourly Energy Dispatch Simulation</div>
               <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--color-text-secondary)">
                 <div id="dispatch-stat-reliance">${gridRelianceLabel} <strong>${Math.round(dispatch.gridReliance_before*100)}% → ${Math.round(dispatch.gridReliance_after*100)}%</strong></div>
@@ -316,8 +334,11 @@ export function renderSolarPVSystem(container, navigate) {
   drawGenChart(solar, months);
   if (hasRealAppliances) {
     drawGaugeChart(load.confidenceScore);
-    document.getElementById('spec-confidence-prompt').innerHTML = confidencePromptInner(load.confidenceReason, load.confidenceLabel);
-    requestAnimationFrame(() => drawDispatchCanvas('dispatch-canvas', dispatch));
+    document.getElementById('spec-confidence-prompt').innerHTML = confidencePromptInner(load.confidenceReason, load.confidenceLabel, load.confidenceDirection);
+    requestAnimationFrame(() => {
+      drawDispatchCanvas('dispatch-canvas', dispatch);
+      syncProfileCardHeight();
+    });
   }
 
   if (hasRealAppliances) {
@@ -360,8 +381,8 @@ export function renderSolarPVSystem(container, navigate) {
     $('spec-area-m2').textContent       = `${s.installation_m2} m²`;
     $('spec-annual-gen').textContent    = annualGenText(s.annual_gen_kwh);
 
-    if ($('spec-confidence-label')) $('spec-confidence-label').textContent = l.confidenceLabel || confidenceLabel(l.confidenceScore);
-    if ($('spec-confidence-score')) $('spec-confidence-score').textContent = `${l.confidenceScore}% Confidence`;
+    // Confidence score is frozen at initial render; it reflects data quality
+    // (spending vs full appliance list), not which appliances are solar-covered.
 
     if ($('spec-storage-cap'))  $('spec-storage-cap').textContent  = `${b.storage_capacity} kWh`;
     if ($('spec-storage-out'))  $('spec-storage-out').textContent  = `${b.storage_output.toFixed(2)} kW`;
@@ -375,10 +396,8 @@ export function renderSolarPVSystem(container, navigate) {
 
     drawGenChart(s, months);
     if (hasRealAppliances) {
-      drawGaugeChart(l.confidenceScore);
-      const promptEl = $('spec-confidence-prompt');
-      if (promptEl) promptEl.innerHTML = confidencePromptInner(l.confidenceReason, l.confidenceLabel);
       drawDispatchCanvas('dispatch-canvas', d);
+      requestAnimationFrame(syncProfileCardHeight);
     }
 
     // Keep state.results in sync so Final Quote and Cost Savings reflect

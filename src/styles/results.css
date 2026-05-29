@@ -759,12 +759,16 @@
      In single-page mode (addAppliances) it is: results-main > content-div.
      Target by section IDs so we never accidentally double-pad. */
   #section-costSavings   > div:first-child,
-  #section-loadProfile   > div:first-child,
   #section-solarPVSystem > div:first-child,
-  #section-finalQuote    > div:first-child,
   .results-main > div[style*="padding"] {
     padding-left:  16px !important;
     padding-right: 16px !important;
+  }
+
+  #section-loadProfile > div:first-child,
+  #section-finalQuote  > div:first-child {
+    padding-left:  24px !important;
+    padding-right: 24px !important;
   }
 
   /* Stack all multi-column grids to single column */
@@ -809,6 +813,12 @@
   .bom-table {
     display: block;
     overflow-x: auto;
+  }
+
+  /* Step footer inside results: match the content side padding */
+  .results-main .step-footer {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
   }
 
   /* Refine prompt card: stack emoji above content on mobile */

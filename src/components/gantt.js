@@ -163,7 +163,7 @@ export function initGantt(containerId, appliances) {
     });
 
     container.querySelectorAll('.gantt-row__track').forEach(track => {
-      track.addEventListener('click', e => {
+      track.addEventListener('dblclick', e => {
         if (e.target !== track) return;
         const ri = +track.dataset.ri;
         const rect = track.getBoundingClientRect();

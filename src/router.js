@@ -118,8 +118,13 @@ function renderScrollMode(scrollTo) {
 }
 
 function getScrollContainer() {
+  // In results layout the scrollable element is #results-content (.results-main)
+  const resultsMain = document.getElementById('results-content');
+  if (resultsMain && resultsMain.scrollHeight > resultsMain.clientHeight) return resultsMain;
+  // In wizard layout it is .right-panel
   const panel = document.querySelector('.right-panel');
-  return (panel && panel.scrollHeight > panel.clientHeight) ? panel : null;
+  if (panel && panel.scrollHeight > panel.clientHeight) return panel;
+  return null;
 }
 
 function scrollToSection(route) {

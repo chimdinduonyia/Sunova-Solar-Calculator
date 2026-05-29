@@ -92,7 +92,7 @@ export function renderAddAppliances(container, navigate) {
 
     container.innerHTML = `
       <div style="display:flex;flex-direction:column;min-height:100%">
-      <div style="flex:1;padding:40px 40px 32px">
+      <div id="add-appliances-content" style="flex:1;padding:40px 40px 32px">
         <div style="margin-bottom:32px">
           <h2 style="font-size:32px;font-weight:800;margin-bottom:4px">Home Profile &amp; Appliances</h2>
           <p style="color:var(--color-text-secondary);font-size:16px">Add your appliances to sharpen your solar recommendation</p>

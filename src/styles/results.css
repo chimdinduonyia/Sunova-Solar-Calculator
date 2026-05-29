@@ -815,8 +815,9 @@
     overflow-x: auto;
   }
 
-  /* Step footer inside results: match the content side padding */
-  .results-main .step-footer {
+  /* Step footer inside results and its sibling content: match side padding */
+  .results-main .step-footer,
+  #add-appliances-content {
     padding-left: 16px !important;
     padding-right: 16px !important;
   }

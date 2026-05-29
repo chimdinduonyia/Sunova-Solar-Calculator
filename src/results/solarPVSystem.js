@@ -276,7 +276,7 @@ export function renderSolarPVSystem(container, navigate) {
                   <div class="value value--amber" id="dispatch-stat-reliance-after">${Math.round(dispatch.gridReliance_after * 100)}%</div>
                 </div>
                 <div class="storage-stat">
-                  <div class="label">Avg Daily Usage</div>
+                  <div class="label">Avg Daily Grid Use</div>
                   <div class="value value--amber" id="dispatch-stat-grid"><span style="color:var(--color-text-muted)">${dispatch.totalDemand.toFixed(1)}</span> → ${dispatch.avgDailyGridKWh} kWh</div>
                 </div>
                 <div class="storage-stat">

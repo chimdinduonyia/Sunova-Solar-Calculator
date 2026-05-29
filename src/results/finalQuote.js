@@ -56,7 +56,7 @@ export function renderFinalQuote(container, navigate) {
         </div>
         <div style="display:flex;gap:10px;flex-shrink:0">
           <button class="btn btn--outline btn--sm" onclick="window._navigate('costSavings')">← Back to Savings</button>
-          <button class="btn btn--primary btn--sm" onclick="window.print()">⬇ Download Quote</button>
+          <button class="btn btn--primary btn--sm" id="print-pv-btn">Print System Specs</button>
         </div>
       </div>
 
@@ -88,7 +88,7 @@ export function renderFinalQuote(container, navigate) {
             </div>
           </div>
 
-          <div class="card" style="background:var(--color-primary-bg);border-color:var(--color-primary-light)">
+          <div class="card" id="quote-system-summary" style="background:var(--color-primary-bg);border-color:var(--color-primary-light)">
             <div style="font-size:12px;font-weight:700;color:var(--color-primary-dark);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px">System Summary</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
               <div>
@@ -114,7 +114,7 @@ export function renderFinalQuote(container, navigate) {
             </div>
           </div>
 
-          <div class="card">
+          <div class="card" id="quote-boq">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
               <div class="section-title" style="margin-bottom:0">Bill of Quantities (BOQ)</div>
               <span style="font-size:11px;color:var(--color-text-muted)">Excl. installation &amp; logistics</span>
@@ -151,7 +151,7 @@ export function renderFinalQuote(container, navigate) {
             <h1 class="final-quote-title">Your personalized solar system &amp; financial overview</h1>
             <p class="final-quote-desc" style="margin-top:12px">Get your personalized energy data with accurate recommendations to boost your energy efficiency and reduce your electricity bills.</p>
             <div class="final-quote-btns" style="margin-top:20px">
-              <button class="btn btn--primary btn--lg" onclick="window.print()">⬇ Download Quote</button>
+              <button class="btn btn--primary btn--lg" id="print-boq-btn">⬇ Download Quote</button>
               <button class="btn btn--outline btn--lg">Share Quote</button>
             </div>
           </div>
@@ -252,6 +252,66 @@ export function renderFinalQuote(container, navigate) {
   `;
 
   window._navigate = navigate;
+
+  // ── Print helpers ────────────────────────────────────────────────────────
+
+  function openPrintWindow(htmlBody, title) {
+    const styleLinks = [...document.querySelectorAll('link[rel="stylesheet"]')]
+      .map(l => `<link rel="stylesheet" href="${l.href}">`).join('');
+    const w = window.open('', '_blank');
+    if (!w) { window.print(); return; }
+    w.document.write(`<!DOCTYPE html><html><head>
+      <meta charset="UTF-8"><title>${title} | Sunova</title>
+      ${styleLinks}
+      <style>
+        body { padding: 32px; margin: 0; background: #fff; }
+        button, .btn, .assumptions-btn { display: none !important; }
+        .card { break-inside: avoid; }
+        @media print { body { padding: 0; } }
+      </style>
+    </head><body>
+      <div style="max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:20px">
+        ${htmlBody}
+      </div>
+    </body></html>`);
+    w.document.close();
+    setTimeout(() => { w.focus(); w.print(); }, 600);
+  }
+
+  function printBoQ() {
+    const summary = document.getElementById('quote-system-summary');
+    const boq     = document.getElementById('quote-boq');
+    if (!summary || !boq) return;
+    openPrintWindow(summary.outerHTML + boq.outerHTML, 'System Summary & BoQ');
+  }
+
+  function printSolarPV() {
+    const section = document.getElementById('section-solarPVSystem');
+    if (!section) return;
+    const clone = section.cloneNode(true);
+    // Convert canvas elements to static images so they render in the print window
+    clone.querySelectorAll('canvas').forEach(canvasEl => {
+      const live = canvasEl.id ? document.getElementById(canvasEl.id) : null;
+      if (live) {
+        try {
+          const img = document.createElement('img');
+          img.src = live.toDataURL('image/png');
+          img.style.cssText = canvasEl.style.cssText;
+          img.style.maxWidth = '100%';
+          img.style.height = 'auto';
+          canvasEl.parentNode.replaceChild(img, canvasEl);
+        } catch (e) { canvasEl.remove(); }
+      } else {
+        canvasEl.remove();
+      }
+    });
+    // Strip interactive controls
+    clone.querySelectorAll('button, .btn, input, select, .confidence-tooltip-wrap').forEach(el => el.remove());
+    openPrintWindow(clone.innerHTML, 'Solar PV System');
+  }
+
+  document.getElementById('print-boq-btn').addEventListener('click', printBoQ);
+  document.getElementById('print-pv-btn').addEventListener('click', printSolarPV);
 
   // Modal open / close
   const overlay = document.getElementById('assumptions-overlay');

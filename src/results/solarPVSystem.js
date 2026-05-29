@@ -269,7 +269,7 @@ export function renderSolarPVSystem(container, navigate) {
               <div style="display:flex;gap:32px;flex-wrap:wrap">
                 <div class="storage-stat">
                   <div class="label">Before Solar</div>
-                  <div class="value value--amber" id="dispatch-stat-reliance-before">${Math.round(dispatch.gridReliance_before * 100)}%</div>
+                  <div class="value" style="color:var(--color-text-muted)" id="dispatch-stat-reliance-before">${Math.round(dispatch.gridReliance_before * 100)}%</div>
                 </div>
                 <div class="storage-stat">
                   <div class="label">After Solar</div>
@@ -277,7 +277,7 @@ export function renderSolarPVSystem(container, navigate) {
                 </div>
                 <div class="storage-stat">
                   <div class="label">Avg Daily Usage</div>
-                  <div class="value value--amber" id="dispatch-stat-grid">${dispatch.totalDemand.toFixed(1)} → ${dispatch.avgDailyGridKWh} kWh</div>
+                  <div class="value value--amber" id="dispatch-stat-grid"><span style="color:var(--color-text-muted)">${dispatch.totalDemand.toFixed(1)}</span> → ${dispatch.avgDailyGridKWh} kWh</div>
                 </div>
                 <div class="storage-stat">
                   <div class="label">Avg Daily Surplus</div>

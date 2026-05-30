@@ -63,21 +63,33 @@ export function renderCostSavings(container, navigate) {
           </div>
           <div class="savings-kpi">
             <div>
-              <div class="savings-kpi__label">Lifetime Savings ${tip('Your total net savings over 25 years, after deducting the initial system cost and a battery replacement at year 10.')}</div>
-              <div class="savings-kpi__value">${N(savings.lifetime_savings)}</div>
-              <div class="savings-kpi__sub"><span class="pill--amber">Over 25 Years</span></div>
+              <div class="savings-kpi__label">Energy Bill Savings ${tip('Your estimated net saving in energy costs each year after switching to solar, based on the difference between your current energy spend and your projected post-solar spend.')}</div>
+              <div class="savings-kpi__value">${N(savings.annual_savings)}</div>
+              <div class="savings-kpi__sub"><span class="pill--amber">Per Year</span></div>
             </div>
-            <div class="savings-kpi__icon"><img src="/icons/lifetime_savings.png" width="64" height="64" style="object-fit:contain"></div>
+            <div class="savings-kpi__icon"><img src="/icons/annual_savings.png" width="64" height="64" style="object-fit:contain"></div>
           </div>
         </div>
 
-        <div class="card" style="margin-bottom:24px;margin-top:0">
-          <div class="savings-kpi" style="border:none;padding:0">
-            <div>
-              <div class="savings-kpi__label">Carbon Emission Avoided ${tip('The CO₂ emissions your solar system prevents each year by replacing fossil fuel electricity with clean solar energy.')}</div>
-              <div class="savings-kpi__value">${savings.co2_avoided_tonnes} tCO₂/Year</div>
+        <div class="savings-env-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;margin-top:0">
+          <div class="card">
+            <div class="savings-kpi" style="border:none;padding:0">
+              <div>
+                <div class="savings-kpi__label">Lifetime Savings ${tip('Your total net savings over 25 years, after deducting the initial system cost and a battery replacement at year 10.')}</div>
+                <div class="savings-kpi__value">${N(savings.lifetime_savings)}</div>
+                <div class="savings-kpi__sub"><span class="pill--amber">Over 25 Years</span></div>
+              </div>
+              <div class="savings-kpi__icon"><img src="/icons/lifetime_savings.png" width="64" height="64" style="object-fit:contain"></div>
             </div>
-            <div class="savings-kpi__icon"><img src="/icons/emissions_avoided.png" width="64" height="64" style="object-fit:contain"></div>
+          </div>
+          <div class="card">
+            <div class="savings-kpi" style="border:none;padding:0">
+              <div>
+                <div class="savings-kpi__label">Carbon Emission Avoided ${tip('The CO₂ emissions your solar system prevents each year by replacing fossil fuel electricity with clean solar energy.')}</div>
+                <div class="savings-kpi__value">${savings.co2_avoided_tonnes} tCO₂/Year</div>
+              </div>
+              <div class="savings-kpi__icon"><img src="/icons/emissions_avoided.png" width="64" height="64" style="object-fit:contain"></div>
+            </div>
           </div>
         </div>
 

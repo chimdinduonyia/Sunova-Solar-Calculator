@@ -780,6 +780,10 @@
     grid-template-columns: 1fr !important;
   }
 
+  .savings-env-grid {
+    grid-template-columns: 1fr !important;
+  }
+
   /* System spec cards: force 2×2 on mobile */
   .system-specs {
     display: grid !important;

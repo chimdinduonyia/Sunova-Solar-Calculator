@@ -25,7 +25,7 @@ export function renderStep1(container, navigate) {
         </div>
 
         <div class="card" style="max-width:480px">
-          <label class="label" style="display:block;margin-bottom:8px;font-weight:600;font-size:13px">
+          <label class="label" style="display:block;margin-bottom:8px;font-weight:600;font-size:14px">
             Select your state / city
           </label>
           <div class="select-wrap">

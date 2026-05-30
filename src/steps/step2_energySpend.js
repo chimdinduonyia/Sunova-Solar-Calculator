@@ -51,7 +51,7 @@ export function renderStep2(container, navigate) {
 
           ${showGrid ? `
             <div class="section-title" style="margin-top:32px;margin-bottom:12px">Grid electricity</div>
-            <div style="font-size:12px;color:var(--color-text-muted);margin-bottom:10px">What is your electricity tariff band?</div>
+            <div style="font-size:14px;color:var(--color-text-muted);margin-bottom:10px">What is your electricity tariff band?</div>
             <div class="tariff-pills" id="tariff-pills">
               ${tariffs.map(t => `
                 <button class="tariff-pill ${s.tariffBand === t.band ? 'selected' : ''}" data-band="${t.band}">${t.band}</button>
@@ -68,15 +68,15 @@ export function renderStep2(container, navigate) {
                 </div>
               </div>
             ` : '<div style="margin-bottom:16px"></div>'}
-            <div style="font-size:12px;color:var(--color-text-muted);margin-bottom:6px">Monthly grid spend</div>
+            <div style="font-size:14px;color:var(--color-text-muted);margin-bottom:6px">Monthly grid spend</div>
             ${renderSlider({ id: 'grid-spend-slider', value: s.gridSpend, min: 10000, max: 1000000, step: 10000, ticks: [10000, 250000, 500000, 750000, 1000000], label: 'per month' })}
           ` : ''}
 
           ${showGen ? `
             <div class="section-title" style="margin-top:32px;margin-bottom:12px">Generator</div>
-            <div style="font-size:12px;color:var(--color-text-muted);margin-bottom:10px">Choose your generator size</div>
+            <div style="font-size:14px;color:var(--color-text-muted);margin-bottom:10px">Choose your generator size</div>
             ${renderRadioCards({ cards: GEN_CARDS, selected: s.generatorSize, name: 'gen-size' })}
-            <div style="font-size:12px;color:var(--color-text-muted);margin-top:20px;margin-bottom:6px">Monthly fuel spend</div>
+            <div style="font-size:14px;color:var(--color-text-muted);margin-top:20px;margin-bottom:6px">Monthly fuel spend</div>
             ${renderSlider({ id: 'fuel-spend-slider', value: s.fuelSpend, min: 10000, max: 1000000, step: 10000, ticks: [10000, 250000, 500000, 750000, 1000000], label: 'per month' })}
           ` : ''}
         </div>

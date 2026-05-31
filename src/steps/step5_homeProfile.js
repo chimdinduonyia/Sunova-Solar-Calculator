@@ -75,6 +75,23 @@ function getCategoryEmoji(cat) {
   return map[cat] || '🔌';
 }
 
+// Default room counts used when the user hasn't specified rooms yet
+const DEFAULT_ROOMS = { bungalow: 3, duplex: 5, terrace: 3 };
+// Bulbs per room: 1 x 9W (bedrooms/smaller areas) + 1 x 15W (living/kitchen areas)
+const BULBS_PER_ROOM = { '9W': 1, '15W': 1 };
+
+function buildHousePreselection(houseType, rooms, houseDefaults) {
+  const base = (houseDefaults[houseType] || []).filter(
+    a => !a.name.startsWith('LED Bulb')
+  );
+  const r = (rooms && rooms > 0) ? rooms : (DEFAULT_ROOMS[houseType] || 3);
+  return [
+    ...base,
+    { name: 'LED Bulb (9W)',  qty: r * BULBS_PER_ROOM['9W']  },
+    { name: 'LED Bulb (15W)', qty: r * BULBS_PER_ROOM['15W'] },
+  ];
+}
+
 export function renderStep5(container, navigate) {
   const state = getState();
   const applianceData = getData('appliances') || [];
@@ -184,7 +201,7 @@ export function renderStep5(container, navigate) {
       const houseDefaults = getData('house_type_appliances') || {};
       // Pre-select house-type defaults only on first open (no appliances yet)
       const preselect = (s.houseType && s.appliances.length === 0)
-        ? (houseDefaults[s.houseType] || [])
+        ? buildHousePreselection(s.houseType, s.rooms, houseDefaults)
         : s.appliances;
       openModal(renderApplianceModal(applianceData, preselect));
       bindModalClose();

@@ -75,6 +75,20 @@ const WHY_MODAL_HTML = `
   </div>
 `;
 
+const DEFAULT_ROOMS = { bungalow: 3, duplex: 5, terrace: 3 };
+
+function buildHousePreselection(houseType, rooms, houseDefaults) {
+  const base = (houseDefaults[houseType] || []).filter(
+    a => !a.name.startsWith('LED Bulb')
+  );
+  const r = (rooms && rooms > 0) ? rooms : (DEFAULT_ROOMS[houseType] || 3);
+  return [
+    ...base,
+    { name: 'LED Bulb (9W)',  qty: r },
+    { name: 'LED Bulb (15W)', qty: r },
+  ];
+}
+
 export function renderAddAppliances(container, navigate) {
   const applianceData  = getData('appliances') || [];
   const houseDefaults  = getData('house_type_appliances') || {};
@@ -181,7 +195,7 @@ export function renderAddAppliances(container, navigate) {
     document.getElementById('add-appliances-btn').addEventListener('click', () => {
       const s = getState();
       const preselect = (s.houseType && s.appliances.length === 0)
-        ? (houseDefaults[s.houseType] || [])
+        ? buildHousePreselection(s.houseType, s.rooms, houseDefaults)
         : s.appliances;
       openModal(renderApplianceModal(applianceData, preselect));
       bindModalClose();

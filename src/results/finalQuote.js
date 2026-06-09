@@ -262,7 +262,7 @@ export function renderFinalQuote(container, navigate) {
     const w = window.open('', '_blank');
     if (!w) { window.print(); return; }
     w.document.write(`<!DOCTYPE html><html><head>
-      <meta charset="UTF-8"><title>${title} | Sunova</title>
+      <meta charset="UTF-8"><title>${title} | NNEL B2C Solar Marketplace</title>
       ${styleLinks}
       <style>
         body { padding: 32px; margin: 0; background: #fff; }

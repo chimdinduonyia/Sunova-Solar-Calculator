@@ -155,7 +155,7 @@ export function renderLoadProfile(container, navigate) {
               </div>
             </div>
             <img src="/icons/solar_irradiance_stats.png"
-              style="position:absolute;right:-12px;bottom:-18px;width:188px;height:188px;object-fit:contain;opacity:0.88;pointer-events:none;z-index:0">
+              style="position:absolute;right:-12px;bottom:-28px;width:188px;height:188px;object-fit:contain;opacity:0.88;pointer-events:none;z-index:0">
           </div>
 
           ${consumptionCard}

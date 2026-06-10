@@ -302,21 +302,5 @@
     "typical_daily_hours": 24,
     "daily_wh": 720,
     "notes": "Always on"
-  },
-  {
-    "category": "Security",
-    "name": "Electric Gate Motor",
-    "rated_watts": 200,
-    "typical_daily_hours": 0.1,
-    "daily_wh": 20.0,
-    "notes": "Per open/close"
-  },
-  {
-    "category": "Security",
-    "name": "Intercom / Access Panel",
-    "rated_watts": 10,
-    "typical_daily_hours": 24,
-    "daily_wh": 240,
-    "notes": ""
   }
 ]

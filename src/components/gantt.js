@@ -35,6 +35,8 @@ function matchKey(name, category) {
       return null;
     case 'Water':
       return /pump/i.test(name) ? 'Water Pump' : null;
+    case 'Security':
+      return 'Always On';
     default:
       return null;
   }

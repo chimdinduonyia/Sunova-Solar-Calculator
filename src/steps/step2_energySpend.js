@@ -64,6 +64,7 @@ export function renderStep2(container, navigate) {
                   <div style="font-size:12px;color:var(--color-text-secondary)">
                     ${tariffs.find(t => t.band === s.tariffBand)?.hours_of_supply || ''} hrs/day
                     &nbsp;·&nbsp; ₦${tariffs.find(t => t.band === s.tariffBand)?.tariff_naira_per_kwh || ''}/kWh
+                    &nbsp;<span class="badge-nerc">NERC</span>
                   </div>
                 </div>
               </div>

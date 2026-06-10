@@ -1,6 +1,7 @@
 const PANEL_WATT        = 585;    // W per panel, Jinko Solar 585W Mono PERC Half-Cell
 const PERF_RATIO        = 0.75;   // system performance ratio (PR)
 const POWER_FACTOR      = 0.80;   // inverter power factor
+const SURGE_FACTOR      = 1.25;   // motor startup surge headroom (AC, fridge, pump)
 const INST_M2_PER_KWP   = 6.5;   // installation area per kWp
 const BATTERY_RT_EFF    = 0.9025; // round-trip battery efficiency (0.95 charge × 0.95 discharge)
 const SOLAR_START_HOUR  = 6;
@@ -12,9 +13,11 @@ const COST_PER_KWP    = 250000;
 const COST_INV_PER_KVA = 60000;
 const INST_FIXED      = 150000;
 
-export function calcSolar(load, location) {
+export function calcSolar(load, location, baseCasePeakKW = 0) {
   const dailyKWh     = load.totalDailyKWh;
-  const peakDemandKW = load.peakKW;
+  // Use the higher of the user's actual peak and the base-case floor.
+  // This keeps the inverter sized sensibly even before appliances are entered.
+  const peakDemandKW = Math.max(load.peakKW, baseCasePeakKW);
   const psh          = location?.daily_yield_kwh_per_kwp  || 4.5;
   const annualYield  = location?.annual_yield_kwh_per_kwp || 1642;
   const hourlyProfile = load.hourlyProfile || [];
@@ -53,8 +56,9 @@ export function calcSolar(load, location) {
   const panelCount   = Math.ceil((pvKWp_required * 1000) / PANEL_WATT);
   const pvKWp_actual = parseFloat((panelCount * PANEL_WATT / 1000).toFixed(2));
 
-  // Inverter: round up to nearest standard size
-  const inverterRequired = peakDemandKW / POWER_FACTOR;
+  // Inverter: apply surge factor for motor startup loads (AC, fridge, pump),
+  // then divide by power factor and round up to nearest standard size.
+  const inverterRequired = (peakDemandKW * SURGE_FACTOR) / POWER_FACTOR;
   const inverterKVA = INVERTER_SIZES_KVA.find(s => s >= inverterRequired)
     ?? INVERTER_SIZES_KVA[INVERTER_SIZES_KVA.length - 1];
 

@@ -75,10 +75,13 @@ function getCategoryEmoji(cat) {
   return map[cat] || '🔌';
 }
 
-// Default room counts used when the user hasn't specified rooms yet
-const DEFAULT_ROOMS = { bungalow: 3, duplex: 5, terrace: 3 };
-// Bulbs per room: 1 x 9W (bedrooms/smaller areas) + 1 x 15W (living/kitchen areas)
-const BULBS_PER_ROOM = { '9W': 1, '15W': 1 };
+// Default room counts by home type (used when user hasn't specified)
+// Bungalow: 1 parlour, 1 kitchen, 1 guest bathroom, 3 bedrooms, 3 bathrooms = 9
+// Duplex:   2 parlours, 1 kitchen, 1 pantry, 5 bedrooms, 5 bathrooms = 14
+// Terrace:  20 rooms
+const DEFAULT_ROOMS = { bungalow: 9, duplex: 14, terrace: 20 };
+// 3 bulbs per room: 2 x 9W + 1 x 15W
+const BULBS_PER_ROOM = { '9W': 2, '15W': 1 };
 
 function buildHousePreselection(houseType, rooms, houseDefaults) {
   const base = (houseDefaults[houseType] || []).filter(

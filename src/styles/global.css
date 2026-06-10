@@ -144,6 +144,20 @@ button, input, select, textarea {
 }
 .tag--amber { background: var(--color-primary-light); color: var(--color-primary-dark); }
 .tag--green { background: #D1FAE5; color: #065F46; }
+.badge-nerc {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: #F0FDF4;
+  color: #15803D;
+  border: 1px solid #BBF7D0;
+  vertical-align: middle;
+  line-height: 1.6;
+}
 
 .pill--amber {
   display: inline-block;

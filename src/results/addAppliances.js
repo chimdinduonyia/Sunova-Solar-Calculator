@@ -75,17 +75,20 @@ const WHY_MODAL_HTML = `
   </div>
 `;
 
-const DEFAULT_ROOMS = { bungalow: 3, duplex: 5, terrace: 3 };
+// Bungalow: 9 rooms, Duplex: 14 rooms, Terrace: 20 rooms
+const DEFAULT_ROOMS = { bungalow: 9, duplex: 14, terrace: 20 };
+// 3 bulbs per room: 2 x 9W + 1 x 15W
+const BULBS_PER_ROOM = { '9W': 2, '15W': 1 };
 
 function buildHousePreselection(houseType, rooms, houseDefaults) {
   const base = (houseDefaults[houseType] || []).filter(
     a => !a.name.startsWith('LED Bulb')
   );
-  const r = (rooms && rooms > 0) ? rooms : (DEFAULT_ROOMS[houseType] || 3);
+  const r = (rooms && rooms > 0) ? rooms : (DEFAULT_ROOMS[houseType] || 9);
   return [
     ...base,
-    { name: 'LED Bulb (9W)',  qty: r },
-    { name: 'LED Bulb (15W)', qty: r },
+    { name: 'LED Bulb (9W)',  qty: r * BULBS_PER_ROOM['9W']  },
+    { name: 'LED Bulb (15W)', qty: r * BULBS_PER_ROOM['15W'] },
   ];
 }
 

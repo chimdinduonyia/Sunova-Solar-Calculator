@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="NNEL Solar Sizing Calculator for Nigerian Homes" />
-  <title>NNEL B2C Solar Marketplace</title>
+  <title>NNEL Solar Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Noto+Sans:wght@400;700;800&display=swap" rel="stylesheet">
@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="/src/styles/global.css" />
   <link rel="stylesheet" href="/src/styles/wizard.css" />
   <link rel="stylesheet" href="/src/styles/results.css" />
+  <link rel="stylesheet" href="/src/styles/marketplace.css" />
 </head>
 <body>
   <div id="app">
@@ -21,11 +22,8 @@
       <aside class="left-panel">
         <div class="left-panel__overlay">
           <div class="logo">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="14" cy="14" r="13" stroke="white" stroke-width="2"/>
-              <path d="M14 6L11 14H14L10 22L18 13H14L17 6H14Z" fill="#FCBF1E"/>
-            </svg>
-            <span>NNEL B2C Solar Marketplace</span>
+            <img src="/icons/nnpc-icon.png" width="28" height="28" alt="NNPC logo" style="object-fit:contain;display:block">
+            <span>NNEL Solar Hub</span>
           </div>
           <div class="left-panel__hero">
             <h2>Your energy,<br>sized in minutes.</h2>
@@ -35,11 +33,8 @@
       </aside>
       <main class="right-panel">
         <div class="mobile-top-bar">
-          <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="14" cy="14" r="13" stroke="#111827" stroke-width="2"/>
-            <path d="M14 6L11 14H14L10 22L18 13H14L17 6H14Z" fill="#FCBF1E"/>
-          </svg>
-          <span>NNEL B2C Solar Marketplace</span>
+          <img src="/icons/nnpc-icon.png" width="24" height="24" alt="NNPC logo" style="object-fit:contain;display:block">
+          <span>NNEL Solar Hub</span>
         </div>
         <div id="wizard-content"></div>
       </main>
@@ -52,21 +47,15 @@
           <span></span><span></span><span></span>
         </button>
         <div class="results-mobile-topbar__logo">
-          <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-            <circle cx="14" cy="14" r="13" stroke="#111827" stroke-width="2"/>
-            <path d="M14 6L11 14H14L10 22L18 13H14L17 6H14Z" fill="#FCBF1E"/>
-          </svg>
-          <span>NNEL B2C Solar Marketplace</span>
+          <img src="/icons/nnpc-icon.png" width="22" height="22" alt="NNPC logo" style="object-fit:contain;display:block">
+          <span>NNEL Solar Hub</span>
         </div>
       </div>
       <div class="offcanvas-backdrop" id="offcanvas-backdrop"></div>
       <aside class="results-sidebar">
         <div class="results-sidebar__logo">
-          <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-            <circle cx="14" cy="14" r="13" stroke="#111827" stroke-width="2"/>
-            <path d="M14 6L11 14H14L10 22L18 13H14L17 6H14Z" fill="#FCBF1E"/>
-          </svg>
-          <span>NNEL B2C Solar Marketplace</span>
+          <img src="/icons/nnpc-icon.png" width="22" height="22" alt="NNPC logo" style="object-fit:contain;display:block">
+          <span>NNEL Solar Hub</span>
           <button class="offcanvas-close-btn" id="offcanvas-close-btn" aria-label="Close navigation">✕</button>
         </div>
         <nav id="results-nav" class="results-sidebar__nav"></nav>

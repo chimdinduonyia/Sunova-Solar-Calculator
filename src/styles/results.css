@@ -130,8 +130,15 @@
   gap: 24px;
   align-items: start;
 }
-.assumption-summary { display: flex; flex-wrap: wrap; gap: 12px; }
-.assumption-item { min-width: 100px; }
+.assumption-summary { display: flex; flex-direction: column; gap: 0; }
+.assumption-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+.assumption-item:last-child { border-bottom: none; }
 .solar-irradiance-card {
   display: flex;
   align-items: center;
@@ -173,6 +180,16 @@
 /* ── Solar PV wrapper ── */
 .pv-section {
   background: #FAFAFA;
+  border: none;
+}
+
+/* ── CTA section wrapper ── */
+.cta-section {
+  background: #FAFAFA;
+  border: none;
+}
+.cta-section .card {
+  background: var(--color-white);
   border: none;
 }
 
@@ -247,7 +264,7 @@
 .savings-kpi {
   background: var(--color-white); border: 1.5px solid var(--color-border);
   border-radius: var(--radius-lg); padding: var(--spacing-4);
-  display: flex; align-items: center; gap: var(--spacing-3);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-3);
 }
 .savings-kpi__icon { font-size: 36px; }
 .savings-kpi__label { font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: 2px; }

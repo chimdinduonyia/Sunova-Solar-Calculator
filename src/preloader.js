@@ -5,24 +5,14 @@ const STEP_LABELS = [
   'Finalising your results'
 ];
 
-const STEP_ACTIVE_AT  = [0, 1750, 3500, 5500]; // ms: when each step becomes active
-const STEP_DONE_DELAY = 1100;                   // ms after active → done
-const TOTAL_DURATION  = 8000;                   // ms before onComplete fires
-
-const SPIKE_DELAYS = [0, 0.175, 0.35, 0.525, 0.7, 0.875, 1.05, 1.225];
-const SPIKES = [
-  [[44,22],[44,10]], [[63.6,24.4],[71.9,16.1]], [[66,44],[78,44]],
-  [[63.6,63.6],[71.9,71.9]], [[44,66],[44,78]], [[24.4,63.6],[16.1,71.9]],
-  [[22,44],[10,44]], [[24.4,24.4],[16.1,16.1]]
+// Step timeline: [activeAt ms, doneAt ms]
+const TIMELINE = [
+  { activeAt: 0,     doneAt: 3000  },
+  { activeAt: 3000,  doneAt: 8000  },
+  { activeAt: 8000,  doneAt: 15000 },
+  { activeAt: 15000, doneAt: 18000 },
 ];
-
-const SUN_SVG = `
-<svg width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="44" cy="44" r="16" fill="#FCBF1E"/>
-  ${SPIKES.map(([[x1,y1],[x2,y2]], i) =>
-    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#FCBF1E" stroke-width="3.5" stroke-linecap="round" style="animation:pl-spike-twinkle 1.4s ease-in-out ${SPIKE_DELAYS[i]}s infinite"/>`
-  ).join('')}
-</svg>`;
+const TOTAL_DURATION = 18000;
 
 const CSS = `
 #preloader-overlay {
@@ -43,92 +33,77 @@ const CSS = `
   align-items: center;
   gap: 44px;
 }
-@keyframes pl-spike-twinkle {
-  0%, 100% { opacity: 0.15; }
-  50%       { opacity: 1;    }
+
+/* ── Sun ── */
+.pl-sun { position: relative; width: 108px; height: 108px; }
+.pl-sun-rays { position: absolute; inset: 0; animation: pl-spin-slow 18s linear infinite; }
+.pl-sun-rays i {
+  position: absolute; top: 50%; left: 50%;
+  width: 4px; height: 13px; border-radius: 2px; background: #FCBF1E;
+  transform: translate(-50%, -50%) rotate(var(--a)) translateY(-42px);
+  animation: pl-ray-twinkle 1.8s ease-in-out infinite;
 }
-.pl-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+.pl-sun-core {
+  position: absolute; top: 50%; left: 50%;
+  width: 50px; height: 50px; margin: -25px 0 0 -25px;
+  border-radius: 50%; background: #FCBF1E;
+  animation: pl-core-pulse 2.6s ease-in-out infinite;
 }
+@keyframes pl-spin-slow    { to { transform: rotate(360deg); } }
+@keyframes pl-ray-twinkle  { 0%, 100% { opacity: .32; } 50% { opacity: 1; } }
+@keyframes pl-core-pulse   { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.84); opacity: .7; } }
+
+/* ── Steps ── */
+.pl-steps { display: flex; flex-direction: column; gap: 0; }
 .pl-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  opacity: 0;
-  transform: translateY(6px);
+  display: flex; align-items: flex-start; gap: 14px;
+  opacity: 0; transform: translateY(6px);
   transition: opacity 0.35s ease, transform 0.35s ease;
 }
-.pl-step.active,
-.pl-step.done {
-  opacity: 1;
-  transform: translateY(0);
-}
+.pl-step.active, .pl-step.done { opacity: 1; transform: translateY(0); }
 .pl-indicator {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 3px;
-  width: 18px;
-  flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center;
+  width: 18px; flex-shrink: 0;
 }
-.pl-dot-wrap {
-  width: 14px;
-  height: 14px;
-  position: relative;
-  flex-shrink: 0;
-}
+.pl-dot-wrap { width: 18px; height: 18px; position: relative; flex-shrink: 0; }
+
+/* ── Dot states ── */
 .pl-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #D1D5DB;
-  transition: background 0.3s;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; border: 2px solid #DCE5DF;
+  box-sizing: border-box; flex-shrink: 0;
+  transition: background 0.3s, border-color 0.3s;
 }
-.pl-tick {
-  position: absolute;
-  inset: -2px;
-  width: 18px;
-  height: 18px;
-  display: none;
-}
+/* Active: spinner ring */
 .pl-step.active .pl-dot {
-  background: #FCBF1E;
-  animation: pl-pulse 0.9s ease-in-out infinite alternate;
+  border-color: #F6E2A6;
+  border-top-color: #FCBF1E;
+  animation: pl-spin-dot 0.8s linear infinite;
 }
+/* Done: filled yellow, tick visible */
 .pl-step.done .pl-dot  { display: none; }
 .pl-step.done .pl-tick { display: block; }
-.pl-line-track {
-  width: 2px;
-  overflow: hidden;
-  margin-top: 5px;
+@keyframes pl-spin-dot { to { transform: rotate(360deg); } }
+
+.pl-tick {
+  position: absolute; inset: 0;
+  width: 18px; height: 18px; display: none;
 }
-.pl-line {
-  width: 2px;
-  height: 0;
-  background: #E5E7EB;
-  transition: height 0.35s ease, background 0.3s ease;
-}
-.pl-step.done .pl-line {
-  height: 36px;
-  background: #FCBF1E;
-}
+
+/* ── Connector line ── */
+.pl-line-track { width: 2px; overflow: hidden; margin-top: 5px; margin-bottom: 5px; }
+.pl-line { width: 2px; height: 0; background: #E5E7EB; transition: height 0.45s ease, background 0.3s ease; }
+.pl-step.done .pl-line { height: 36px; background: #FCBF1E; }
+
+/* ── Label ── */
 .pl-text {
-  font-size: 14px;
-  font-weight: 500;
-  color: #9CA3AF;
-  line-height: 1.4;
-  padding-bottom: 36px;
-  transition: color 0.3s;
+  font-size: 14px; font-weight: 500; color: #9CA3AF;
+  line-height: 1.4; padding-bottom: 36px; transition: color 0.3s;
 }
 .pl-step:last-child .pl-text { padding-bottom: 0; }
-.pl-step.active .pl-text { color: #111827; }
+.pl-step.active .pl-text { font-weight: 600; color: #111827; }
 .pl-step.done   .pl-text { color: #6B7280; }
-@keyframes pl-pulse {
-  from { transform: scale(0.88); box-shadow: 0 0 0 0 rgba(252,191,30,0.5); }
-  to   { transform: scale(1.12); box-shadow: 0 0 0 7px rgba(252,191,30,0); }
-}
+
 @media (max-width: 480px) {
   .pl-container { gap: 32px; padding: 0 24px; width: 100%; box-sizing: border-box; }
   .pl-steps { width: 100%; }
@@ -153,7 +128,19 @@ export function showPreloader(onComplete) {
   overlay.id = 'preloader-overlay';
   overlay.innerHTML = `
     <div class="pl-container">
-      <div>${SUN_SVG}</div>
+      <div class="pl-sun" aria-hidden="true">
+        <div class="pl-sun-rays">
+          <i style="--a:0deg;animation-delay:0s"></i>
+          <i style="--a:45deg;animation-delay:.2s"></i>
+          <i style="--a:90deg;animation-delay:.4s"></i>
+          <i style="--a:135deg;animation-delay:.6s"></i>
+          <i style="--a:180deg;animation-delay:.8s"></i>
+          <i style="--a:225deg;animation-delay:1s"></i>
+          <i style="--a:270deg;animation-delay:1.2s"></i>
+          <i style="--a:315deg;animation-delay:1.4s"></i>
+        </div>
+        <div class="pl-sun-core"></div>
+      </div>
       <div class="pl-steps">
         ${STEP_LABELS.map((label, i) => `
           <div class="pl-step" id="pl-step-${i}">
@@ -175,22 +162,22 @@ export function showPreloader(onComplete) {
   `;
   document.body.appendChild(overlay);
 
-  STEP_LABELS.forEach((_, i) => {
+  TIMELINE.forEach(({ activeAt, doneAt }, i) => {
     setTimeout(() => {
       document.getElementById(`pl-step-${i}`)?.classList.add('active');
-    }, STEP_ACTIVE_AT[i]);
-
+    }, activeAt);
     setTimeout(() => {
       const el = document.getElementById(`pl-step-${i}`);
       if (el) { el.classList.remove('active'); el.classList.add('done'); }
-    }, STEP_ACTIVE_AT[i] + STEP_DONE_DELAY);
+    }, doneAt);
   });
 
   setTimeout(() => {
     const el = document.getElementById('preloader-overlay');
     if (el) {
+      onComplete();
       el.style.opacity = '0';
-      setTimeout(() => { el.remove(); onComplete(); }, 400);
+      setTimeout(() => { el.remove(); }, 400);
     }
   }, TOTAL_DURATION);
 }

@@ -121,8 +121,8 @@ export function renderLoadProfile(container, navigate) {
 
       <div class="load-profile-grid">
         <div>
-          <div class="card" style="margin-bottom:20px">
-            <div class="section-title" style="margin-bottom:16px">Assumption Summary</div>
+          <div class="card">
+            <div class="section-title" style="margin-bottom:16px">Your Inputs</div>
             <div class="assumption-summary">
               <div class="assumption-item">
                 <div class="label">Supply</div>
@@ -137,7 +137,9 @@ export function renderLoadProfile(container, navigate) {
               <button class="btn btn--outline btn--sm" onclick="window._navigate('step1')">Adjust Assumptions</button>
             </div>
           </div>
+        </div>
 
+        <div>
           <div class="card" style="margin-bottom:20px;background:#FAFAFA;border:none;position:relative;overflow:hidden">
             <div class="section-title" style="margin-bottom:12px">Solar Irradiance</div>
             <div class="solar-irradiance-card" style="position:relative;z-index:1">
@@ -159,18 +161,6 @@ export function renderLoadProfile(container, navigate) {
           </div>
 
           ${consumptionCard}
-        </div>
-
-        <div>
-          <div class="pv-ready-card">
-            <div class="pv-ready-card__overlay">
-              <h2>Your Solar PV<br>System is <span>Ready</span></h2>
-              <p>Get your personalized energy data with accurate recommendation to boost your energy efficiency and overall usage.</p>
-              <div>
-                <button class="btn btn--primary" onclick="window._navigate('solarPVSystem')">View Solar PV System</button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 

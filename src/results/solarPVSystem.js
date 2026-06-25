@@ -165,10 +165,6 @@ export function renderSolarPVSystem(container, navigate) {
             <h2 style="font-size:32px;font-weight:800;margin-bottom:4px">Your personalized solar PV system</h2>
             <p style="color:var(--color-text-secondary);font-size:16px">Here is the breakdown of your solar PV system</p>
           </div>
-          <div style="display:flex;gap:8px;flex-shrink:0">
-            <button class="btn btn--outline" onclick="window._navigate('loadProfile')">📊 Load Summary</button>
-            <button class="btn btn--outline" onclick="window._navigate('costSavings')">💰 Cost Savings</button>
-          </div>
         </div>
 
         <div class="section-title" style="margin-bottom:12px">System Specs</div>
@@ -333,17 +329,6 @@ export function renderSolarPVSystem(container, navigate) {
 
         `}
 
-        <!-- ── See Your Quote CTA ─────────────────────────────────────── -->
-        <div class="cta-row" style="display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding:28px 32px;background:var(--color-white);border-radius:var(--radius-lg)">
-          <div>
-            <div style="font-size:var(--font-size-lg);font-weight:800;margin-bottom:4px">Ready to get your solar system?</div>
-            <div style="font-size:var(--font-size-sm);color:var(--color-text-secondary)">See a detailed breakdown with product specifications, pricing, and installer options.</div>
-          </div>
-          <button class="btn btn--primary btn--lg" id="pv-view-quote-btn" style="flex-shrink:0;margin-left:24px">
-            See Your Quote →
-          </button>
-        </div>
-
         <!-- ── Add Appliances CTA (always last) ──────────────────────── -->
         <div class="refine-prompt-card" style="margin-top:24px">
           <div class="refine-prompt-card__icon">⚡</div>
@@ -356,12 +341,12 @@ export function renderSolarPVSystem(container, navigate) {
             <button class="btn btn--primary" onclick="window._navigate('addAppliances')">Add Appliances</button>
           </div>
         </div>
+
       </div>
     </div>
   `;
 
   window._navigate = navigate;
-  document.getElementById('pv-view-quote-btn').addEventListener('click', () => navigate('finalQuote'));
 
   // Tooltip click-to-open for mobile (hover handles desktop via CSS)
   document.querySelectorAll('.confidence-tooltip-wrap').forEach(wrap => {

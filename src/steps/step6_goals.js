@@ -1,7 +1,6 @@
 import { getState, setState } from '../state.js';
 import { showPreloader } from '../preloader.js';
 import { renderProgressBar } from '../components/progressBar.js';
-import { renderSlider, bindSlider, formatNaira } from '../components/slider.js';
 import { renderRadioCards, bindRadioCards } from '../components/radioCard.js';
 import { computeResults } from '../utils/computeResults.js';
 
@@ -24,22 +23,10 @@ export function renderStep6(container, navigate) {
       </div>
 
       <div class="step-body">
-        <h1 class="step-title">Define your solar goal and financial readiness</h1>
-        <p class="step-subtitle">Let us know your goal and how much you're willing to spend</p>
+        <h1 class="step-title">What is your solar goal?</h1>
+        <p class="step-subtitle">Choose what matters most to you about going solar</p>
 
-        <div class="section-title" style="margin-bottom:14px">What is your primary goal?</div>
         ${renderRadioCards({ cards: GOALS, selected: state.goal, name: 'solar-goal' })}
-
-        <div class="section-title" style="margin-top:28px;margin-bottom:14px">How much are you willing to spend?</div>
-        ${renderSlider({
-          id: 'budget-slider',
-          value: state.budget,
-          min: 100000,
-          max: 50000000,
-          step: 100000,
-          ticks: [100000, 12500000, 25000000, 37500000, 50000000],
-          label: 'Total'
-        })}
       </div>
 
       <div class="step-footer">
@@ -91,8 +78,6 @@ export function renderStep6(container, navigate) {
   if (getState().goal === 'backup') {
     injectBackupCounter();
   }
-
-  bindSlider('budget-slider', formatNaira, val => setState({ budget: val }));
 
   document.getElementById('generate-btn').addEventListener('click', () => {
     computeResults();

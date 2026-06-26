@@ -53,7 +53,7 @@ export function renderCostSavings(container, navigate) {
           <div class="savings-kpi">
             <div>
               <div class="savings-kpi__label">Payback Period ${tip('How many years before your accumulated energy savings fully recover the cost of the solar system.')}</div>
-              <div class="savings-kpi__value">${savings.simple_payback_years} Years</div>
+              <div class="savings-kpi__value">${savings.payback_exact} Years</div>
             </div>
             <div class="savings-kpi__icon"><img src="/icons/payback_period.png" width="64" height="64" style="object-fit:contain"></div>
           </div>

@@ -1,5 +1,13 @@
-import { INSTALLERS, withScores, BADGE_COLORS, fmt } from '../data/installers.js';
+import { INSTALLERS, withScores, fmt } from '../data/installers.js';
 import { mkState, toggleShortlist } from './marketplace.js';
+import { setFinancingInstaller } from './financing.js';
+import { getState } from '../state.js';
+import CITY_MAP_DATA from '../data/cityMapData.json';
+
+function getCityData(s) { return CITY_MAP_DATA[s] || CITY_MAP_DATA['Abuja (FCT)']; }
+
+const ARROW_L = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" style="display:inline-block;vertical-align:middle;margin-right:5px"><polyline points="9,2 4,7 9,12"/></svg>`;
+const ARROW_R = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" style="display:inline-block;vertical-align:middle;margin-left:5px"><polyline points="5,2 10,7 5,12"/></svg>`;
 
 const ROW_DEFS = [
   { label: 'Total quote',   key: 'price',     render: (it)     => fmt(it.price),                      bestFn: items => items.reduce((b,i) => i.price < b.price ? i : b) ,   bestTag: 'Lowest' },
@@ -47,6 +55,9 @@ function _render() {
     : 'Add installers to compare';
 
   _container.innerHTML = `
+    <div class="mk-nav-bar">
+      <button class="btn--dark-outline" style="font-size:12px;padding:7px 14px;display:inline-flex;align-items:center;gap:4px" id="cq-back">${ARROW_L}Back to installers</button>
+    </div>
     <div class="cq-page">
       <div style="margin-bottom:20px">
         <div class="mk-header-pill"><span style="width:6px;height:6px;border-radius:50%;background:var(--color-primary);display:inline-block"></span>QUOTE COMPARISON</div>
@@ -67,6 +78,7 @@ function _render() {
         <div class="cq-banner-right">
           <div class="cq-banner-price">${fmt(globalBest.price)}</div>
           <div class="cq-banner-score">Value score ${globalBest.score}/100</div>
+          <button class="cq-pick-btn" id="cq-pick-best">Select &amp; Finance ${ARROW_R}</button>
         </div>
       </div>
 
@@ -76,15 +88,17 @@ function _render() {
           <thead>
             <tr>
               <th class="cq-col-label" style="font-size:13px;font-weight:700;color:var(--color-text)">Compare</th>
-              ${cmpData.map(it => `
+              ${cmpData.map(it => {
+                const cmpDistrict = getCityData(getState().location?.state).installerAreas[it.id] || it.district;
+                return `
                 <th class="cq-th ${it.id === cmpBestId ? 'cq-th--best' : ''}">
                   <div class="cq-th-logo">${it.init}</div>
                   <div class="cq-th-name">${it.name}</div>
-                  <div class="cq-th-district">${it.district}</div>
+                  <div class="cq-th-district">${cmpDistrict}</div>
                   ${it.id === cmpBestId ? '<div class="cq-best-chip">★ BEST VALUE</div>' : ''}
                   <button class="cq-remove-btn" data-remove="${it.id}">Remove</button>
-                </th>
-              `).join('')}
+                </th>`;
+              }).join('')}
               ${canAdd ? `
                 <th class="cq-th-add">
                   <div class="cq-add-box" id="cq-add-box">
@@ -104,20 +118,26 @@ function _render() {
             </tr>
           </thead>
           <tbody>
-            ${ROW_DEFS.map((row, ri) => `
+            ${ROW_DEFS.map((row, ri) => {
+              const even = ri % 2 === 0;
+              const rowBg   = even ? '#F2F3F2' : '#FFFFFF';
+              const bestEven = '#FEF0C0';
+              const bestOdd  = '#FEF8E0';
+              return `
               <tr>
-                <td class="cq-col-label" style="background:${ri % 2 === 0 ? '#FCFDFC' : '#fff'}">${row.label}</td>
+                <td class="cq-col-label" style="background:${rowBg}">${row.label}</td>
                 ${cmpData.map(it => {
                   const isBest = row.bestFn && row.bestFn(cmpData)?.id === it.id;
+                  const cellBg = it.id === cmpBestId ? (even ? bestEven : bestOdd) : rowBg;
                   const cellClass = `cq-td ${it.id === cmpBestId ? 'cq-td--best' : ''}`;
-                  return `<td class="${cellClass}" style="background:${ri % 2 === 0 ? (it.id === cmpBestId ? 'rgba(255,248,214,.55)' : '#FCFDFC') : (it.id === cmpBestId ? 'rgba(255,248,214,.4)' : '#fff')}">
+                  return `<td class="${cellClass}" style="background:${cellBg}">
                     <span ${isBest ? 'class="cq-td--green"' : ''}>${row.render(it)}</span>
                     ${isBest ? `<span class="cq-best-tag">${row.bestTag}</span>` : ''}
                   </td>`;
                 }).join('')}
-                ${canAdd ? `<td class="cq-td"></td>` : ''}
-              </tr>
-            `).join('')}
+                ${canAdd ? `<td class="cq-td" style="background:${rowBg}"></td>` : ''}
+              </tr>`;
+            }).join('')}
             <tr>
               <td class="cq-col-label cq-td-footer">Proceed with</td>
               ${cmpData.map(it => `
@@ -131,10 +151,6 @@ function _render() {
         </table>
       </div>
       <p class="cq-footnote">Value score methodology: price 40% · warranty &amp; kit quality 30% · installation speed 15% · customer ratings 15%. Scores are relative to the 6 installers in this marketplace.</p>
-
-      <div style="margin-top:16px">
-        <button class="btn--dark-outline" id="cq-back" style="font-size:12px;padding:8px 16px">← Back to installers</button>
-      </div>
     </div>
   `;
 
@@ -157,9 +173,19 @@ function _render() {
     });
   }
 
-  // Finance buttons
+  // Finance buttons — pass the selected installer to the checkout
   _container.querySelectorAll('[data-finance]').forEach(btn => {
-    btn.addEventListener('click', () => _navigate('financing'));
+    btn.addEventListener('click', () => {
+      const inst = cmpData.find(i => i.id === btn.dataset.finance);
+      if (inst) setFinancingInstaller(inst);
+      _navigate('financing');
+    });
+  });
+
+  // Best-value CTA
+  _container.querySelector('#cq-pick-best')?.addEventListener('click', () => {
+    setFinancingInstaller(globalBest);
+    _navigate('financing');
   });
 
   // Back

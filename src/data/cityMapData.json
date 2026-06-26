@@ -1,0 +1,434 @@
+{
+  "Abuja (FCT)": {
+    "chip": "Abuja (FCT) · ~8km radius",
+    "labels": ["Maitama", "Wuse 2", "Asokoro", "Garki", "Jabi", "Gwarinpa", "Utako", "Life Camp"],
+    "installerAreas": {
+      "auxano":    "Garki",
+      "gve":       "Jabi",
+      "arnergy":   "Maitama",
+      "sosai":     "Utako",
+      "bluecamel": "Wuse 2",
+      "rubitec":   "Gwarinpa"
+    }
+  },
+  "Lagos": {
+    "chip": "Lagos · ~8km radius",
+    "labels": ["Lekki", "Ikeja", "Victoria Island", "Surulere", "Yaba", "Ajah", "Festac", "Magodo"],
+    "installerAreas": {
+      "auxano":    "Lekki",
+      "gve":       "Ikeja",
+      "arnergy":   "Victoria Island",
+      "sosai":     "Surulere",
+      "bluecamel": "Yaba",
+      "rubitec":   "Ajah"
+    }
+  },
+  "Kano": {
+    "chip": "Kano · ~8km radius",
+    "labels": ["Nassarawa", "Fagge", "Gwale", "Tarauni", "Kumbotso", "Ungogo", "Dala", "Giginyu"],
+    "installerAreas": {
+      "auxano":    "Nassarawa",
+      "gve":       "Fagge",
+      "arnergy":   "Gwale",
+      "sosai":     "Tarauni",
+      "bluecamel": "Ungogo",
+      "rubitec":   "Dala"
+    }
+  },
+  "Maiduguri": {
+    "chip": "Maiduguri · ~8km radius",
+    "labels": ["Maisandari", "Gwange", "Bolori", "Jere", "Kawuri", "Lamisula", "Gamboru", "Kula"],
+    "installerAreas": {
+      "auxano":    "Maisandari",
+      "gve":       "Gwange",
+      "arnergy":   "Bolori",
+      "sosai":     "Jere",
+      "bluecamel": "Lamisula",
+      "rubitec":   "Gamboru"
+    }
+  },
+  "Enugu": {
+    "chip": "Enugu · ~8km radius",
+    "labels": ["GRA", "Asata", "Achara Layout", "Trans-Ekulu", "Independence Layout", "New Haven", "Uwani", "Maryland"],
+    "installerAreas": {
+      "auxano":    "Trans-Ekulu",
+      "gve":       "Asata",
+      "arnergy":   "GRA",
+      "sosai":     "Independence Layout",
+      "bluecamel": "New Haven",
+      "rubitec":   "Achara Layout"
+    }
+  },
+  "Port Harcourt": {
+    "chip": "Port Harcourt · ~8km radius",
+    "labels": ["GRA Phase 1", "Rumuola", "Trans-Amadi", "Diobu", "Obio/Akpor", "Rumuokoro", "D-Line", "Elelenwo"],
+    "installerAreas": {
+      "auxano":    "GRA Phase 1",
+      "gve":       "Trans-Amadi",
+      "arnergy":   "Rumuola",
+      "sosai":     "Obio/Akpor",
+      "bluecamel": "D-Line",
+      "rubitec":   "Rumuokoro"
+    }
+  },
+  "Ibadan": {
+    "chip": "Ibadan · ~8km radius",
+    "labels": ["Bodija", "Jericho", "Iyaganku", "Ring Road", "Agodi", "Mokola", "Sango", "Challenge"],
+    "installerAreas": {
+      "auxano":    "Bodija",
+      "gve":       "Ring Road",
+      "arnergy":   "Jericho",
+      "sosai":     "Agodi",
+      "bluecamel": "Iyaganku",
+      "rubitec":   "Mokola"
+    }
+  },
+  "Kaduna": {
+    "chip": "Kaduna · ~8km radius",
+    "labels": ["Malali", "Barnawa", "Rigachikun", "Narayi", "Kawo", "Ungwan Rimi", "Gonin Gora", "Television"],
+    "installerAreas": {
+      "auxano":    "Barnawa",
+      "gve":       "Narayi",
+      "arnergy":   "Malali",
+      "sosai":     "Rigachikun",
+      "bluecamel": "Kawo",
+      "rubitec":   "Ungwan Rimi"
+    }
+  },
+  "Sokoto": {
+    "chip": "Sokoto · ~8km radius",
+    "labels": ["Arkilla", "Runjin Sambo", "Gagi", "Sama Road", "New Extension", "Mabera", "Kware", "Kwannawa"],
+    "installerAreas": {
+      "auxano":    "Sama Road",
+      "gve":       "Gagi",
+      "arnergy":   "Arkilla",
+      "sosai":     "Mabera",
+      "bluecamel": "New Extension",
+      "rubitec":   "Runjin Sambo"
+    }
+  },
+  "Jos": {
+    "chip": "Jos · ~8km radius",
+    "labels": ["Rayfield", "Tudun Wada", "Anglo-Jos", "Naraguta", "Angwan Rogo", "Bukuru", "Bauchi Road", "Vom"],
+    "installerAreas": {
+      "auxano":    "Tudun Wada",
+      "gve":       "Naraguta",
+      "arnergy":   "Rayfield",
+      "sosai":     "Angwan Rogo",
+      "bluecamel": "Anglo-Jos",
+      "rubitec":   "Bukuru"
+    }
+  },
+  "Benin City": {
+    "chip": "Benin City · ~8km radius",
+    "labels": ["GRA", "Oredo", "Ikpoba Hill", "Uselu", "Airport Road", "Ugbowo", "Egor", "Oba Market"],
+    "installerAreas": {
+      "auxano":    "Ikpoba Hill",
+      "gve":       "Oredo",
+      "arnergy":   "GRA",
+      "sosai":     "Uselu",
+      "bluecamel": "Ugbowo",
+      "rubitec":   "Airport Road"
+    }
+  },
+  "Asaba": {
+    "chip": "Asaba · ~8km radius",
+    "labels": ["GRA", "Cable Point", "Okpanam", "Ezenei", "Ogbeogonogo", "West End", "Okwe", "Umuagu"],
+    "installerAreas": {
+      "auxano":    "Cable Point",
+      "gve":       "Ogbeogonogo",
+      "arnergy":   "GRA",
+      "sosai":     "Okpanam",
+      "bluecamel": "Ezenei",
+      "rubitec":   "West End"
+    }
+  },
+  "Owerri": {
+    "chip": "Owerri · ~8km radius",
+    "labels": ["Aladinma", "New Owerri", "Ikenegbu", "Ikoku", "Orji", "Nekede", "Egbu", "World Bank"],
+    "installerAreas": {
+      "auxano":    "Aladinma",
+      "gve":       "Ikoku",
+      "arnergy":   "New Owerri",
+      "sosai":     "Ikenegbu",
+      "bluecamel": "World Bank",
+      "rubitec":   "Egbu"
+    }
+  },
+  "Calabar": {
+    "chip": "Calabar · ~8km radius",
+    "labels": ["Calabar South", "Ikot Nakanda", "State Housing", "Diamond Hill", "Bogobiri", "Big Qua Town", "Watt Market", "Federal Housing"],
+    "installerAreas": {
+      "auxano":    "State Housing",
+      "gve":       "Calabar South",
+      "arnergy":   "Diamond Hill",
+      "sosai":     "Ikot Nakanda",
+      "bluecamel": "Big Qua Town",
+      "rubitec":   "Federal Housing"
+    }
+  },
+  "Uyo": {
+    "chip": "Uyo · ~8km radius",
+    "labels": ["Ikot Ekpene Rd", "Ewet Housing", "GRA", "Udo Udoma", "Ika", "Wellington Bassey", "Itam", "Ewet"],
+    "installerAreas": {
+      "auxano":    "Ewet Housing",
+      "gve":       "Ikot Ekpene Rd",
+      "arnergy":   "GRA",
+      "sosai":     "Udo Udoma",
+      "bluecamel": "Wellington Bassey",
+      "rubitec":   "Itam"
+    }
+  },
+  "Abeokuta": {
+    "chip": "Abeokuta · ~8km radius",
+    "labels": ["Kuto", "Panseke", "Ibara", "Lafenwa", "Oke-Ilewo", "Elega", "Sapon", "Adatan"],
+    "installerAreas": {
+      "auxano":    "Ibara",
+      "gve":       "Panseke",
+      "arnergy":   "Kuto",
+      "sosai":     "Lafenwa",
+      "bluecamel": "Oke-Ilewo",
+      "rubitec":   "Elega"
+    }
+  },
+  "Akure": {
+    "chip": "Akure · ~8km radius",
+    "labels": ["Alagbaka", "Fanibi", "Oke-Aro", "State Housing", "Owo Road", "Ijoka", "Oda Road", "Irese"],
+    "installerAreas": {
+      "auxano":    "Alagbaka",
+      "gve":       "Oke-Aro",
+      "arnergy":   "State Housing",
+      "sosai":     "Fanibi",
+      "bluecamel": "Owo Road",
+      "rubitec":   "Ijoka"
+    }
+  },
+  "Bauchi": {
+    "chip": "Bauchi · ~8km radius",
+    "labels": ["Wunti", "Kandahar", "Gwallameji", "Yelwa", "Hardo Road", "Salihu", "Clock Rd", "Fadama"],
+    "installerAreas": {
+      "auxano":    "Yelwa",
+      "gve":       "Gwallameji",
+      "arnergy":   "Wunti",
+      "sosai":     "Hardo Road",
+      "bluecamel": "Kandahar",
+      "rubitec":   "Fadama"
+    }
+  },
+  "Gombe": {
+    "chip": "Gombe · ~8km radius",
+    "labels": ["Tudun Wada", "Pantami", "New Gombe", "Jekadafari", "Dadinkowa", "Deba", "Yamaltu", "Billiri"],
+    "installerAreas": {
+      "auxano":    "New Gombe",
+      "gve":       "Tudun Wada",
+      "arnergy":   "Pantami",
+      "sosai":     "Jekadafari",
+      "bluecamel": "Dadinkowa",
+      "rubitec":   "Deba"
+    }
+  },
+  "Ilorin": {
+    "chip": "Ilorin · ~8km radius",
+    "labels": ["GRA", "Tanke", "Adewole", "Mandate", "Agba Dam", "Maraba", "Fate", "Asa Dam"],
+    "installerAreas": {
+      "auxano":    "Mandate",
+      "gve":       "Adewole",
+      "arnergy":   "GRA",
+      "sosai":     "Tanke",
+      "bluecamel": "Fate",
+      "rubitec":   "Asa Dam"
+    }
+  },
+  "Lokoja": {
+    "chip": "Lokoja · ~8km radius",
+    "labels": ["Ganaja", "Cable Point", "GRA", "Otokiti", "Felele", "New Layout", "Crusher", "Adankolo"],
+    "installerAreas": {
+      "auxano":    "Ganaja",
+      "gve":       "Felele",
+      "arnergy":   "GRA",
+      "sosai":     "Otokiti",
+      "bluecamel": "New Layout",
+      "rubitec":   "Cable Point"
+    }
+  },
+  "Makurdi": {
+    "chip": "Makurdi · ~8km radius",
+    "labels": ["North Bank", "High Level", "Modern Market", "Wadata", "Ankpa", "Shendok", "George", "Wurukum"],
+    "installerAreas": {
+      "auxano":    "High Level",
+      "gve":       "North Bank",
+      "arnergy":   "Modern Market",
+      "sosai":     "Wadata",
+      "bluecamel": "Wurukum",
+      "rubitec":   "George"
+    }
+  },
+  "Minna": {
+    "chip": "Minna · ~8km radius",
+    "labels": ["Maikunkele", "Tunga", "Chanchaga", "Bosso", "Maitumbi", "Dutsen Kura", "Shiroro", "GRA"],
+    "installerAreas": {
+      "auxano":    "Tunga",
+      "gve":       "Chanchaga",
+      "arnergy":   "GRA",
+      "sosai":     "Bosso",
+      "bluecamel": "Maikunkele",
+      "rubitec":   "Maitumbi"
+    }
+  },
+  "Umuahia": {
+    "chip": "Umuahia · ~8km radius",
+    "labels": ["Govt House", "State Housing", "Ubakala", "Umuopara", "Ikwuano", "Ohafia Road", "Amaudara", "Hospital Road"],
+    "installerAreas": {
+      "auxano":    "State Housing",
+      "gve":       "Ubakala",
+      "arnergy":   "Govt House",
+      "sosai":     "Umuopara",
+      "bluecamel": "Ohafia Road",
+      "rubitec":   "Amaudara"
+    }
+  },
+  "Yola": {
+    "chip": "Yola · ~8km radius",
+    "labels": ["Jimeta", "Karewa", "Demsawo", "Doubeli", "Jambutu", "Gwadabawa", "Farakwa", "Rumde"],
+    "installerAreas": {
+      "auxano":    "Jimeta",
+      "gve":       "Doubeli",
+      "arnergy":   "Karewa",
+      "sosai":     "Demsawo",
+      "bluecamel": "Jambutu",
+      "rubitec":   "Farakwa"
+    }
+  },
+  "Zamfara": {
+    "chip": "Gusau (Zamfara) · ~8km radius",
+    "labels": ["Tudun Wada", "Bunsawa", "Kaura", "Samaru", "Maru Road", "Sokoto Road", "Rijiyar Zaki", "Tsafe"],
+    "installerAreas": {
+      "auxano":    "Samaru",
+      "gve":       "Kaura",
+      "arnergy":   "Tudun Wada",
+      "sosai":     "Maru Road",
+      "bluecamel": "Bunsawa",
+      "rubitec":   "Rijiyar Zaki"
+    }
+  },
+  "Lafia": {
+    "chip": "Lafia · ~8km radius",
+    "labels": ["Shabu", "New Layout", "Makama", "Tudun Gwandara", "Old Market", "Makurdi Road", "Agwada", "Karu"],
+    "installerAreas": {
+      "auxano":    "New Layout",
+      "gve":       "Shabu",
+      "arnergy":   "Makama",
+      "sosai":     "Tudun Gwandara",
+      "bluecamel": "Makurdi Road",
+      "rubitec":   "Agwada"
+    }
+  },
+  "Birnin Kebbi": {
+    "chip": "Birnin Kebbi · ~8km radius",
+    "labels": ["Kalgo Road", "Central Market", "GRA", "Augie Road", "Sama'ila", "Jega Road", "New Layout", "Dakingari"],
+    "installerAreas": {
+      "auxano":    "GRA",
+      "gve":       "Central Market",
+      "arnergy":   "Kalgo Road",
+      "sosai":     "Augie Road",
+      "bluecamel": "New Layout",
+      "rubitec":   "Jega Road"
+    }
+  },
+  "Dutse": {
+    "chip": "Dutse · ~8km radius",
+    "labels": ["GRA", "Takur", "Kazaure Road", "Kafin Hausa", "Jahun", "Dabi", "Kiyawa", "Birnin Kudu"],
+    "installerAreas": {
+      "auxano":    "Takur",
+      "gve":       "Kazaure Road",
+      "arnergy":   "GRA",
+      "sosai":     "Kafin Hausa",
+      "bluecamel": "Jahun",
+      "rubitec":   "Dabi"
+    }
+  },
+  "Damaturu": {
+    "chip": "Damaturu · ~8km radius",
+    "labels": ["GRA", "Potiskum Road", "NNPC Estate", "Gwange", "Jumba", "Ngelzarma", "Gujba Road", "Tarmuwa"],
+    "installerAreas": {
+      "auxano":    "Gwange",
+      "gve":       "Potiskum Road",
+      "arnergy":   "GRA",
+      "sosai":     "Ngelzarma",
+      "bluecamel": "NNPC Estate",
+      "rubitec":   "Jumba"
+    }
+  },
+  "Jalingo": {
+    "chip": "Jalingo · ~8km radius",
+    "labels": ["GRA", "Lau Road", "Suntai", "Bali Road", "Kona", "Mayo-Selbe", "Jalingo Central", "Zing"],
+    "installerAreas": {
+      "auxano":    "Jalingo Central",
+      "gve":       "Lau Road",
+      "arnergy":   "GRA",
+      "sosai":     "Bali Road",
+      "bluecamel": "Suntai",
+      "rubitec":   "Kona"
+    }
+  },
+  "Ado Ekiti": {
+    "chip": "Ado Ekiti · ~8km radius",
+    "labels": ["Ajilosun", "Oke-Bisi", "Ijigbo", "Adebayo", "Basiri", "Okesa", "Ilawe Road", "Fajuyi"],
+    "installerAreas": {
+      "auxano":    "Adebayo",
+      "gve":       "Ajilosun",
+      "arnergy":   "Fajuyi",
+      "sosai":     "Okesa",
+      "bluecamel": "Oke-Bisi",
+      "rubitec":   "Basiri"
+    }
+  },
+  "Abakaliki": {
+    "chip": "Abakaliki · ~8km radius",
+    "labels": ["Housing Estate", "Mile 50", "Azungwu", "Kpirikpiri", "Ogoja Road", "Nkaliki", "Salt Lake Road", "Ogui"],
+    "installerAreas": {
+      "auxano":    "Mile 50",
+      "gve":       "Kpirikpiri",
+      "arnergy":   "Housing Estate",
+      "sosai":     "Ogoja Road",
+      "bluecamel": "Azungwu",
+      "rubitec":   "Nkaliki"
+    }
+  },
+  "Awka": {
+    "chip": "Awka · ~8km radius",
+    "labels": ["Amawbia", "Unizik Junction", "Nnamdi Road", "GRA", "Enugwu Ukwu", "Ifite", "Okpuno", "Umunze"],
+    "installerAreas": {
+      "auxano":    "GRA",
+      "gve":       "Amawbia",
+      "arnergy":   "Unizik Junction",
+      "sosai":     "Ifite",
+      "bluecamel": "Nnamdi Road",
+      "rubitec":   "Enugwu Ukwu"
+    }
+  },
+  "Ikeja": {
+    "chip": "Ikeja (Lagos) · ~8km radius",
+    "labels": ["Allen Avenue", "Alausa", "Maryland", "Opebi", "Oregun", "Agidingbi", "Toyin Street", "Omole"],
+    "installerAreas": {
+      "auxano":    "Allen Avenue",
+      "gve":       "Oregun",
+      "arnergy":   "Alausa",
+      "sosai":     "Maryland",
+      "bluecamel": "Opebi",
+      "rubitec":   "Omole"
+    }
+  },
+  "Osogbo": {
+    "chip": "Osogbo · ~8km radius",
+    "labels": ["Old Garage", "Oke-Fia", "Oke-Baale", "Aregbe", "Laro", "Igbona", "Alekuwodo", "Station Road"],
+    "installerAreas": {
+      "auxano":    "Oke-Fia",
+      "gve":       "Old Garage",
+      "arnergy":   "Oke-Baale",
+      "sosai":     "Aregbe",
+      "bluecamel": "Laro",
+      "rubitec":   "Igbona"
+    }
+  }
+}

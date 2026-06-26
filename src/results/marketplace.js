@@ -1,4 +1,22 @@
-import { INSTALLERS, withScores, BADGE_COLORS, fmt, fmtM } from '../data/installers.js';
+import { INSTALLERS, withScores, fmt, fmtM } from '../data/installers.js';
+import { getState } from '../state.js';
+import { drawMapCanvas } from './mapCanvas.js';
+import CITY_MAP_DATA from '../data/cityMapData.json';
+
+// Map label positions are fixed (canvas is always the same drawing; only text changes per city)
+const MAP_LABEL_POSITIONS = [
+  { x: 60, y: 26 }, { x: 36, y: 32 }, { x: 74, y: 40 }, { x: 54, y: 74 },
+  { x: 24, y: 52 }, { x: 18, y: 16 }, { x: 74, y: 62 }, { x: 40, y: 78 },
+];
+
+function getCityData(cityState) {
+  return CITY_MAP_DATA[cityState] || CITY_MAP_DATA['Abuja (FCT)'];
+}
+
+// ── SVG icon helpers ─────────────────────────────────────────────────────────
+const TICK_SVG = `<svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" style="display:inline-block;vertical-align:middle;margin-right:4px"><polyline points="1,4 3.5,6.5 9,1"/></svg>`;
+const ARROW_L  = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" style="display:inline-block;vertical-align:middle;margin-right:5px"><polyline points="9,2 4,7 9,12"/></svg>`;
+const ARROW_R  = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" style="display:inline-block;vertical-align:middle;margin-left:5px"><polyline points="5,2 10,7 5,12"/></svg>`;
 
 // ── Module-level state (shared with compareQuotes.js via exports) ──
 export const mkState = {
@@ -42,16 +60,22 @@ export function renderMarketplace(container, navigate) {
 
 // ── Market view ─────────────────────────────────────────────────────────────
 function renderMarket(container) {
-  const scored  = withScores(INSTALLERS);
-  const sorted  = sortedList(scored);
+  const scored = withScores(INSTALLERS);
+  const sorted = sortedList(scored);
+
+  const st = getState();
+  const systemKwp = st.results?.solar?.panel_kwp != null
+    ? st.results.solar.panel_kwp.toFixed(2)
+    : '—';
+  const locationName = st.location?.state || 'your area';
 
   container.innerHTML = `
     <div class="mk-page">
       <div class="mk-header-row">
         <div>
-          <div class="mk-header-pill"><span></span>6 VERIFIED INSTALLERS NEAR YOU</div>
-          <h1 class="mk-h1">Verified Solar Installers in Abuja</h1>
-          <p class="mk-sub">Showing quotes for your <strong>7.02 kWp</strong> system from 6 pre-screened, NNEL-verified solar installers serving Abuja FCT.</p>
+          <div class="mk-header-pill"><span></span>${scored.length} VERIFIED INSTALLERS NEAR YOU</div>
+          <h1 class="mk-h1">Verified Solar Installers in ${locationName}</h1>
+          <p class="mk-sub">Showing quotes for your <strong>${systemKwp} kWp</strong> system from ${scored.length} pre-screened, NNEL-verified solar installers serving ${locationName}.</p>
         </div>
         <div class="mk-sort" id="mk-sort">
           ${['value','distance','rating'].map(m => `
@@ -74,26 +98,21 @@ function renderMarket(container) {
     ${shortlistBar()}
   `;
 
+  // Draw procedural canvas map
+  const mapCanvas = container.querySelector('#mk-map-canvas');
+  if (mapCanvas) requestAnimationFrame(() => { if (mapCanvas.isConnected) drawMapCanvas(mapCanvas); });
+
   // Sort buttons
   container.querySelectorAll('[data-sort]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      mkState.sortMode = btn.dataset.sort;
-      _rerender();
-    });
+    btn.addEventListener('click', () => { mkState.sortMode = btn.dataset.sort; _rerender(); });
   });
 
   // Installer card buttons
   container.querySelectorAll('[data-open]').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      openStorefront(btn.dataset.open);
-    });
+    btn.addEventListener('click', e => { e.stopPropagation(); openStorefront(btn.dataset.open); });
   });
   container.querySelectorAll('[data-toggle]').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      toggleShortlist(btn.dataset.toggle);
-    });
+    btn.addEventListener('click', e => { e.stopPropagation(); toggleShortlist(btn.dataset.toggle); });
   });
 
   // Card hover → sync map pin
@@ -110,13 +129,8 @@ function renderMarket(container) {
   });
 
   // Shortlist bar buttons
-  container.querySelector('#mk-bar-clear')?.addEventListener('click', () => {
-    mkState.shortlist = [];
-    _rerender();
-  });
-  container.querySelector('#mk-bar-compare')?.addEventListener('click', () => {
-    _navigate('compare');
-  });
+  container.querySelector('#mk-bar-clear')?.addEventListener('click', () => { mkState.shortlist = []; _rerender(); });
+  container.querySelector('#mk-bar-compare')?.addEventListener('click', () => _navigate('compare'));
 }
 
 function syncHover() {
@@ -133,17 +147,16 @@ function sortedList(scored) {
 
 function installerCard(it) {
   const inList = mkState.shortlist.includes(it.id);
-  const bc = BADGE_COLORS[it.badgeKind] || BADGE_COLORS[''];
+  const district = getCityData(getState().location?.state).installerAreas[it.id] || it.district;
   return `
     <div class="mk-card ${mkState.hovered === it.id ? 'hovered' : ''}" data-card="${it.id}">
       <div class="mk-card-top">
         <div class="mk-logo-chip">${it.init}</div>
         <div class="mk-name">${it.name}</div>
         <span class="mk-verified">Verified</span>
-        ${it.badge ? `<span class="mk-badge" style="background:${bc.bg};color:${bc.text};border:1px solid ${bc.border}">${it.badge}</span>` : ''}
       </div>
       <div class="mk-meta">
-        <span>${it.district}</span>
+        <span>${district}</span>
         <span>·</span>
         <span>${it.distance} km away</span>
         <span>·</span>
@@ -158,7 +171,7 @@ function installerCard(it) {
         <div class="mk-card-btns">
           <button class="btn--dark-outline" data-open="${it.id}">View storefront</button>
           <button class="${inList ? 'btn--added' : 'btn--amber'}" data-toggle="${it.id}">
-            ${inList ? '✓ Added' : '+ Compare'}
+            ${inList ? `${TICK_SVG}Added` : '+ Compare'}
           </button>
         </div>
       </div>
@@ -167,32 +180,19 @@ function installerCard(it) {
 }
 
 function buildMap(scored) {
-  const districts = [
-    { label: 'Maitama',  x: 60, y: 26 },
-    { label: 'Wuse 2',   x: 36, y: 32 },
-    { label: 'Asokoro',  x: 74, y: 40 },
-    { label: 'Garki',    x: 54, y: 74 },
-    { label: 'Jabi',     x: 24, y: 52 },
-    { label: 'Gwarinpa', x: 18, y: 16 },
-    { label: 'Utako',    x: 74, y: 62 },
-    { label: 'Life Camp', x: 40, y: 78 },
-  ];
+  const cityState = getState().location?.state;
+  const cityData  = getCityData(cityState);
+  const districts = cityData.labels.map((label, i) => ({ label, ...MAP_LABEL_POSITIONS[i] }));
 
   return `
     <div class="mk-map">
-      <svg viewBox="0 0 600 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <rect width="600" height="600" fill="#FFFDF0"/>
-        <ellipse cx="300" cy="480" rx="380" ry="200" fill="#FEF6CC" opacity=".6"/>
-        <!-- Roads -->
-        <line x1="0" y1="440" x2="600" y2="160" stroke="white" stroke-width="13" opacity=".8"/>
-        <line x1="140" y1="600" x2="460" y2="0"  stroke="white" stroke-width="10" opacity=".75"/>
-        <line x1="0"   y1="200" x2="600" y2="200" stroke="white" stroke-width="8"  opacity=".7"/>
-        <line x1="0"   y1="300" x2="600" y2="300" stroke="white" stroke-width="6"  opacity=".6"/>
-        <line x1="200" y1="0"   x2="200" y2="600" stroke="white" stroke-width="8"  opacity=".7"/>
-        <line x1="400" y1="0"   x2="400" y2="600" stroke="white" stroke-width="6"  opacity=".6"/>
-        <line x1="0"   y1="400" x2="300" y2="100" stroke="white" stroke-width="7"  opacity=".65"/>
-        <!-- Radius ring -->
-        <circle cx="288" cy="300" r="180" fill="none" stroke="#FCBF1E" stroke-width="1.5" stroke-dasharray="4 10" opacity=".4"/>
+      <!-- Procedural canvas map (drawn by mapCanvas.js via requestAnimationFrame) -->
+      <canvas id="mk-map-canvas" style="position:absolute;inset:0;width:100%;height:100%;display:block"></canvas>
+
+      <!-- Coverage radius ring overlay -->
+      <svg viewBox="0 0 600 600" preserveAspectRatio="xMidYMid slice"
+           style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
+        <circle cx="288" cy="300" r="225" fill="none" stroke="#005527" stroke-opacity=".22" stroke-width="2" stroke-dasharray="3 9"/>
       </svg>
 
       <!-- District labels -->
@@ -212,9 +212,7 @@ function buildMap(scored) {
 
       <!-- User pin -->
       <div class="mk-user-pin">
-        <div class="mk-user-dot">
-          <div class="mk-user-halo"></div>
-        </div>
+        <div class="mk-user-dot"><div class="mk-user-halo"></div></div>
         <div class="mk-user-label">Your home</div>
       </div>
 
@@ -222,7 +220,7 @@ function buildMap(scored) {
       <div class="mk-map-chip mk-map-chip--tl">
         <span class="live-dot"></span> Live installer map
       </div>
-      <div class="mk-map-chip mk-map-chip--bl">Abuja (FCT) · ~8km radius</div>
+      <div class="mk-map-chip mk-map-chip--bl">${cityData.chip}</div>
     </div>
   `;
 }
@@ -232,7 +230,7 @@ function shortlistBar() {
   if (sl.length === 0) return '';
   const scored = withScores(INSTALLERS);
   const items = sl.map(id => scored.find(i => i.id === id)).filter(Boolean);
-  const hint = sl.length < 2 ? 'Add one more to compare side by side' : 'Ready to compare side by side';
+  const hint = sl.length < 2 ? 'Add one more to compare side by side' : sl.length >= 4 ? 'Maximum 4 quotes reached' : 'Ready to compare side by side';
   return `
     <div class="mk-bar" id="mk-bar">
       <div class="mk-bar-avatars">
@@ -244,16 +242,23 @@ function shortlistBar() {
       </div>
       <div class="mk-bar-btns">
         <button class="mk-bar-clear" id="mk-bar-clear">Clear</button>
-        <button class="mk-bar-compare" id="mk-bar-compare">Compare quotes</button>
+        <button class="mk-bar-compare" id="mk-bar-compare">Compare quotes ${ARROW_R}</button>
       </div>
     </div>
   `;
+}
+
+function scrollToTop() {
+  const main = document.querySelector('.results-main');
+  if (main) main.scrollTop = 0;
+  else window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 function openStorefront(id) {
   mkState.view   = 'storefront';
   mkState.openId = id;
   _rerender();
+  requestAnimationFrame(scrollToTop);
 }
 
 // ── Storefront view ──────────────────────────────────────────────────────────
@@ -262,29 +267,38 @@ function renderStorefront(container) {
   const it = scored.find(i => i.id === mkState.openId) || scored[0];
   const inList = mkState.shortlist.includes(it.id);
   const avatarColors = ['#1F2937', '#3D6B7A', '#374151'];
+  const st = getState();
+  const cityState   = st.location?.state || 'Abuja (FCT)';
+  const cityDisplay = cityState.replace(/\s*\(FCT\)/i, '').trim();
+  const sfDistrict  = getCityData(cityState).installerAreas[it.id] || it.district;
 
   const galleryItems = [
-    { title: '3kVA hybrid install',       sub: 'Maitama · Jan 2024',     grad: 'linear-gradient(135deg,#1e3a5f,#2d6a8f)', tilt: '-4deg' },
-    { title: '8kVA + lithium bank',        sub: 'Gwarinpa · Mar 2024',    grad: 'linear-gradient(135deg,#1a4731,#2d7a55)', tilt: '3deg' },
-    { title: 'Rooftop array, 12 panels',  sub: 'Asokoro · Feb 2024',     grad: 'linear-gradient(135deg,#2c3e50,#4a5568)', tilt: '-2deg' },
-    { title: 'Whole-home backup',         sub: 'Wuse 2 · Apr 2024',      grad: 'linear-gradient(135deg,#0d2b1e,#1a4731)', tilt: '4deg' },
+    { title: '3kVA hybrid install',      sub: 'Maitama · Jan 2024',  grad: 'linear-gradient(135deg,#1e3a5f,#2d6a8f)', tilt: '-4deg' },
+    { title: '8kVA + lithium bank',      sub: 'Gwarinpa · Mar 2024', grad: 'linear-gradient(135deg,#1a4731,#2d7a55)', tilt: '3deg' },
+    { title: 'Rooftop array, 12 panels', sub: 'Asokoro · Feb 2024',  grad: 'linear-gradient(135deg,#2c3e50,#4a5568)', tilt: '-2deg' },
+    { title: 'Whole-home backup',        sub: 'Wuse 2 · Apr 2024',   grad: 'linear-gradient(135deg,#0d2b1e,#1a4731)', tilt: '4deg' },
   ];
 
   container.innerHTML = `
+    <div class="mk-nav-bar">
+      <button class="btn--dark-outline" style="font-size:12px;padding:7px 14px;display:inline-flex;align-items:center;gap:4px" id="sf-back">${ARROW_L}Back to installers</button>
+    </div>
     <div class="sf-page">
-      <button class="btn--dark-outline" style="margin-bottom:16px;font-size:12px;padding:7px 14px" id="sf-back">← Back to installers</button>
       <div class="sf-card">
 
-        <!-- Header -->
+        <!-- Gradient header -->
         <div class="sf-header">
           <div class="sf-header-top">
             <div class="mk-logo-chip mk-logo-chip--lg">${it.init}</div>
             <div>
-              <h1>${it.name} <span class="mk-verified" style="font-size:11px;vertical-align:middle">Verified</span></h1>
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+                <h1 style="margin:0;font-size:clamp(20px,3vw,28px);font-weight:800;color:#fff">${it.name}</h1>
+                <span class="mk-verified" style="font-size:11px;background:rgba(255,255,255,.18);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.3)">Verified</span>
+              </div>
               <div class="sf-header-meta">
                 <span class="accent">★ ${it.rating}</span>
                 <span>${it.reviews} reviews</span>
-                <span>·</span><span>${it.district}, Abuja</span>
+                <span>·</span><span>${sfDistrict}, ${cityDisplay}</span>
                 <span>·</span><span>${it.distance} km from you</span>
               </div>
             </div>
@@ -301,20 +315,20 @@ function renderStorefront(container) {
         <!-- Body -->
         <div class="sf-body">
           <div class="sf-quote-panel">
-            <div>
-              <div class="sf-quote-label">Their quote for your 7.02 kWp system</div>
+            <div style="flex:1;min-width:0">
+              <div class="sf-quote-label">Their quote for your ${getState().results?.solar?.panel_kwp?.toFixed(2) ?? '—'} kWp system</div>
               <div class="sf-quote-price">${fmt(it.price)}</div>
               <div class="sf-quote-sub">Installed · ${it.timeline} timeline · ${it.warranty} warranty</div>
-              <div class="sf-kit-grid" style="margin-top:14px">
+              <div class="sf-kit-grid">
                 <div class="sf-kit-tile"><div class="label">Solar panels</div><div class="value">${it.panel}</div></div>
                 <div class="sf-kit-tile"><div class="label">Battery</div><div class="value">${it.battery}</div></div>
                 <div class="sf-kit-tile"><div class="label">Inverter</div><div class="value">${it.inverter}</div></div>
                 <div class="sf-kit-tile"><div class="label">After-sales</div><div class="value">${it.aftercare}</div></div>
               </div>
             </div>
-            <div style="flex-shrink:0">
-              <button class="${inList ? 'btn--added' : 'btn--amber'}" style="padding:13px 20px;font-size:13px" id="sf-toggle">
-                ${inList ? '✓ In comparison' : '+ Add to comparison'}
+            <div style="flex-shrink:0;padding-top:4px">
+              <button class="${inList ? 'btn--added' : 'btn--amber'}" style="padding:13px 20px;font-size:13px;display:inline-flex;align-items:center;gap:6px" id="sf-toggle">
+                ${inList ? `${TICK_SVG}In comparison` : '+ Add to comparison'}
               </button>
             </div>
           </div>
@@ -322,7 +336,7 @@ function renderStorefront(container) {
           <!-- Gallery -->
           <div class="section-title" style="margin-bottom:12px">Recent installs</div>
           <div class="sf-gallery" style="margin-bottom:28px">
-            ${galleryItems.map((g, i) => `
+            ${galleryItems.map((g) => `
               <div class="sf-gallery-card">
                 <div class="sf-gallery-img" style="background:${g.grad}">
                   <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;perspective:120px">
@@ -364,9 +378,6 @@ function renderStorefront(container) {
     </div>
   `;
 
-  container.querySelector('#sf-back').addEventListener('click', () => {
-    mkState.view = 'market';
-    _rerender();
-  });
+  container.querySelector('#sf-back').addEventListener('click', () => { mkState.view = 'market'; _rerender(); requestAnimationFrame(scrollToTop); });
   container.querySelector('#sf-toggle').addEventListener('click', () => toggleShortlist(it.id));
 }

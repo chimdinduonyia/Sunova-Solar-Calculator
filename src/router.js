@@ -214,6 +214,7 @@ function render() {
     const container = document.getElementById('results-content');
     container.innerHTML = '';
     renderers[_current](container, navigate);
+    requestAnimationFrame(() => { container.scrollTop = 0; });
   }
 }
 

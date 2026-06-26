@@ -269,10 +269,19 @@ function bindMobileNav() {
 export function init() {
   window._navigate = navigate;
 
-  // Logo / top-bar clicks → restart wizard from step 1
+  // Wizard logos → step 1
   document.querySelectorAll('.logo, .mobile-top-bar').forEach(el => {
     el.style.cursor = 'pointer';
     el.addEventListener('click', () => navigate('step1'));
+  });
+
+  // Results page logos → step 1 (same as Adjust Data)
+  document.querySelectorAll('.results-sidebar__logo, .results-mobile-topbar__logo').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', e => {
+      if (e.target.closest('.offcanvas-close-btn')) return;
+      navigate('step1');
+    });
   });
 
   render();

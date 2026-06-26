@@ -579,10 +579,11 @@ tr:nth-child(odd) .cq-td--best { background: rgba(255,248,214,.55); }
   .mk-sort { width: 100%; }
   .mk-sort-btn { flex: 1; text-align: center; }
 
-  /* Installer cards — stack buttons full-width */
+  /* Installer cards — stack buttons, keep add-to-comparison inline */
   .mk-card-footer { flex-direction: column; align-items: flex-start; gap: 10px; }
-  .mk-card-btns { width: 100%; }
-  .mk-card-btns button { flex: 1; }
+  .mk-card-btns { width: 100%; flex-wrap: wrap; }
+  .mk-card-btns [data-toggle] { flex: 0 0 auto; }
+  .mk-card-btns [data-id]     { flex: 1; }
 
   /* Floating bar */
   .mk-bar { gap: 10px; }
@@ -602,7 +603,7 @@ tr:nth-child(odd) .cq-td--best { background: rgba(255,248,214,.55); }
   /* Storefront quote panel */
   .sf-quote-panel { flex-direction: column; }
   .sf-quote-panel > div:last-child { width: 100%; }
-  .sf-quote-panel > div:last-child button { width: 100%; }
+  .sf-quote-panel > div:last-child button { width: auto; }
 
   /* Nav bar */
   .mk-nav-bar { padding: 8px 14px; }
@@ -638,6 +639,18 @@ tr:nth-child(odd) .cq-td--best { background: rgba(255,248,214,.55); }
   .sf-reviews { grid-template-columns: 1fr; }
 
   /* Bar text wraps nicely */
-  .mk-bar { padding: 10px 12px; }
+  .mk-bar { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
   .mk-bar-count { font-size: 12px; }
+
+  /* Bar: text row → badges row → buttons stacked */
+  .mk-bar-text    { order: 1; flex: 1 1 100%; }
+  .mk-bar-avatars { order: 2; flex: 1 1 100%; }
+  .mk-bar-btns    { order: 3; flex: 1 1 100%; flex-direction: column-reverse; gap: 6px; justify-content: flex-start; }
+  .mk-bar-compare { width: 100%; text-align: center; padding: 10px 16px; }
+  .mk-bar-clear   { width: 100%; text-align: center; padding: 8px 16px; }
+
+  /* Storefront stat chips — larger on mobile */
+  .sf-stat-chip { padding: 14px 18px; min-width: 120px; }
+  .sf-stat-chip .label { font-size: 11px; }
+  .sf-stat-chip .value { font-size: 19px; }
 }

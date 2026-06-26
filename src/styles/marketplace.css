@@ -638,16 +638,21 @@ tr:nth-child(odd) .cq-td--best { background: rgba(255,248,214,.55); }
   /* Reviews — single column */
   .sf-reviews { grid-template-columns: 1fr; }
 
-  /* Bar text wraps nicely */
-  .mk-bar { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
-  .mk-bar-count { font-size: 12px; }
-
-  /* Bar: text row → badges row → buttons stacked */
-  .mk-bar-text    { order: 1; flex: 1 1 100%; }
-  .mk-bar-avatars { order: 2; flex: 1 1 100%; }
-  .mk-bar-btns    { order: 3; flex: 1 1 100%; flex-direction: column-reverse; gap: 6px; justify-content: flex-start; }
-  .mk-bar-compare { width: 100%; text-align: center; padding: 10px 16px; }
-  .mk-bar-clear   { width: 100%; text-align: center; padding: 8px 16px; }
+  /* Bar: two-column grid — left: text+badges  right: compare/clear */
+  .mk-bar {
+    display: grid;
+    grid-template-areas: "text btns" "avatars btns";
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 6px 12px;
+    padding: 12px 14px;
+  }
+  .mk-bar-count   { font-size: 12px; }
+  .mk-bar-text    { grid-area: text;    order: unset; flex: unset; }
+  .mk-bar-avatars { grid-area: avatars; order: unset; flex: unset; }
+  .mk-bar-btns    { grid-area: btns; flex-direction: column-reverse; gap: 8px; align-self: center; align-items: stretch; }
+  .mk-bar-compare { width: 100%; text-align: center; padding: 10px 14px; }
+  .mk-bar-clear   { width: 100%; text-align: center; padding: 7px 14px; }
 
   /* Storefront stat chips — larger on mobile */
   .sf-stat-chip { padding: 14px 18px; min-width: 120px; }

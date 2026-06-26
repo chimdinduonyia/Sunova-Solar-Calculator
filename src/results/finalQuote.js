@@ -1,10 +1,10 @@
 export function renderFinalQuote(container, navigate) {
   container.innerHTML = `
-    <div style="padding:40px 40px 60px">
+    <div class="cta-outer">
       <div class="card cta-section" style="margin-bottom:0;padding:32px">
-        <div class="card" style="text-align:center;padding:56px 48px">
+        <div class="card cta-inner" style="text-align:center">
           <div style="font-size:52px;line-height:1;margin-bottom:24px">🚀</div>
-          <h2 style="font-size:clamp(44px,6vw,62px);font-weight:800;color:var(--color-text-primary);margin-bottom:12px;line-height:1.1;letter-spacing:-.03em">
+          <h2 class="cta-hero-title" style="font-weight:800;color:var(--color-text-primary);margin-bottom:12px;line-height:1.1;letter-spacing:-.03em">
             Go solar today in one click.
           </h2>
           <p style="font-size:var(--font-size-base);color:var(--color-text-secondary);max-width:480px;margin:0 auto 32px;line-height:1.6">

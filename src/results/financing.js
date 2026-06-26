@@ -38,7 +38,7 @@ function currentPrice() {
 }
 
 function systemKwp() {
-  return getState().results?.solar?.panel_kwp?.toFixed(2) ?? '—';
+  return getState().results?.solar?.panel_kwp?.toFixed(2) ?? 'N/A';
 }
 
 export function renderFinancing(container, navigate) {
@@ -186,7 +186,7 @@ function _render() {
             }).join('')}
 
             <div class="fc-trust">
-              Rates are indicative monthly reducing-balance figures. Final rates are confirmed during application. A soft credit check may apply — your score is not affected. NNEL Solar Hub never charges you to apply.
+              Rates are indicative monthly reducing-balance figures. Final rates are confirmed during application. A soft credit check may apply; your score is not affected. NNEL Solar Hub never charges you to apply.
             </div>
           ` : `
             <div class="fc-offer-card fc-self-prominent">
@@ -281,7 +281,7 @@ function showLoanModal(bank, downAmt, financed) {
 
       ${inst ? `<div class="fc-modal-installer">
         <div class="mk-logo-chip" style="width:28px;height:28px;font-size:10px">${inst.init}</div>
-        <span style="font-size:13px;font-weight:600;color:var(--color-text)">${inst.name} · ${getState().results?.solar?.panel_kwp?.toFixed(2) ?? '—'} kWp system</span>
+        <span style="font-size:13px;font-weight:600;color:var(--color-text)">${inst.name} · ${getState().results?.solar?.panel_kwp?.toFixed(2) ?? 'N/A'} kWp system</span>
       </div>` : ''}
 
       <div class="fc-modal-rows">

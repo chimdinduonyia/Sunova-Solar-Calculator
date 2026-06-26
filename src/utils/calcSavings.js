@@ -234,10 +234,7 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
   const current_label = energyMix === 'grid_only'      ? 'Grid'
     : energyMix === 'generator_only' ? 'Generator'
     :                                  'Grid + Gen';
-  const solar_label = solarGoal === 'offgrid'       ? 'Solar'
-    : energyMix === 'grid_only'      ? 'Solar + Grid'
-    : energyMix === 'generator_only' ? 'Solar + Generator'
-    :                                  'Solar + Grid + Gen';
+  const solar_label = 'With Solar';
 
   return {
     // System cost

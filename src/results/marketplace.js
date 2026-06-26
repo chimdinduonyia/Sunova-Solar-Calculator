@@ -66,7 +66,7 @@ function renderMarket(container) {
   const st = getState();
   const systemKwp = st.results?.solar?.panel_kwp != null
     ? st.results.solar.panel_kwp.toFixed(2)
-    : '—';
+    : 'N/A';
   const locationName = st.location?.state || 'your area';
 
   container.innerHTML = `
@@ -169,7 +169,7 @@ function installerCard(it) {
           <div class="mk-price">${fmt(it.price)}</div>
         </div>
         <div class="mk-card-btns">
-          <button class="btn--dark-outline" data-open="${it.id}">View storefront</button>
+          <button class="btn--dark-outline" data-open="${it.id}">View installer</button>
           <button class="${inList ? 'btn--added' : 'btn--amber'}" data-toggle="${it.id}">
             ${inList ? `${TICK_SVG}Added` : '+ Compare'}
           </button>
@@ -316,7 +316,7 @@ function renderStorefront(container) {
         <div class="sf-body">
           <div class="sf-quote-panel">
             <div style="flex:1;min-width:0">
-              <div class="sf-quote-label">Their quote for your ${getState().results?.solar?.panel_kwp?.toFixed(2) ?? '—'} kWp system</div>
+              <div class="sf-quote-label">Their quote for your ${getState().results?.solar?.panel_kwp?.toFixed(2) ?? 'N/A'} kWp system</div>
               <div class="sf-quote-price">${fmt(it.price)}</div>
               <div class="sf-quote-sub">Installed · ${it.timeline} timeline · ${it.warranty} warranty</div>
               <div class="sf-kit-grid">

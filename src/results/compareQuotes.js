@@ -39,12 +39,9 @@ function _render() {
   const cmpIds  = sl.length > 0 ? sl : [scored.sort((a,b) => b.score - a.score)[0].id];
   const cmpData = cmpIds.map(id => scored.find(i => i.id === id)).filter(Boolean);
 
-  // Best among compared set
-  const cmpBestId = cmpData.reduce((b, i) => i.score > b.score ? i : b, cmpData[0])?.id;
-
-  // Global best for the banner
-  const allScored = withScores(INSTALLERS).sort((a,b) => b.score - a.score);
-  const globalBest = allScored[0];
+  // Best among the currently compared set — used for both the banner and column highlight
+  const globalBest = cmpData.reduce((b, i) => i.score > b.score ? i : b, cmpData[0]);
+  const cmpBestId  = globalBest?.id;
 
   // Installers not yet in comparison (for add-column dropdown)
   const available = scored.filter(i => !cmpIds.includes(i.id));

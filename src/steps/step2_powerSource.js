@@ -10,8 +10,8 @@ const BOTH_SVG = `<img src="/icons/grid_and_generator.png" width="72" height="72
 
 const SOURCES = [
   { id: 'grid_only',      emoji: POLE_SVG, name: 'Grid Only',        desc: 'I rely solely on NEPA/DisCo grid supply' },
+  { id: 'both',           emoji: BOTH_SVG, name: 'Grid + Generator', desc: 'I use both grid and a backup generator' },
   { id: 'generator_only', emoji: GEN_SVG,  name: 'Generator Only',   desc: 'No grid, I run a generator for power' },
-  { id: 'both',           emoji: BOTH_SVG, name: 'Grid + Generator', desc: 'I use both grid and a backup generator' }
 ];
 
 export function renderStep2(container, navigate) {

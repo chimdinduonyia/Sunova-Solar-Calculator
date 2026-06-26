@@ -242,11 +242,11 @@ function _render() {
       btn.addEventListener('click', () => { fcState.tenure = parseInt(btn.dataset.tenure); _render(); });
     });
 
-    // Select bank
+    // Select bank → show confirmation modal
     _container.querySelectorAll('[data-bank]').forEach(btn => {
       btn.addEventListener('click', () => {
         const bank = offers.find(o => o.id === btn.dataset.bank);
-        if (bank) { fcState.picked = bank; fcState.view = 'done'; _render(); }
+        if (bank) showLoanModal(bank, downAmt, financed);
       });
     });
   } else {
@@ -260,6 +260,75 @@ function _render() {
 
   // Back
   _container.querySelector('#fc-back')?.addEventListener('click', () => _navigate('compare'));
+}
+
+function showLoanModal(bank, downAmt, financed) {
+  const PRICE = currentPrice();
+  const inst  = _selectedInstaller;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'fc-modal-overlay';
+  overlay.innerHTML = `
+    <div class="fc-modal">
+      <div class="fc-modal-head">
+        <div class="fc-bank-chip" style="background:${bank.color};width:40px;height:40px;border-radius:10px;font-size:14px">${bank.init}</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;color:var(--color-text)">${bank.name}</div>
+          <div style="font-size:12px;color:var(--color-text-muted)">Loan application summary</div>
+        </div>
+        <button class="fc-modal-close" id="fc-modal-close">✕</button>
+      </div>
+
+      ${inst ? `<div class="fc-modal-installer">
+        <div class="mk-logo-chip" style="width:28px;height:28px;font-size:10px">${inst.init}</div>
+        <span style="font-size:13px;font-weight:600;color:var(--color-text)">${inst.name} · ${getState().results?.solar?.panel_kwp?.toFixed(2) ?? '—'} kWp system</span>
+      </div>` : ''}
+
+      <div class="fc-modal-rows">
+        <div class="fc-modal-row"><span class="fc-modal-lbl">System cost</span><span class="fc-modal-val">${fmt(PRICE)}</span></div>
+        <div class="fc-modal-row"><span class="fc-modal-lbl">Down payment (${fcState.down}%)</span><span class="fc-modal-val">${fmt(downAmt)}</span></div>
+        <div class="fc-modal-row"><span class="fc-modal-lbl">Loan amount</span><span class="fc-modal-val">${fmt(financed)}</span></div>
+        <div class="fc-modal-row fc-modal-row--highlight"><span class="fc-modal-lbl">Monthly repayment</span><span class="fc-modal-val fc-modal-val--amber">${fmt(bank.monthly)}</span></div>
+        <div class="fc-modal-row"><span class="fc-modal-lbl">Repayment period</span><span class="fc-modal-val">${fcState.tenure} months</span></div>
+        <div class="fc-modal-row"><span class="fc-modal-lbl">Total payable</span><span class="fc-modal-val">${fmt(bank.total)}</span></div>
+        <div class="fc-modal-row"><span class="fc-modal-lbl">Approval time</span><span class="fc-modal-val">${bank.approval}</span></div>
+      </div>
+
+      <p class="fc-modal-note">By proceeding, you authorise ${bank.name} to conduct a soft credit check. Your credit score will not be affected. Rates confirmed during application.</p>
+      <button class="btn btn--primary btn--lg fc-modal-cta" id="fc-modal-proceed">Proceed with application →</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('#fc-modal-close').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  overlay.querySelector('#fc-modal-proceed').addEventListener('click', () => {
+    overlay.remove();
+    showApplyingPreloader(() => {
+      fcState.picked = bank;
+      fcState.view   = 'done';
+      _render();
+    });
+  });
+}
+
+function showApplyingPreloader(onDone) {
+  const el = document.createElement('div');
+  el.id = 'fc-apply-overlay';
+  el.innerHTML = `
+    <div class="fc-apply-inner">
+      <div class="fc-apply-spinner"></div>
+      <div class="fc-apply-label">Submitting your application…</div>
+      <div class="fc-apply-sub">Sending your energy profile to the bank</div>
+    </div>
+  `;
+  document.body.appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transition = 'opacity 0.4s ease';
+    setTimeout(() => { el.remove(); onDone(); }, 420);
+  }, 3000);
 }
 
 function renderDone() {

@@ -268,5 +268,12 @@ function bindMobileNav() {
 
 export function init() {
   window._navigate = navigate;
+
+  // Logo / top-bar clicks → restart wizard from step 1
+  document.querySelectorAll('.logo, .mobile-top-bar').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => navigate('step1'));
+  });
+
   render();
 }

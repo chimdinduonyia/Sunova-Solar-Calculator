@@ -188,7 +188,7 @@ export function renderSolarPVSystem(container, navigate) {
             <div style="font-size:36px;margin-top:8px">🔋</div>
           </div>
           <div class="spec-card">
-            <div class="spec-card__label">Installation Space ${tip('The approximate roof area needed to mount all your solar panels.')}</div>
+            <div class="spec-card__label">Mounting Space ${tip('The approximate roof area needed to mount all your solar panels.')}</div>
             <div class="spec-card__value" id="spec-area-m2">${solar.installation_m2} m²</div>
             <div class="spec-card__sub">Required</div>
             <div style="font-size:36px;margin-top:8px">📐</div>

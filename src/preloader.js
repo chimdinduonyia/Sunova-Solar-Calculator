@@ -54,7 +54,7 @@ const CSS = `
 @keyframes pl-core-pulse   { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.84); opacity: .7; } }
 
 /* ── Steps ── */
-.pl-steps { display: flex; flex-direction: column; gap: 0; }
+.pl-steps { display: flex; flex-direction: column; gap: 0; align-self: center; }
 .pl-step {
   display: flex; align-items: flex-start; gap: 14px;
   opacity: 0; transform: translateY(6px);
@@ -106,7 +106,6 @@ const CSS = `
 
 @media (max-width: 480px) {
   .pl-container { gap: 32px; padding: 0 24px; width: 100%; box-sizing: border-box; }
-  .pl-steps { width: 100%; }
   .pl-text { font-size: 13px; padding-bottom: 30px; }
   .pl-step.done .pl-line { height: 30px; }
   .pl-text:last-child { padding-bottom: 0; }

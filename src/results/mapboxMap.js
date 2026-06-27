@@ -42,11 +42,11 @@ const CITY_CENTERS = {
   'Osogbo':        [4.5548,  7.7727],
 };
 
-// Convert installer mapX/mapY (0–100 %) into real lng/lat relative to city centre.
-// ~10 km total east-west span, ~9 km north-south — matches the "~8km radius" chip text.
+// Convert installer mapX/mapY (0–100 %) into real lng/lat relative to a center point.
+// ±0.04° lng / ±0.03° lat ≈ ±4.4 km east-west / ±3.3 km north-south total spread.
 function installerCoords(installer, center) {
-  const lng = center[0] + (installer.mapX / 100 - 0.5) * 0.18;
-  const lat = center[1] + (0.5 - installer.mapY / 100) * 0.14;
+  const lng = center[0] + (installer.mapX / 100 - 0.5) * 0.08;
+  const lat = center[1] + (0.5 - installer.mapY / 100) * 0.06;
   return [lng, lat];
 }
 
@@ -142,9 +142,10 @@ function applyTheme(map) {
 /**
  * Initialise (or re-initialise) a Mapbox GL map inside `containerEl`.
  *
- * @param {Object} opts
+ * @param {Object}      opts
  * @param {HTMLElement} opts.containerEl  - The div to mount the map into
- * @param {string}      opts.cityState    - e.g. "Abuja (FCT)" — used for centre
+ * @param {string}      opts.cityState    - e.g. "Abuja (FCT)" — used for centre fallback
+ * @param {Array}       [opts.coordinates]- Exact [lng, lat] from geocoded address (preferred)
  * @param {Array}       opts.installers   - withScores(INSTALLERS) array
  * @param {Array}       opts.arrivedIds   - installer IDs whose quotes have arrived
  * @param {Function}    opts.onPinClick   - called with (installerId)
@@ -152,7 +153,7 @@ function applyTheme(map) {
  *
  * @returns {{ map: mapboxgl.Map|null, markers: Object }}
  */
-export function initMapboxMap({ containerEl, cityState, installers, arrivedIds, onPinClick, onPinHover }) {
+export function initMapboxMap({ containerEl, cityState, coordinates, installers, arrivedIds, onPinClick, onPinHover }) {
   const token = import.meta.env.VITE_MAPBOX_TOKEN;
 
   if (!token) {
@@ -171,12 +172,17 @@ export function initMapboxMap({ containerEl, cityState, installers, arrivedIds, 
 
   mapboxgl.accessToken = token;
 
-  const center = CITY_CENTERS[cityState] || CITY_CENTERS['Abuja (FCT)'];
+  // cityCenter is the state-capital fallback when no geocoded address is available.
+  const cityCenter = CITY_CENTERS[cityState] || CITY_CENTERS['Abuja (FCT)'];
+
+  // userCoords is where the viewport opens and the "Your home" marker sits.
+  // If the user entered an address, use that exact point; otherwise the city centre.
+  const userCoords = coordinates || cityCenter;
 
   const map = new mapboxgl.Map({
     container:        containerEl,
     style:            'mapbox://styles/mapbox/light-v11',
-    center,
+    center:           userCoords,
     zoom:             12,
     interactive:      false,
     attributionControl: false,
@@ -190,18 +196,18 @@ export function initMapboxMap({ containerEl, cityState, installers, arrivedIds, 
 
   // User home marker — added before tiles load so it's visible immediately
   const userMarker = new mapboxgl.Marker({ element: createUserPinEl(), anchor: 'bottom' })
-    .setLngLat(center)
+    .setLngLat(userCoords)
     .addTo(map);
 
   map.on('load', () => {
     applyTheme(map);
 
-    // Place installer markers (invisible until their quote arrives)
+    // Place installer markers relative to the user's home address so they feel
+    // local.  All pins start hidden; they reveal via _onQuoteArrival (fresh load)
+    // or the stagger below (re-render where quotes already arrived).
     installers.forEach(inst => {
-      const coords = installerCoords(inst, center);
+      const coords = installerCoords(inst, userCoords);
       const el     = createPinEl(inst);
-
-      if (arrivedIds.includes(inst.id)) el.classList.add('mk-pin--visible');
 
       const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
         .setLngLat(coords)
@@ -209,14 +215,27 @@ export function initMapboxMap({ containerEl, cityState, installers, arrivedIds, 
 
       markers[inst.id] = marker;
 
-      el.addEventListener('click',      ()  => onPinClick(inst.id));
-      el.addEventListener('mouseenter', ()  => onPinHover(inst.id, true));
-      el.addEventListener('mouseleave', ()  => onPinHover(inst.id, false));
+      el.addEventListener('click',      () => onPinClick(inst.id));
+      el.addEventListener('mouseenter', () => onPinHover(inst.id, true));
+      el.addEventListener('mouseleave', () => onPinHover(inst.id, false));
+    });
+
+    // Re-render path: quotes already arrived → their cards are already in the
+    // left column.  Stagger pin appearance so they feel earned, not pre-decided.
+    arrivedIds.forEach((id, i) => {
+      setTimeout(() => {
+        const el = markers[id]?.getElement();
+        if (!el) return;
+        el.classList.add('mk-pin--visible', 'mk-pin--arrive');
+        el.addEventListener('animationend', () => el.classList.remove('mk-pin--arrive'), { once: true });
+      }, i * 150);
     });
   });
 
-  // Ask the browser for the user's real position; fly there if granted
-  if (navigator.geolocation) {
+  // Only use browser GPS when the user hasn't typed a specific address.
+  // If they did type one, their home address is the authoritative location —
+  // GPS would just reflect where they are physically right now (e.g. their office).
+  if (!coordinates && navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       pos => {
         const real = [pos.coords.longitude, pos.coords.latitude];

@@ -417,6 +417,60 @@ input[type=range].sunova-slider::-moz-range-thumb {
 .sunova-select:focus { outline: none; border-color: var(--color-primary); }
 .select-wrap { position: relative; }
 
+/* ── Address autocomplete ── */
+.loc-wrap { position: relative; }
+
+.loc-input-row {
+  display: flex; align-items: center; gap: 8px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0 12px;
+  background: var(--color-white);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.loc-input-row:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(252, 191, 30, 0.15);
+}
+.loc-icon { flex-shrink: 0; }
+.loc-input {
+  flex: 1; border: none; outline: none; padding: 12px 0;
+  font-family: var(--font-family); font-size: var(--font-size-base);
+  color: var(--color-text); background: transparent;
+}
+.loc-input::placeholder { color: var(--color-text-muted); }
+.loc-clear {
+  display: flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%; border: none;
+  background: var(--color-border); color: var(--color-text-muted);
+  cursor: pointer; flex-shrink: 0; padding: 0;
+  transition: background var(--transition);
+}
+.loc-clear:hover { background: #D1D5DB; color: var(--color-text); }
+
+.loc-suggestions {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 200;
+  background: var(--color-white); border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md); box-shadow: 0 8px 24px rgba(0,0,0,.1);
+  overflow: hidden; list-style: none; margin: 0; padding: 4px 0;
+}
+.loc-suggestion {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px; cursor: pointer;
+  transition: background var(--transition);
+}
+.loc-suggestion:hover, .loc-suggestion--active { background: var(--color-primary-bg); }
+.loc-pin-icon { flex-shrink: 0; margin-top: 3px; }
+.loc-sug-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.loc-sug-main {
+  font-size: 13px; font-weight: 600; color: var(--color-text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.loc-sug-sub {
+  font-size: 11px; color: var(--color-text-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
 /* ── Tariff band pills ── */
 .tariff-pills { display: flex; gap: var(--spacing-2); flex-wrap: wrap; margin-bottom: var(--spacing-5); }
 .tariff-pill {

@@ -210,6 +210,14 @@ function renderMarketView(container) {
   const scored       = withScores(INSTALLERS);
   const locationName = cityState || 'your area';
 
+  // Destroy the old Mapbox instance while its DOM container still exists.
+  // Must happen before innerHTML wipes the map container element.
+  if (mkState.mapInstance) {
+    try { mkState.mapInstance.remove(); } catch (_) {}
+    mkState.mapInstance = null;
+    mkState.mapMarkers  = {};
+  }
+
   container.innerHTML = `
     <div class="mk-page">
       <div class="mk-market-hdr">
@@ -242,13 +250,15 @@ function renderMarketView(container) {
   // Initialise Mapbox map — markers are managed by the map from here on
   const mapContainer = container.querySelector('#mk-map-container');
   if (mapContainer) {
+    const loc = getState().location;
     const result = initMapboxMap({
-      containerEl: mapContainer,
-      cityState:   getState().location?.state,
-      installers:  scored,
-      arrivedIds:  mkState.quotesArrived,
-      onPinClick:  id => openStorefront(id),
-      onPinHover:  (id, entering) => { mkState.hovered = entering ? id : null; syncHover(); },
+      containerEl:  mapContainer,
+      cityState:    loc?.state,
+      coordinates:  loc?.coordinates,   // exact [lng, lat] from geocoder if available
+      installers:   scored,
+      arrivedIds:   mkState.quotesArrived,
+      onPinClick:   id => openStorefront(id),
+      onPinHover:   (id, entering) => { mkState.hovered = entering ? id : null; syncHover(); },
     });
     mkState.mapInstance = result.map;
     mkState.mapMarkers  = result.markers;
@@ -541,7 +551,7 @@ function renderStorefront(container) {
             : `<button class="btn--amber" style="padding:13px 20px;font-size:13px;display:inline-flex;align-items:center;gap:6px" id="sf-toggle">
                 + Add to comparison
                </button>`}
-          <button class="btn--dark-outline" style="font-size:12px;padding:9px 16px;white-space:nowrap" id="sf-boq-btn">View BoQ</button>
+          <button class="btn--dark-outline" style="font-size:12px;padding:9px 16px;white-space:nowrap" id="sf-boq-btn">View Quote</button>
         </div>
       </div>`;
   } else {

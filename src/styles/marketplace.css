@@ -870,8 +870,10 @@ tr:nth-child(odd) .cq-td--best { background: rgba(255,248,214,.55); }
 .btn--sm { padding: 8px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: all .15s; }
 
 /* ── Pins: hidden by default, shown when quote arrives ── */
-.mk-pin { opacity: 0; pointer-events: none; transition: transform .15s, opacity .3s ease; }
-.mk-pin.mk-pin--visible { opacity: 1; pointer-events: auto; }
+/* display:none (not opacity:0) because Mapbox's .mapboxgl-marker{opacity:1} creates a
+   compositing layer that can bleed through opacity-based hiding during its own fade-in. */
+.mk-pin { display: none; pointer-events: none; }
+.mk-pin.mk-pin--visible { display: flex; pointer-events: auto; }
 @keyframes mk-pin-arrive {
   0%   { opacity: 0; transform: translate(-50%, -130%) scale(0.7); }
   60%  { transform: translate(-50%, -95%) scale(1.06); }

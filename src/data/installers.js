@@ -49,7 +49,7 @@ export const INSTALLERS = [
     inverter: 'SMA Sunny Boy 8kVA',
     aftercare: '24-month premium care',
     financing: 'In-house financing available',
-    about: "Arnergy Solar is one of Nigeria's most recognised solar brands, with over a decade of experience and 580+ installations nationwide. Their proprietary monitoring platform gives homeowners real-time visibility into generation, consumption, and battery state. Arnergy operates a full in-house team — engineers to customer success — and offers the fastest installation timeline in Abuja.",
+    about: "Arnergy Solar is one of Nigeria's most recognised solar brands, with over a decade of experience and 580+ installations nationwide. Their proprietary monitoring platform gives homeowners real-time visibility into generation, consumption, and battery state. Arnergy operates a full in-house team, engineers to customer success, and offers the fastest installation timeline in Abuja.",
     reviews_l: [
       { name: 'Dr. Bello T.', area: 'Maitama', date: 'Apr 2024', stars: 5, text: 'Arnergy is in a class of its own. The monitoring app is outstanding and their engineer called me personally to walk through the system. Worth every naira.' },
       { name: 'Chioma E.', area: 'Asokoro', date: 'Mar 2024', stars: 5, text: 'Installed in 6 days, just as promised. The system has cut my NEPA spend by over 80%. The 2-year maintenance plan gives real peace of mind.' },

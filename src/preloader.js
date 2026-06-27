@@ -120,6 +120,37 @@ function injectCSS() {
   document.head.appendChild(s);
 }
 
+export function showMiniPreloader(message, duration, onDone) {
+  injectCSS();
+  const el = document.createElement('div');
+  el.id = 'mini-preloader-overlay';
+  el.style.cssText = 'position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;z-index:9999;opacity:1;transition:opacity .32s ease;font-family:Outfit,sans-serif;';
+  el.innerHTML = `
+    <div class="pl-sun" aria-hidden="true">
+      <div class="pl-sun-rays">
+        <i style="--a:0deg;animation-delay:0s"></i>
+        <i style="--a:45deg;animation-delay:.2s"></i>
+        <i style="--a:90deg;animation-delay:.4s"></i>
+        <i style="--a:135deg;animation-delay:.6s"></i>
+        <i style="--a:180deg;animation-delay:.8s"></i>
+        <i style="--a:225deg;animation-delay:1s"></i>
+        <i style="--a:270deg;animation-delay:1.2s"></i>
+        <i style="--a:315deg;animation-delay:1.4s"></i>
+      </div>
+      <div class="pl-sun-core"></div>
+    </div>
+    <div style="font-size:15px;font-weight:600;color:#111827">${message}</div>
+  `;
+  document.body.appendChild(el);
+  setTimeout(() => {
+    onDone?.();          // render destination page behind the overlay first
+    requestAnimationFrame(() => {
+      el.style.opacity = '0';
+      setTimeout(() => { el.remove(); }, 340);
+    });
+  }, duration);
+}
+
 export function showPreloader(onComplete) {
   injectCSS();
 

@@ -2,6 +2,13 @@ import { getState } from '../state.js';
 
 const N = (v) => '₦' + Number(v).toLocaleString('en-NG');
 
+function paybackMonth(years) {
+  const now = new Date();
+  const totalMonths = Math.round(years * 12);
+  const d = new Date(now.getFullYear(), now.getMonth() + totalMonths, 1);
+  return d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+}
+
 export function renderCostSavings(container, navigate) {
   const state = getState();
   if (!state.results) { navigate('step1'); return; }
@@ -54,6 +61,7 @@ export function renderCostSavings(container, navigate) {
             <div>
               <div class="savings-kpi__label">Payback Period ${tip('How many years before your accumulated energy savings fully recover the cost of the solar system.')}</div>
               <div class="savings-kpi__value">${savings.payback_exact} Years</div>
+              ${(savings.payback_exact < 25) ? `<div class="savings-kpi__sub"><span class="pill--amber">${paybackMonth(savings.payback_exact)}</span></div>` : ''}
             </div>
             <div class="savings-kpi__icon"><img src="/icons/payback_period.png" width="64" height="64" style="object-fit:contain"></div>
           </div>

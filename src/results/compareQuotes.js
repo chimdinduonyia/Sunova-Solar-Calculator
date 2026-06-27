@@ -1,5 +1,5 @@
 import { INSTALLERS, withScores, fmt } from '../data/installers.js';
-import { mkState, toggleShortlist } from './marketplace.js';
+import { mkState, toggleShortlist, showBoQModal } from './marketplace.js';
 import { setFinancingInstaller } from './financing.js';
 import { getState } from '../state.js';
 import CITY_MAP_DATA from '../data/cityMapData.json';
@@ -43,9 +43,9 @@ function _render() {
   const globalBest = cmpData.reduce((b, i) => i.score > b.score ? i : b, cmpData[0]);
   const cmpBestId  = globalBest?.id;
 
-  // Installers not yet in comparison (for add-column dropdown)
-  const available = scored.filter(i => !cmpIds.includes(i.id));
-  const canAdd    = cmpData.length < 4 && available.length > 0;
+  // Quoted installers not yet in comparison (for add-column dropdown)
+  const available = scored.filter(i => !cmpIds.includes(i.id) && mkState.quoteRequests[i.id]?.status === 'quoted');
+  const canAdd    = cmpData.length < 4;
 
   const title = cmpData.length > 1
     ? `Comparing ${cmpData.length} quotes for your home`
@@ -89,26 +89,29 @@ function _render() {
                 const cmpDistrict = getCityData(getState().location?.state).installerAreas[it.id] || it.district;
                 return `
                 <th class="cq-th ${it.id === cmpBestId ? 'cq-th--best' : ''}">
+                  <div class="cq-best-chip" ${it.id !== cmpBestId ? 'style="visibility:hidden"' : ''}>★ BEST VALUE</div>
                   <div class="cq-th-logo">${it.init}</div>
                   <div class="cq-th-name">${it.name}</div>
                   <div class="cq-th-district">${cmpDistrict}</div>
-                  ${it.id === cmpBestId ? '<div class="cq-best-chip">★ BEST VALUE</div>' : ''}
+                  <button class="cq-boq-btn" data-boq="${it.id}">View Quote</button>
                   <button class="cq-remove-btn" data-remove="${it.id}">Remove</button>
                 </th>`;
               }).join('')}
               ${canAdd ? `
                 <th class="cq-th-add">
-                  <div class="cq-add-box" id="cq-add-box">
+                  <div class="cq-add-box ${available.length === 0 ? 'cq-add-box--empty' : ''}" id="cq-add-box">
                     <div style="font-size:20px;color:var(--color-text-muted)">+</div>
-                    <div class="cq-add-label">Add installer</div>
-                    <div class="cq-add-dropdown" id="cq-add-dropdown" style="display:none">
-                      ${available.map(i => `
-                        <div class="cq-add-option" data-add="${i.id}">
-                          <div class="cq-th-logo" style="width:28px;height:28px;font-size:10px;margin-bottom:0">${i.init}</div>
-                          <span style="font-size:13px">${i.name}</span>
-                        </div>
-                      `).join('')}
-                    </div>
+                    <div class="cq-add-label">Add Quote</div>
+                    ${available.length > 0 ? `
+                      <div class="cq-add-dropdown" id="cq-add-dropdown" style="display:none">
+                        ${available.map(i => `
+                          <div class="cq-add-option" data-add="${i.id}">
+                            <div class="cq-th-logo" style="width:28px;height:28px;font-size:10px;margin-bottom:0">${i.init}</div>
+                            <span style="font-size:13px">${i.name}</span>
+                          </div>
+                        `).join('')}
+                      </div>
+                    ` : `<div class="cq-add-empty-hint">Request quotes from more installers first</div>`}
                   </div>
                 </th>
               ` : ''}
@@ -154,6 +157,14 @@ function _render() {
   // Remove button
   _container.querySelectorAll('[data-remove]').forEach(btn => {
     btn.addEventListener('click', () => { toggleShortlist(btn.dataset.remove); _render(); });
+  });
+
+  // BoQ buttons
+  _container.querySelectorAll('[data-boq]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const inst = cmpData.find(i => i.id === btn.dataset.boq);
+      if (inst) showBoQModal(inst);
+    });
   });
 
   // Add dropdown

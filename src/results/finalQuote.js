@@ -1,3 +1,5 @@
+import { showMiniPreloader } from '../preloader.js';
+
 export function renderFinalQuote(container, navigate) {
   container.innerHTML = `
     <div class="cta-outer">
@@ -24,7 +26,8 @@ export function renderFinalQuote(container, navigate) {
   `;
 
   container.querySelector('#cta-installers-btn')
-    ?.addEventListener('click', () => navigate('market'));
+    ?.addEventListener('click', () =>
+      showMiniPreloader('Finding installers near you…', 5000, () => navigate('market')));
   container.querySelector('#cta-adjust-btn')
     ?.addEventListener('click', () => navigate('step1'));
 }

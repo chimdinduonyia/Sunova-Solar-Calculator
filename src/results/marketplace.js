@@ -175,8 +175,22 @@ function _onQuoteArrival(id) {
   const barWrap = document.getElementById('mk-bar-wrap');
 
   if (leftCol) {
+    const hadList = !!leftCol.querySelector('.mk-quotes-list');
     leftCol.innerHTML = buildLeftColumn();
     bindLeftColEvents(leftCol);
+
+    // Newest card is first in the DOM (buildLeftColumn reverses arrival order).
+    // Slide it up; bob existing cards down so it feels like it pushed under them.
+    const cards = leftCol.querySelectorAll('[data-card]');
+    if (cards.length) {
+      cards[0].classList.add('mk-card--enter');
+      if (hadList) {
+        Array.from(cards).slice(1).forEach(card => {
+          card.classList.add('mk-card--nudge');
+          card.addEventListener('animationend', () => card.classList.remove('mk-card--nudge'), { once: true });
+        });
+      }
+    }
   }
 
   if (barWrap) {
@@ -341,7 +355,6 @@ function quoteCard(it) {
         </div>
         <div class="mk-qcard-btns">
           <button class="btn--dark-outline btn--sm" data-open="${it.id}">View Installer</button>
-          <button class="btn--dark-outline btn--sm" data-boq-card="${it.id}">View Quote</button>
           ${inList
             ? `<button class="btn--sm btn--added" data-toggle="${it.id}">
                 <span class="btn-in-cmp-default">${TICK_SVG}In comparison</span>

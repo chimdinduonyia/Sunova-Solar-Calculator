@@ -842,17 +842,32 @@ tr:nth-child(odd) .cq-td--best { background: rgba(255,248,214,.55); }
 .mk-quotes-list { display: flex; flex-direction: column; gap: 14px; }
 
 /* ── Quote card ── */
-@keyframes mk-qcard-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
 .mk-qcard {
   background: var(--color-white); border: 1.5px solid var(--color-border);
   border-radius: 15px; padding: 18px;
   transition: border-color .18s;
-  animation: mk-qcard-in .35s ease both;
 }
 .mk-qcard:hover, .mk-qcard.hovered { border-color: var(--color-primary); }
+
+/* ── Quote arrival animations ── */
+/* New card: slides up from below and fades in */
+@keyframes mk-card-enter {
+  0%   { opacity: 0; transform: translateY(28px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.mk-card--enter {
+  animation: mk-card-enter 420ms cubic-bezier(.22,1,.36,1) both;
+}
+
+/* Existing cards: bob down gently as new card stacks on top */
+@keyframes mk-card-nudge {
+  0%   { transform: translateY(0); }
+  30%  { transform: translateY(12px); }
+  100% { transform: translateY(0); }
+}
+.mk-card--nudge {
+  animation: mk-card-nudge 700ms cubic-bezier(.22,1,.36,1) both;
+}
 .mk-qcard-top  { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
 .mk-qcard-info { flex: 1; min-width: 0; }
 .mk-qcard-name { font-size: 15px; font-weight: 700; color: var(--color-text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }

@@ -949,4 +949,6 @@ input[type=range].sunova-slider::-moz-range-thumb {
     width: 96px;
     min-width: 96px;
   }
+
+  .loc-zone-field { display: none; }
 }

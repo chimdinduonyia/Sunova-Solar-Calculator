@@ -162,6 +162,10 @@ export function renderStep1(container, navigate) {
 
           <div id="location-info" class="card" style="margin-top:16px;background:var(--color-primary-bg);border-color:var(--color-primary-light);display:${saved ? 'block' : 'none'}">
             <div style="display:flex;gap:32px;align-items:center;flex-wrap:wrap">
+              <div class="loc-zone-field">
+                <div class="label">Zone</div>
+                <div class="value" id="loc-zone">${saved?.zone || ''}</div>
+              </div>
               <div>
                 <div class="label">Peak Sun Hours</div>
                 <div class="value value--amber" id="loc-psh">${saved?.daily_yield_kwh_per_kwp ? saved.daily_yield_kwh_per_kwp + ' hrs/day' : ''}</div>
@@ -242,11 +246,13 @@ export function renderStep1(container, navigate) {
           coordinates: feature.geometry.coordinates,  // [lng, lat]
         }
       });
+      document.getElementById('loc-zone').textContent  = pvRecord.zone;
       document.getElementById('loc-psh').textContent   = `${pvRecord.daily_yield_kwh_per_kwp} hrs/day`;
       document.getElementById('loc-yield').textContent = `${pvRecord.annual_yield_kwh_per_kwp} kWh/kWp`;
       infoBox.innerHTML = infoBox.innerHTML; // reset any error html
       infoBox.style.background  = 'var(--color-primary-bg)';
       infoBox.style.borderColor = 'var(--color-primary-light)';
+      document.getElementById('loc-zone').textContent  = pvRecord.zone;
       document.getElementById('loc-psh').textContent   = `${pvRecord.daily_yield_kwh_per_kwp} hrs/day`;
       document.getElementById('loc-yield').textContent = `${pvRecord.annual_yield_kwh_per_kwp} kWh/kWp`;
       infoBox.style.display  = 'block';

@@ -13,7 +13,6 @@ export function renderCostSavings(container, navigate) {
   const state = getState();
   if (!state.results) { navigate('step1'); return; }
   const { savings } = state.results;
-  const hasAppliances = state.appliances && state.appliances.length > 0;
 
   const tip = text => `<span class="confidence-tooltip-wrap" style="display:inline-flex;vertical-align:middle;margin-left:4px"><button class="confidence-tooltip-btn" type="button">?</button><span class="confidence-tooltip-box">${text}</span></span>`;
 
@@ -53,14 +52,14 @@ export function renderCostSavings(container, navigate) {
           <div class="savings-kpi">
             <div>
               <div class="savings-kpi__label">ROI ${tip('Total return on investment over 25 years. Calculated as total savings minus total costs, as a percentage of the initial system cost.')}</div>
-              <div class="savings-kpi__value">${savings.ROI}%</div>
+              <div class="savings-kpi__value" style="${savings.ROI < 0 ? 'color:#EF4444' : ''}">${savings.ROI}%</div>
             </div>
             <div class="savings-kpi__icon"><img src="/icons/return_on_investment.png" width="64" height="64" style="object-fit:contain"></div>
           </div>
           <div class="savings-kpi">
             <div>
               <div class="savings-kpi__label">Payback Period ${tip('How many years before your accumulated energy savings fully recover the cost of the solar system.')}</div>
-              <div class="savings-kpi__value">${savings.payback_exact} Years</div>
+              <div class="savings-kpi__value">${savings.payback_exact >= 99 ? 'Not within 25 yrs' : `${savings.payback_exact} Years`}</div>
               ${(savings.payback_exact < 25) ? `<div class="savings-kpi__sub"><span class="pill--amber">${paybackMonth(savings.payback_exact)}</span></div>` : ''}
             </div>
             <div class="savings-kpi__icon"><img src="/icons/payback_period.png" width="64" height="64" style="object-fit:contain"></div>
@@ -99,7 +98,10 @@ export function renderCostSavings(container, navigate) {
 
         <div class="savings-bottom-grid">
           <div class="card">
-            <div class="section-title" style="margin-bottom:16px">25-Year Cumulative Savings</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+              <div class="section-title" style="margin-bottom:0">25-Year Cumulative Savings</div>
+              <span style="font-size:11px;font-weight:600;color:#374151;background:#F3F4F6;border:1px solid #E5E7EB;border-radius:20px;padding:2px 10px;white-space:nowrap">Est. System Cost ${N(savings.total_system_cost)}</span>
+            </div>
             <div style="position:relative">
               <canvas id="cashflow-chart" style="width:100%;height:280px;display:block"></canvas>
               <div id="cashflow-tooltip" style="display:none;position:absolute;background:rgba(17,24,39,0.88);color:#fff;font-size:11px;padding:5px 9px;border-radius:6px;pointer-events:none;white-space:nowrap;font-family:Outfit,sans-serif"></div>
@@ -121,6 +123,17 @@ export function renderCostSavings(container, navigate) {
           </div>
         </div>
 
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:flex-start;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;padding:14px 16px;margin-top:20px">
+        <svg style="flex-shrink:0;margin-top:1px" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6B7280" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="8" cy="8" r="6.5"/>
+          <line x1="8" y1="7" x2="8" y2="11"/>
+          <circle cx="8" cy="5" r="0.5" fill="#6B7280" stroke="none"/>
+        </svg>
+        <p style="margin:0;font-size:12px;color:#6B7280;line-height:1.6">
+          These are ballpark estimates based on the energy spend and location you provided. Actual savings will depend on how you actually consume energy, future tariff changes, and installer pricing. Fuel savings apply only if you currently use a generator.
+        </p>
       </div>
 
     </div>

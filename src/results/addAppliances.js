@@ -35,45 +35,13 @@ function renderApplianceModal(applianceData, selectedAppliances) {
   }).join('');
 
   return modalHtml({
-    title: 'Choose specific appliances',
-    subtitle: 'You can select multiple appliances',
+    title: 'Select appliances for your solar system',
+    subtitle: 'Choose the appliances you want to connect to your solar system',
     body: rows,
-    footer: `<button class="btn btn--primary btn--full" id="add-appliances-confirm">Add Appliances</button>`
+    footer: `<button class="btn btn--primary btn--full" id="add-appliances-confirm">Confirm Selection</button>`
   });
 }
 
-const WHY_MODAL_HTML = `
-  <div class="assumptions-overlay" id="why-appliances-overlay" role="dialog" aria-modal="true">
-    <div class="modal-card" style="max-width:460px">
-      <div class="modal-header">
-        <h3 class="modal-title">Make your results more accurate</h3>
-        <button class="modal-close" id="why-close-btn" aria-label="Close">✕</button>
-      </div>
-      <div class="modal-body">
-        <p style="font-size:14px;line-height:1.7;color:var(--color-text-secondary);margin:0 0 20px">
-          Your estimate is based on spending data alone. Tell us which appliances you run and when, and we will calculate a precise load profile and upgrade your confidence score from <strong style="color:var(--color-error)">Low</strong> to <strong style="color:var(--color-success)">High</strong>.
-        </p>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div class="appliance-prompt-feature">
-            <span style="font-size:26px">📊</span>
-            <div><div class="appliance-prompt-feature__title">Hourly load curve</div><div class="appliance-prompt-feature__desc">See exactly when your home draws the most power</div></div>
-          </div>
-          <div class="appliance-prompt-feature">
-            <span style="font-size:26px">📅</span>
-            <div><div class="appliance-prompt-feature__title">Seasonal forecast</div><div class="appliance-prompt-feature__desc">Understand your peak and low consumption months</div></div>
-          </div>
-          <div class="appliance-prompt-feature">
-            <span style="font-size:26px">🎯</span>
-            <div><div class="appliance-prompt-feature__title">Right-sized solar system</div><div class="appliance-prompt-feature__desc">Panel count, battery, and inverter sized to your real usage</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer" style="justify-content:flex-end">
-        <button class="btn btn--primary btn--lg" id="why-cta-btn" style="width:100%">Got it, let me add my appliances</button>
-      </div>
-    </div>
-  </div>
-`;
 
 // Bungalow: 9 rooms, Duplex: 14 rooms, Terrace: 20 rooms
 const DEFAULT_ROOMS = { bungalow: 9, duplex: 14, terrace: 20 };
@@ -111,8 +79,8 @@ export function renderAddAppliances(container, navigate) {
       <div style="display:flex;flex-direction:column;min-height:100%">
       <div id="add-appliances-content" style="flex:1;padding:40px 40px 32px">
         <div style="margin-bottom:32px">
-          <h2 style="font-size:32px;font-weight:800;margin-bottom:4px">Home Profile &amp; Appliances</h2>
-          <p style="color:var(--color-text-secondary);font-size:16px">Add your appliances to sharpen your solar recommendation</p>
+          <h2 style="font-size:32px;font-weight:800;margin-bottom:4px">Select Appliances for Solar</h2>
+          <p style="color:var(--color-text-secondary);font-size:16px">Choose the appliances you want to connect to your solar system. This helps us size your inverter correctly.</p>
         </div>
 
         <div class="section-title" style="margin-bottom:14px">Choose your house type</div>
@@ -134,7 +102,7 @@ export function renderAddAppliances(container, navigate) {
           `).join('')}
         </div>
 
-        <div class="section-title" style="margin-top:28px;margin-bottom:12px">Select your home appliances</div>
+        <div class="section-title" style="margin-top:28px;margin-bottom:12px">Which appliances will connect to the solar system?</div>
         <div class="appliances-list" id="appliances-list">
           ${s.appliances.map(a => `
             <div class="appliance-chip">
@@ -260,30 +228,6 @@ export function renderAddAppliances(container, navigate) {
       render();
     });
   }
-
-  // Auto-show "why add appliances" modal after 2 seconds, but only when the
-  // user has not yet added any appliances (no need to re-educate them).
-  const whyOverlay = document.createElement('div');
-  whyOverlay.innerHTML = WHY_MODAL_HTML;
-  document.body.appendChild(whyOverlay.firstElementChild);
-
-  const overlay = document.getElementById('why-appliances-overlay');
-  const hasExistingAppliances = (getState().appliances || []).length > 0;
-  let _whyTimer = hasExistingAppliances
-    ? null
-    : setTimeout(() => { if (overlay) overlay.classList.add('assumptions-overlay--visible'); }, 2000);
-
-  function closeWhy() {
-    if (overlay) overlay.remove();
-    clearTimeout(_whyTimer);
-  }
-
-  // Bind after a tick so the DOM is ready
-  setTimeout(() => {
-    document.getElementById('why-close-btn')?.addEventListener('click', closeWhy);
-    document.getElementById('why-cta-btn')?.addEventListener('click', closeWhy);
-    overlay?.addEventListener('click', e => { if (e.target === overlay) closeWhy(); });
-  }, 0);
 
   render();
 }

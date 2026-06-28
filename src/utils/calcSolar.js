@@ -4,20 +4,17 @@ const POWER_FACTOR      = 0.80;   // inverter power factor
 const SURGE_FACTOR      = 1.25;   // motor startup surge headroom (AC, fridge, pump)
 const INST_M2_PER_KWP   = 6.5;   // installation area per kWp
 const BATTERY_RT_EFF    = 0.9025; // round-trip battery efficiency (0.95 charge × 0.95 discharge)
+const BATTERY_DOD       = 0.80;   // LiFePO4 depth of discharge (must match calcBattery.js)
+const BATTERY_CHARGE_EFF= 0.95;   // one-way charge efficiency
 const SOLAR_START_HOUR  = 6;
 const SOLAR_END_HOUR    = 18;
 
 const INVERTER_SIZES_KVA = [3, 5, 7.5, 10, 12.5, 15, 20, 25, 30];
 
-const COST_PER_KWP    = 250000;
-const COST_INV_PER_KVA = 60000;
-const INST_FIXED      = 150000;
 
-export function calcSolar(load, location, baseCasePeakKW = 0) {
+export function calcSolar(load, location, goal = null, batteryKWh = 0) {
   const dailyKWh     = load.totalDailyKWh;
-  // Use the higher of the user's actual peak and the base-case floor.
-  // This keeps the inverter sized sensibly even before appliances are entered.
-  const peakDemandKW = Math.max(load.peakKW, baseCasePeakKW);
+  const peakDemandKW = load.peakKW;
   const psh          = location?.daily_yield_kwh_per_kwp  || 4.5;
   const annualYield  = location?.annual_yield_kwh_per_kwp || 1642;
   const hourlyProfile = load.hourlyProfile || [];
@@ -35,13 +32,25 @@ export function calcSolar(load, location, baseCasePeakKW = 0) {
     nighttimeKWh = dailyKWh * 0.5;
   }
 
-  // Effective energy the panels must produce:
-  //   daytime load is served directly (no battery loss)
-  //   nighttime load must be pre-charged into the battery, so divide by round-trip
-  //   efficiency to find how much the panels must generate for that portion.
+  // Effective energy the panels must produce each day:
+  //   daytime load → served directly from solar, no battery losses
+  //   nighttime load → depends on the user's goal:
   //
-  //   effectiveDailyKWh = daytimeKWh + nighttimeKWh / 0.9025
-  const effectiveDailyKWh = daytimeKWh + nighttimeKWh / BATTERY_RT_EFF;
+  //   offgrid: solar must generate enough to push the full nighttime demand
+  //     through the battery (÷ round-trip efficiency).
+  //
+  //   reduce_bill / backup: the battery is sized only for a partial backup
+  //     window, not all night. Solar only needs to fill that battery once per
+  //     day (batteryKWh × DoD ÷ charge efficiency). Sizing for the full
+  //     nighttime load would over-size the panels relative to the battery's
+  //     actual storage capacity, wasting generated energy as clipping.
+  let nighttimeSolarKWh;
+  if (goal === 'offgrid' || batteryKWh === 0) {
+    nighttimeSolarKWh = nighttimeKWh / BATTERY_RT_EFF;
+  } else {
+    nighttimeSolarKWh = (batteryKWh * BATTERY_DOD) / BATTERY_CHARGE_EFF;
+  }
+  const effectiveDailyKWh = daytimeKWh + nighttimeSolarKWh;
 
   // Method 1: peak sun hours
   const pvKWp_method1 = effectiveDailyKWh / (psh * PERF_RATIO);
@@ -74,13 +83,6 @@ export function calcSolar(load, location, baseCasePeakKW = 0) {
     kwh: Math.round(pvKWp_actual * (location?.monthly?.[m.toLowerCase()] || psh) * 30 * PERF_RATIO)
   }));
 
-  // Estimated system cost
-  const estimated_cost = Math.round(
-    pvKWp_actual * COST_PER_KWP +
-    inverterKVA  * COST_INV_PER_KVA +
-    INST_FIXED
-  );
-
   return {
     // Fields consumed by solarPVSystem.js and calcSavings.js
     panel_kwp:       pvKWp_actual,
@@ -89,7 +91,6 @@ export function calcSolar(load, location, baseCasePeakKW = 0) {
     installation_m2: installationM2,
     annual_gen_kwh,
     monthly_gen,
-    estimated_cost,
     psh,
     // Additional sizing detail
     pvKWp_required:  parseFloat(pvKWp_required.toFixed(2)),

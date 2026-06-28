@@ -9,8 +9,6 @@ const NIGHT_HOURS = [18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5];
 // Off-grid autonomy multiplier: 1.5 = covers one full overcast day on top of a normal night
 const OFFGRID_AUTONOMY_DAYS = 1.5;
 
-// Standard LiFePO4 battery sizes available on the Nigerian market (kWh gross)
-const BATTERY_SIZES_KWH = [5, 10, 15, 20, 25, 30, 40, 50, 60, 80, 100];
 
 // Default backup hours when the user hasn't overridden via counter
 const GOAL_BACKUP_HOURS = { reduce_bill: 4, backup: 8, offgrid: 16 };
@@ -51,12 +49,9 @@ export function calcBattery(load, goal, backupHoursOverride) {
     energyNeeded_kWh = avgBackupLoad_kW * backupHours;
   }
 
-  const batteryKWh_net    = energyNeeded_kWh / DOD;
-  const batteryKWh_gross  = batteryKWh_net   / BATTERY_EFFICIENCY;
-
-  // Snap up to nearest standard size
-  const batteryKWh_recommended = BATTERY_SIZES_KWH.find(s => s >= batteryKWh_gross)
-    ?? BATTERY_SIZES_KWH[BATTERY_SIZES_KWH.length - 1];
+  const batteryKWh_net         = energyNeeded_kWh / DOD;
+  const batteryKWh_gross       = batteryKWh_net   / BATTERY_EFFICIENCY;
+  const batteryKWh_recommended = Math.ceil(batteryKWh_gross);
 
   // Usable energy from the recommended pack (for backup-time display)
   const batteryUsable = parseFloat((batteryKWh_recommended * DOD * BATTERY_EFFICIENCY).toFixed(2));

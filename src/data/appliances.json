@@ -1,7 +1,7 @@
 [
   {
     "category": "Cooling",
-    "name": "Split AC \u2013 1HP",
+    "name": "Split AC – 1HP",
     "rated_watts": 750,
     "typical_daily_hours": 8,
     "daily_wh": 6000,
@@ -9,7 +9,7 @@
   },
   {
     "category": "Cooling",
-    "name": "Split AC \u2013 1.5HP",
+    "name": "Split AC – 1.5HP",
     "rated_watts": 1100,
     "typical_daily_hours": 8,
     "daily_wh": 8800,
@@ -17,7 +17,7 @@
   },
   {
     "category": "Cooling",
-    "name": "Split AC \u2013 2HP",
+    "name": "Split AC – 2HP",
     "rated_watts": 1500,
     "typical_daily_hours": 6,
     "daily_wh": 9000,
@@ -37,14 +37,6 @@
     "rated_watts": 60,
     "typical_daily_hours": 8,
     "daily_wh": 480,
-    "notes": ""
-  },
-  {
-    "category": "Cooling",
-    "name": "Table Fan",
-    "rated_watts": 35,
-    "typical_daily_hours": 6,
-    "daily_wh": 210,
     "notes": ""
   },
   {
@@ -117,7 +109,7 @@
     "rated_watts": 1500,
     "typical_daily_hours": 0.2,
     "daily_wh": 300.0,
-    "notes": "2\u20133 boils/day"
+    "notes": "2–3 boils/day"
   },
   {
     "category": "Kitchen",
@@ -125,22 +117,6 @@
     "rated_watts": 400,
     "typical_daily_hours": 0.1,
     "daily_wh": 40.0,
-    "notes": ""
-  },
-  {
-    "category": "Kitchen",
-    "name": "Electric Cooker (hotplate)",
-    "rated_watts": 1500,
-    "typical_daily_hours": 1,
-    "daily_wh": 1500,
-    "notes": ""
-  },
-  {
-    "category": "Kitchen",
-    "name": "Rice Cooker",
-    "rated_watts": 600,
-    "typical_daily_hours": 0.5,
-    "daily_wh": 300.0,
     "notes": ""
   },
   {
@@ -153,7 +129,7 @@
   },
   {
     "category": "Entertainment",
-    "name": "LED TV \u2013 32\"",
+    "name": "LED TV – 32\"",
     "rated_watts": 50,
     "typical_daily_hours": 5,
     "daily_wh": 250,
@@ -161,7 +137,7 @@
   },
   {
     "category": "Entertainment",
-    "name": "LED TV \u2013 43\"",
+    "name": "LED TV – 43\"",
     "rated_watts": 80,
     "typical_daily_hours": 5,
     "daily_wh": 400,
@@ -169,7 +145,7 @@
   },
   {
     "category": "Entertainment",
-    "name": "LED TV \u2013 55\"",
+    "name": "LED TV – 55\"",
     "rated_watts": 120,
     "typical_daily_hours": 5,
     "daily_wh": 600,
@@ -232,14 +208,6 @@
     "notes": "Per phone"
   },
   {
-    "category": "ICT / Office",
-    "name": "Printer",
-    "rated_watts": 400,
-    "typical_daily_hours": 0.25,
-    "daily_wh": 100.0,
-    "notes": ""
-  },
-  {
     "category": "Laundry",
     "name": "Washing Machine (front-load)",
     "rated_watts": 500,
@@ -261,38 +229,6 @@
     "rated_watts": 1000,
     "typical_daily_hours": 0.5,
     "daily_wh": 500.0,
-    "notes": ""
-  },
-  {
-    "category": "Water",
-    "name": "Water Pump (0.5HP)",
-    "rated_watts": 370,
-    "typical_daily_hours": 1,
-    "daily_wh": 370,
-    "notes": "Depends on tank size"
-  },
-  {
-    "category": "Water",
-    "name": "Water Pump (1HP)",
-    "rated_watts": 750,
-    "typical_daily_hours": 1,
-    "daily_wh": 750,
-    "notes": ""
-  },
-  {
-    "category": "Water",
-    "name": "Water Heater (instant)",
-    "rated_watts": 3000,
-    "typical_daily_hours": 0.25,
-    "daily_wh": 750.0,
-    "notes": ""
-  },
-  {
-    "category": "Water",
-    "name": "Water Heater (storage)",
-    "rated_watts": 2000,
-    "typical_daily_hours": 1,
-    "daily_wh": 2000,
     "notes": ""
   },
   {

@@ -1,118 +1,18 @@
-import { getState, getData } from '../state.js';
+import { getState } from '../state.js';
 
 const N = v => '₦' + Number(v).toLocaleString('en-NG');
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-// Monthly cooling demand index per climate zone (raw, normalised before use)
-const COOLING_INDEX = {
-  north:  [0.60, 0.80, 1.30, 1.45, 1.30, 0.85, 0.70, 0.72, 0.90, 1.10, 0.75, 0.60],
-  middle: [0.75, 0.90, 1.25, 1.35, 1.15, 0.82, 0.68, 0.70, 0.85, 1.05, 0.85, 0.72],
-  south:  [1.10, 1.20, 1.30, 1.20, 1.00, 0.70, 0.65, 0.65, 0.80, 1.00, 1.10, 1.05]
-};
-
-function climateZone(zone) {
-  if (!zone) return 'south';
-  if (/North West|North East/i.test(zone)) return 'north';
-  if (/North Central/i.test(zone)) return 'middle';
-  return 'south';
-}
-
-function calcSeasonalMonthly(load, appliances, applianceData, zone) {
-  const appMap = {};
-  (applianceData || []).forEach(a => { appMap[a.name] = a; });
-
-  let coolingW = 0, totalW = 0;
-  (appliances || []).forEach(sel => {
-    const def = appMap[sel.name];
-    if (!def) return;
-    const w = def.rated_watts * (sel.qty || 1);
-    totalW += w;
-    if (def.category === 'Cooling') coolingW += w;
-  });
-
-  const coolingFrac = totalW > 0 ? coolingW / totalW : 0.35;
-  const raw = COOLING_INDEX[climateZone(zone)];
-  const avg = raw.reduce((s, v) => s + v, 0) / 12;
-  const norm = raw.map(f => f / avg);          // normalise so average factor = 1.0
-
-  const baseDaily = load.totalDailyKWh;
-  const coolingDaily = baseDaily * coolingFrac;
-  const otherDaily = baseDaily - coolingDaily;
-
-  return norm.map(f => parseFloat(((otherDaily + coolingDaily * f) * 30).toFixed(1)));
-}
 
 export function renderLoadProfile(container, navigate) {
   const state = getState();
-  const applianceData = getData('appliances') || [];
-  const { results, location, powerSource, tariffBand, gridSpend, fuelSpend, appliances } = state;
+  const { results, location, powerSource, tariffBand, gridSpend, fuelSpend } = state;
   if (!results) { navigate('step1'); return; }
   const { load, solar } = results;
 
-  const hasAppliances = appliances && appliances.length > 0;
   const powerSourceLabel = {
-    grid_only: 'Grid Only',
-    generator_only: 'Generator Only',
-    both: 'Grid & Generator'
+    grid_only:       'Grid Only',
+    generator_only:  'Generator Only',
+    both:            'Grid & Generator',
   }[powerSource] || 'Grid & Generator';
-
-  // Pre-compute for captions
-  const appMap = {};
-  applianceData.forEach(a => { appMap[a.name] = a; });
-  let coolingW = 0, totalW = 0;
-  (appliances || []).forEach(sel => {
-    const def = appMap[sel.name];
-    if (!def) return;
-    const w = def.rated_watts * (sel.qty || 1);
-    totalW += w;
-    if (def.category === 'Cooling') coolingW += w;
-  });
-  const coolingPct = totalW > 0 ? Math.round(coolingW / totalW * 100) : 35;
-  const zone = location?.zone || '';
-  const climate = climateZone(zone);
-  const climateDesc = {
-    north:  'Northern Nigeria: peak cooling March to May, cool harmattan Nov to Feb',
-    middle: 'Middle Belt: peak cooling March to May, mild rainy dip Jun to Sep',
-    south:  'Southern Nigeria: peak cooling Feb to Apr, rainy season dip Jun to Sep'
-  }[climate];
-
-  const consumptionCard = hasAppliances ? `
-    <div class="card">
-      <div class="section-title" style="margin-bottom:16px">Energy Consumption</div>
-      <div class="chart-header-row" style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px">
-        <div style="display:flex;gap:28px;align-items:flex-end">
-          <div>
-            <div class="label">Daily average</div>
-            <div class="kwh-day">${load.totalDailyKWh} <span style="font-size:14px;font-weight:500;color:var(--color-text-secondary)">kWh</span></div>
-          </div>
-          <div>
-            <div class="label">Monthly average</div>
-            <div style="font-size:24px;font-weight:700;color:var(--color-text)">${load.monthlyKWh} <span style="font-size:14px;font-weight:500;color:var(--color-text-secondary)">kWh</span></div>
-          </div>
-        </div>
-        <select id="chart-view-sel" class="gantt-select">
-          <option value="hourly">Hourly</option>
-          <option value="monthly">Monthly</option>
-        </select>
-      </div>
-      <canvas id="load-chart" height="180"></canvas>
-      <div id="chart-caption" style="margin-top:10px;font-size:11px;color:var(--color-text-muted);line-height:1.5"></div>
-    </div>
-  ` : `
-    <div class="card">
-      <div class="section-title" style="margin-bottom:16px">Energy Consumption</div>
-      <div style="display:flex;gap:28px;align-items:flex-end;margin-bottom:16px">
-        <div>
-          <div class="label">Daily average</div>
-          <div class="kwh-day">${load.totalDailyKWh} <span style="font-size:14px;font-weight:500;color:var(--color-text-secondary)">kWh</span></div>
-        </div>
-        <div>
-          <div class="label">Monthly average</div>
-          <div style="font-size:24px;font-weight:700;color:var(--color-text)">${load.monthlyKWh} <span style="font-size:14px;font-weight:500;color:var(--color-text-secondary)">kWh</span></div>
-        </div>
-      </div>
-    </div>
-  `;
 
   container.innerHTML = `
     <div style="padding:40px 40px 60px">
@@ -160,133 +60,23 @@ export function renderLoadProfile(container, navigate) {
               style="position:absolute;right:-12px;bottom:-28px;width:188px;height:188px;object-fit:contain;opacity:0.88;pointer-events:none;z-index:0">
           </div>
 
-          ${consumptionCard}
+          <div class="card">
+            <div class="section-title" style="margin-bottom:16px">Energy Consumption</div>
+            <div style="display:flex;gap:28px;align-items:flex-end">
+              <div>
+                <div class="label">Daily average</div>
+                <div class="kwh-day">${load.totalDailyKWh} <span style="font-size:14px;font-weight:500;color:var(--color-text-secondary)">kWh</span></div>
+              </div>
+              <div>
+                <div class="label">Monthly average</div>
+                <div style="font-size:24px;font-weight:700;color:var(--color-text)">${load.monthlyKWh} <span style="font-size:14px;font-weight:500;color:var(--color-text-secondary)">kWh</span></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
     </div>
   `;
 
   window._navigate = navigate;
-
-  if (!hasAppliances) return;
-
-  const seasonalKWh = calcSeasonalMonthly(load, appliances, applianceData, zone);
-  const monthlyAvg = parseFloat((seasonalKWh.reduce((s, v) => s + v, 0) / 12).toFixed(1));
-
-  drawHourlyChart(load);
-  setCaption(`Hourly kWh from your appliance schedule, scaled to match spending data. Confidence: ${load.confidenceLabel} (${load.confidenceScore}%).`);
-
-  document.getElementById('chart-view-sel').addEventListener('change', function () {
-    if (this.value === 'hourly') {
-      drawHourlyChart(load);
-      setCaption(`Hourly kWh from your appliance schedule, scaled to match spending data. Confidence: ${load.confidenceLabel} (${load.confidenceScore}%).`);
-    } else {
-      drawMonthlyChart(seasonalKWh, monthlyAvg);
-      setCaption(`Seasonal estimate: ${coolingPct}% of your load is cooling. ${climateDesc}.`);
-    }
-  });
-}
-
-function setCaption(text) {
-  const el = document.getElementById('chart-caption');
-  if (el) el.textContent = text;
-}
-
-function drawHourlyChart(load) {
-  const ctx = document.getElementById('load-chart')?.getContext('2d');
-  if (!ctx) return;
-  if (window._loadChart) { window._loadChart.destroy(); }
-
-  const labels = Array.from({ length: 24 }, (_, i) => {
-    if (i === 0) return '12am';
-    if (i === 12) return '12pm';
-    return i < 12 ? `${i}am` : `${i - 12}pm`;
-  });
-
-  const max = Math.max(...load.hourlyProfile);
-  const colors = load.hourlyProfile.map(v => {
-    const r = v / max;
-    if (r > 0.75) return '#EF4444';
-    if (r > 0.45) return '#F5A623';
-    return '#FCD34D';
-  });
-
-  window._loadChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{ data: load.hourlyProfile, backgroundColor: colors, borderRadius: 8, borderSkipped: false, barPercentage: 0.55, categoryPercentage: 0.8 }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: c => `${c.raw} kW` } }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10, family: 'Outfit, sans-serif' } } },
-        y: { grid: { color: '#F3F4F6' }, ticks: { font: { size: 10, family: 'Outfit, sans-serif' }, callback: v => `${v} kW` } }
-      }
-    }
-  });
-}
-
-function drawMonthlyChart(seasonalKWh, monthlyAvg) {
-  const ctx = document.getElementById('load-chart')?.getContext('2d');
-  if (!ctx) return;
-  if (window._loadChart) { window._loadChart.destroy(); }
-
-  const colors = seasonalKWh.map(v => v >= monthlyAvg ? '#F5A623' : '#93C5FD');
-
-  window._loadChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: MONTHS,
-      datasets: [
-        {
-          type: 'bar',
-          data: seasonalKWh,
-          backgroundColor: colors,
-          borderRadius: 8,
-          borderSkipped: false,
-          barPercentage: 0.55,
-          categoryPercentage: 0.8,
-          order: 2
-        },
-        {
-          type: 'line',
-          data: new Array(12).fill(monthlyAvg),
-          borderColor: '#6B7280',
-          borderWidth: 1.5,
-          borderDash: [4, 3],
-          pointRadius: 0,
-          fill: false,
-          order: 1,
-          label: 'Monthly average'
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: c => c.datasetIndex === 0
-              ? `${c.raw} kWh`
-              : `Avg: ${monthlyAvg} kWh`
-          }
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10, family: 'Outfit, sans-serif' } } },
-        y: {
-          grid: { color: '#F3F4F6' },
-          ticks: { font: { size: 10, family: 'Outfit, sans-serif' }, callback: v => `${v}` },
-          title: { display: true, text: 'kWh / month', font: { size: 10, family: 'Outfit, sans-serif' }, color: '#9CA3AF' }
-        }
-      }
-    }
-  });
 }

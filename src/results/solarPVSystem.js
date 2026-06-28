@@ -1,16 +1,9 @@
-import { getState, setState, getData } from '../state.js';
+import { getState, getData } from '../state.js';
+import { showMiniPreloader } from '../preloader.js';
 import { calcLoad } from '../utils/calcLoad.js';
 import { calcSolar } from '../utils/calcSolar.js';
 import { calcBattery } from '../utils/calcBattery.js';
 import { calcDispatch } from '../utils/calcDispatch.js';
-import { computeResults } from '../utils/computeResults.js';
-
-const escAttr = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-
-function getCategoryEmoji(cat) {
-  const map = { Cooling: '❄️', Lighting: '💡', Kitchen: '🍳', Entertainment: '📺', 'ICT / Office': '💻', Laundry: '🫧', Water: '💧', Security: '🔒' };
-  return map[cat] || '🔌';
-}
 
 function annualGenText(kwh) {
   return kwh >= 1000
@@ -18,131 +11,26 @@ function annualGenText(kwh) {
     : `${kwh.toLocaleString()} kWh/yr`;
 }
 
-function syncFinalQuote() {
-  const { results: r, budget } = getState() || {};
-  if (!r) return;
-  const $ = id => document.getElementById(id);
-  const NF = v => '₦' + Number(v).toLocaleString('en-NG');
-
-  const sc      = r.savings.total_system_cost;
-  const covered = budget >= sc;
-  const fillPct = Math.min(100, Math.round((budget / sc) * 100));
-
-  if ($('fq-solar-kwp'))    $('fq-solar-kwp').textContent    = `${r.solar.panel_kwp.toFixed(1)} kWp`;
-  if ($('fq-solar-count'))  $('fq-solar-count').textContent  = `${r.solar.panel_count} panels`;
-  if ($('fq-inverter-kva')) $('fq-inverter-kva').textContent = `${r.solar.inverter_kva.toFixed(1)} kVA`;
-  if ($('fq-battery-kwh'))  $('fq-battery-kwh').textContent  = `${r.battery.battery_kwh.toFixed(1)} kWh`;
-  if ($('fq-system-cost'))  $('fq-system-cost').textContent  = NF(sc);
-
-  const fill = $('fq-budget-fill');
-  if (fill) fill.style.width = `${fillPct}%`;
-
-  const delta = $('fq-budget-delta');
-  if (delta) {
-    delta.style.color = covered ? 'var(--color-success)' : 'var(--color-error)';
-    delta.textContent = covered ? `+${NF(budget - sc)} surplus` : `${NF(sc - budget)} gap`;
-  }
-
-  const tbody = $('fq-boq-body');
-  if (tbody) {
-    const s = r.solar, b = r.battery;
-    const rows = [
-      { product: 'Jinko Solar 585W Mono PERC Half-Cell', sku: 'JK-585M-HC',         category: 'Solar Panel', qty: s.panel_count },
-      { product: `DEYE ${s.inverter_kva}kW Hybrid Inverter`, sku: `DEYE-HYB-${s.inverter_kva}KW`, category: 'Inverter',    qty: 1 },
-      { product: '48V LiFePO4 Battery 5kWh',              sku: 'BAT-LFP-48V-5K',   category: 'Battery',     qty: b.battery_units_48v },
-      { product: 'Roof Mounting Kit (Tile / Metal)',       sku: 'MNT-ROOF-TILE',     category: 'Mounting',    qty: Math.ceil(s.panel_count / 4) },
-      { product: '4mm² DC Solar Cable (Red + Black)',      sku: 'CBL-DC-4MM-PAIR',   category: 'Cabling',     qty: `${Math.ceil(s.panel_kwp * 10)}m` }
-    ];
-    tbody.innerHTML = rows.map(row => `
-      <tr>
-        <td><span class="bom-product">${row.product}</span><span class="bom-sku">${row.sku}</span></td>
-        <td>${row.category}</td>
-        <td style="text-align:right">${row.qty}</td>
-      </tr>`).join('');
-  }
-}
-
-function syncProfileCardHeight() {
-  const cCard = document.getElementById('pv-confidence-card');
-  const pCard = document.getElementById('pv-profile-card');
-  if (!cCard || !pCard) return;
-  // Temporarily collapse grid stretch to read the confidence card's natural height,
-  // not the stretched height that already includes the profile card's influence.
-  cCard.style.alignSelf = 'start';
-  const naturalH = cCard.getBoundingClientRect().height;
-  cCard.style.alignSelf = '';
-  pCard.style.maxHeight = naturalH + 'px';
-}
-
-function confidenceLabel(score) {
-  return score >= 85 ? 'High' : score >= 55 ? 'Medium' : 'Low';
-}
-
-function confidencePromptInner(reason, label, direction) {
-  const s = (html) => `<div style="padding:12px 14px;background:var(--color-primary-bg);border:1.5px solid var(--color-primary-light);border-radius:var(--radius-md);font-size:12px;line-height:1.6;color:var(--color-text-secondary)">${html}</div>`;
-  if (reason === 'no_appliances') {
-    return s(`<strong style="color:var(--color-text)">Boost your confidence score.</strong> Add your appliances and usage schedule to get a <strong>High</strong> confidence result.<div style="margin-top:10px"><button class="btn btn--primary btn--sm" onclick="window._navigate('addAppliances')">Add Appliances →</button></div>`);
-  }
-  if (reason === 'no_spending') {
-    return s(`<strong style="color:var(--color-text)">Single-source estimate.</strong> Your sizing is based on your appliance list only. We have no energy spend data to cross-check against.`);
-  }
-  if (reason === 'variance' && label === 'Low') {
-    const detail = direction === 'appliances_higher'
-      ? `Your appliance list suggests a much higher consumption than your energy spend implies. Please review your appliance list and make sure it reflects what you actually run.`
-      : `Your energy spend implies a much higher load than your appliance list accounts for. Some appliances or heavy loads may be missing from your list.`;
-    return s(`<strong style="color:var(--color-text)">Your bills and appliance list don't match up.</strong> ${detail}<div style="margin-top:10px"><button class="btn btn--primary btn--sm" onclick="window._navigate('addAppliances')">Update Appliance List</button></div>`);
-  }
-  if (reason === 'variance') {
-    const detail = direction === 'appliances_higher'
-      ? `Your appliance list suggests slightly more consumption than your energy spend.`
-      : `Your energy spend suggests slightly more consumption than your appliance list.`;
-    return s(`<strong style="color:var(--color-text)">Nearly there.</strong> ${detail} Your sizing is a reasonable estimate. Adjusting your appliance list can bring it closer.<div style="margin-top:10px"><button class="btn btn--primary btn--sm" onclick="window._navigate('addAppliances')">Update Appliance List</button></div>`);
-  }
-  return '';
-}
-
 export function renderSolarPVSystem(container, navigate) {
-  const { results, appliances } = getState();
+  const { results } = getState();
   if (!results) { navigate('step1'); return; }
 
-  const applianceData = getData('appliances')           || [];
   const tariffData    = getData('tariff_bands')         || [];
   const fuelPrices    = getData('fuel_prices')          || [];
   const genData       = getData('generator_efficiency') || [];
 
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const hasRealAppliances = appliances && appliances.length > 0;
 
   const { powerSource } = getState();
   const gridRelianceLabel = powerSource === 'grid_only'      ? 'Grid Reliance (Grid)'
                           : powerSource === 'generator_only' ? 'Grid Reliance (Gen)'
                           :                                    'Grid Reliance (Grid + Gen)';
 
-  // Tracks which appliances are included in solar sizing.
-  // Seeded from state so selections survive page-to-page navigation.
-  const { solarAppliances } = getState();
-  const activeNames = solarAppliances
-    ? new Set(solarAppliances)
-    : new Set(appliances.map(a => a.name));
-
   function computeLive() {
     const state = getState();
-    const active = hasRealAppliances
-      ? appliances.filter(a => activeNames.has(a.name))
-      : appliances;
-    // Also strip unchecked appliances from the Gantt schedule so calcLoad
-    // does not include their wattage in the hourly profile.
-    const activeSet = new Set(active.map(a => a.name));
-    const effectiveState = {
-      ...state,
-      appliances: active,
-      customSchedule: state.customSchedule
-        ? state.customSchedule.filter(row => activeSet.has(row.name))
-        : null,
-    };
-    const load     = calcLoad(effectiveState, applianceData, tariffData, fuelPrices, genData);
-    const solar    = calcSolar(load, state.location);
+    const load     = calcLoad(state, tariffData, fuelPrices, genData);
     const battery  = calcBattery(load, state.goal, state.backupHours);
+    const solar    = calcSolar(load, state.location, state.goal, battery.battery_kwh);
     const dispatch = calcDispatch({
       hourlyProfile: load.hourlyProfile,
       pvKWp:         solar.panel_kwp,
@@ -195,150 +83,57 @@ export function renderSolarPVSystem(container, navigate) {
           </div>
         </div>
 
-        ${hasRealAppliances ? `
-
-          <!-- ── WITH APPLIANCES: full layout ───────────────────────── -->
-          <div class="solar-three-col">
-            <div class="card">
-              <div class="section-title" style="margin-bottom:4px">Projected Generation <span class="tag tag--amber" style="font-size:10px">kWh</span></div>
-              <div class="value value--amber" id="spec-annual-gen" style="font-size:18px;font-weight:700;margin-bottom:12px">${annualGenText(solar.annual_gen_kwh)}</div>
-              <canvas id="gen-chart" height="160"></canvas>
+        <!-- ── System detail cards ───────────────────────── -->
+        <div class="storage-details" style="margin-top:0">
+          <div class="card">
+            <div class="section-title" style="margin-bottom:4px">Projected Generation <span class="tag tag--amber" style="font-size:10px">kWh</span></div>
+            <div class="value value--amber" id="spec-annual-gen" style="font-size:18px;font-weight:700;margin-bottom:12px">${annualGenText(solar.annual_gen_kwh)}</div>
+            <canvas id="gen-chart" height="140"></canvas>
+          </div>
+          <div class="card">
+            <div class="section-title" style="margin-bottom:12px">Storage Details</div>
+            <div style="display:flex;gap:32px;margin-bottom:20px">
+              <div class="storage-stat"><div class="label">Capacity</div><div class="value value--amber" id="spec-storage-cap">${battery.storage_capacity} kWh</div></div>
+              <div class="storage-stat"><div class="label">Output</div><div class="value value--amber" id="spec-storage-out">${battery.storage_output.toFixed(2)} kW</div></div>
             </div>
-
-            <div class="card" id="pv-confidence-card">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-                <div class="section-title" style="margin-bottom:0">Confidence Score</div>
-                <div class="confidence-tooltip-wrap">
-                  <button class="confidence-tooltip-btn" aria-label="What is the confidence score?">?</button>
-                  <div class="confidence-tooltip-box" role="tooltip">
-                    Measures agreement between your energy spend and your appliance list. A <strong>High</strong> score means both data sources suggest similar consumption, giving you an accurate solar size. A <strong>Low</strong> score means the two sources diverge significantly. Review your appliances or spending figures to improve accuracy.
-                  </div>
-                </div>
-              </div>
-              <div class="gauge-legend" style="margin-bottom:8px">
-                <span><span class="gauge-dot" style="background:#10B981"></span>High</span>
-                <span><span class="gauge-dot" style="background:#F59E0B"></span>Medium</span>
-                <span><span class="gauge-dot" style="background:#EF4444"></span>Low</span>
-              </div>
-              <div class="confidence-gauge">
-                <canvas id="gauge-chart" height="120" width="200"></canvas>
-                <div id="spec-confidence-label" style="font-size:18px;font-weight:700;margin-top:-20px">${load.confidenceLabel || confidenceLabel(load.confidenceScore)}</div>
-                <div id="spec-confidence-score" style="font-size:13px;color:var(--color-text-secondary)">${load.confidenceScore}% Confidence</div>
-              </div>
-              <div id="spec-confidence-prompt" style="margin-top:14px"></div>
+            <div class="section-title" style="margin-bottom:10px">Backup Potential</div>
+            <div class="backup-potential">
+              <div class="backup-item"><div class="label">Essentials</div><div class="value value--amber" id="spec-backup-ess">${battery.backup_hours_essentials}hrs</div></div>
+              <div class="backup-item"><div class="label">Appliances</div><div class="value value--amber" id="spec-backup-app">${battery.backup_hours_appliances}hrs</div></div>
+              <div class="backup-item"><div class="label">Whole home</div><div class="value value--amber" id="spec-backup-home">${battery.backup_hours_whole_home}hrs</div></div>
             </div>
-
-            <div class="card" id="pv-profile-card" style="overflow:hidden;display:flex;flex-direction:column;min-height:0">
-              <div class="section-title" style="margin-bottom:6px;flex-shrink:0">Interactive Profile</div>
-              <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;flex-shrink:0">Check the appliances you want solar to cover &nbsp;<span id="solar-selection-indicator" style="color:var(--color-text-muted);font-weight:400">(${activeNames.size}/${appliances.length} selected)</span></div>
-              <div class="interactive-profile" style="padding:0;overflow-y:auto;flex:1;min-height:0">
-                ${appliances.map(a => `
-                  <div class="profile-appliance-row" data-name="${escAttr(a.name)}" style="cursor:pointer;user-select:none">
-                    <div class="checkbox ${activeNames.has(a.name) ? 'checked' : ''}"></div>
-                    <div class="profile-appliance-row__img-placeholder">${getCategoryEmoji(a.category || '')}</div>
-                    <span>${a.name}</span>
-                    <span style="margin-left:auto;font-size:12px;color:var(--color-text-muted)">×${a.qty}</span>
-                  </div>
-                `).join('')}
+          </div>
+          <div class="card" style="grid-column:1/-1">
+            <div class="section-title" style="margin-bottom:12px">${gridRelianceLabel}</div>
+            <div style="display:flex;gap:32px;flex-wrap:wrap">
+              <div class="storage-stat">
+                <div class="label">Before Solar</div>
+                <div class="value" style="color:var(--color-text-muted)" id="dispatch-stat-reliance-before">${Math.round(dispatch.gridReliance_before * 100)}%</div>
+              </div>
+              <div class="storage-stat">
+                <div class="label">After Solar</div>
+                <div class="value value--amber" id="dispatch-stat-reliance-after">${Math.round(dispatch.gridReliance_after * 100)}%</div>
+              </div>
+              <div class="storage-stat">
+                <div class="label">Avg Daily Grid Use</div>
+                <div class="value value--amber" id="dispatch-stat-grid"><span style="color:var(--color-text-muted)">${dispatch.totalDemand.toFixed(1)}</span> → ${dispatch.avgDailyGridKWh} kWh</div>
+              </div>
+              <div class="storage-stat">
+                <div class="label">Avg Daily Surplus</div>
+                <div class="value value--amber" id="dispatch-stat-surplus">${dispatch.dailySurplusKWh} kWh</div>
               </div>
             </div>
           </div>
+        </div>
 
-          <div style="margin-top:24px">
-            <div class="storage-details">
-              <div class="card">
-                <div class="section-title" style="margin-bottom:12px">Storage Details</div>
-                <div style="display:flex;gap:32px">
-                  <div class="storage-stat"><div class="label">Capacity</div><div class="value value--amber" id="spec-storage-cap">${battery.storage_capacity} kWh</div></div>
-                  <div class="storage-stat"><div class="label">Output</div><div class="value value--amber" id="spec-storage-out">${battery.storage_output.toFixed(2)} kW</div></div>
-                </div>
-              </div>
-              <div class="card">
-                <div class="section-title" style="margin-bottom:12px">Backup Potential</div>
-                <div class="backup-potential">
-                  <div class="backup-item"><div class="label">Essentials</div><div class="value value--amber" id="spec-backup-ess">${battery.backup_hours_essentials}hrs</div></div>
-                  <div class="backup-item"><div class="label">Appliances</div><div class="value value--amber" id="spec-backup-app">${battery.backup_hours_appliances}hrs</div></div>
-                  <div class="backup-item"><div class="label">Whole home</div><div class="value value--amber" id="spec-backup-home">${battery.backup_hours_whole_home}hrs</div></div>
-                </div>
-              </div>
-            </div>
-            <div class="card" style="margin-top:24px">
-              <div class="section-title" style="margin-bottom:8px">Hourly Energy Dispatch Simulation</div>
-              <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--color-text-secondary)">
-                <div id="dispatch-stat-reliance">${gridRelianceLabel} <strong>${Math.round(dispatch.gridReliance_before*100)}% → ${Math.round(dispatch.gridReliance_after*100)}%</strong></div>
-                <div id="dispatch-stat-grid">Avg daily grid use <strong>${dispatch.totalDemand.toFixed(1)} → ${dispatch.avgDailyGridKWh} kWh</strong></div>
-                <div id="dispatch-stat-surplus">Avg daily surplus <strong>${dispatch.dailySurplusKWh} kWh</strong></div>
-              </div>
-              <div style="display:flex;gap:16px;font-size:11px;margin-bottom:8px;flex-wrap:wrap">
-                <span><span style="display:inline-block;width:10px;height:10px;background:#FCBF1E;border-radius:2px"></span> Solar</span>
-                <span><span style="display:inline-block;width:10px;height:10px;background:#2E86AB;border-radius:2px"></span> Battery</span>
-                <span><span style="display:inline-block;width:10px;height:10px;background:#E84855;border-radius:2px"></span> ${dispatch.gridLabel}</span>
-                <span><span style="display:inline-block;width:10px;height:10px;background:#A8DADC;border-radius:2px"></span> Charging</span>
-              </div>
-              <div style="position:relative">
-                <canvas id="dispatch-canvas" style="display:block;width:100%"></canvas>
-                <div id="dispatch-tooltip" style="display:none;position:absolute;background:#1F2937;color:#F9FAFB;padding:8px 12px;border-radius:8px;font-size:11px;pointer-events:none;z-index:10;min-width:148px;line-height:1.7;box-shadow:0 4px 16px rgba(0,0,0,0.28)"></div>
-              </div>
-            </div>
+        <div style="margin-top:28px;padding-top:24px;border-top:1px solid var(--color-border-light);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:17px;font-weight:700;margin-bottom:4px">Ready to go solar?</div>
+            <p style="color:var(--color-text-secondary);font-size:14px;margin:0;max-width:420px;line-height:1.5">We'll match you with vetted installers near you. They see your exact energy needs and send in real quotes.</p>
           </div>
-
-        ` : `
-
-          <!-- ── WITHOUT APPLIANCES: simplified 2×2 grid ───────────── -->
-          <div class="storage-details" style="margin-top:0">
-            <div class="card">
-              <div class="section-title" style="margin-bottom:4px">Projected Generation <span class="tag tag--amber" style="font-size:10px">kWh</span></div>
-              <div class="value value--amber" id="spec-annual-gen" style="font-size:18px;font-weight:700;margin-bottom:12px">${annualGenText(solar.annual_gen_kwh)}</div>
-              <canvas id="gen-chart" height="140"></canvas>
-            </div>
-            <div class="card">
-              <div class="section-title" style="margin-bottom:12px">Storage Details</div>
-              <div style="display:flex;gap:32px;margin-bottom:20px">
-                <div class="storage-stat"><div class="label">Capacity</div><div class="value value--amber" id="spec-storage-cap">${battery.storage_capacity} kWh</div></div>
-                <div class="storage-stat"><div class="label">Output</div><div class="value value--amber" id="spec-storage-out">${battery.storage_output.toFixed(2)} kW</div></div>
-              </div>
-              <div class="section-title" style="margin-bottom:10px">Backup Potential</div>
-              <div class="backup-potential">
-                <div class="backup-item"><div class="label">Essentials</div><div class="value value--amber" id="spec-backup-ess">${battery.backup_hours_essentials}hrs</div></div>
-                <div class="backup-item"><div class="label">Appliances</div><div class="value value--amber" id="spec-backup-app">${battery.backup_hours_appliances}hrs</div></div>
-                <div class="backup-item"><div class="label">Whole home</div><div class="value value--amber" id="spec-backup-home">${battery.backup_hours_whole_home}hrs</div></div>
-              </div>
-            </div>
-            <div class="card" style="grid-column:1/-1">
-              <div class="section-title" style="margin-bottom:12px">${gridRelianceLabel}</div>
-              <div style="display:flex;gap:32px;flex-wrap:wrap">
-                <div class="storage-stat">
-                  <div class="label">Before Solar</div>
-                  <div class="value" style="color:var(--color-text-muted)" id="dispatch-stat-reliance-before">${Math.round(dispatch.gridReliance_before * 100)}%</div>
-                </div>
-                <div class="storage-stat">
-                  <div class="label">After Solar</div>
-                  <div class="value value--amber" id="dispatch-stat-reliance-after">${Math.round(dispatch.gridReliance_after * 100)}%</div>
-                </div>
-                <div class="storage-stat">
-                  <div class="label">Avg Daily Grid Use</div>
-                  <div class="value value--amber" id="dispatch-stat-grid"><span style="color:var(--color-text-muted)">${dispatch.totalDemand.toFixed(1)}</span> → ${dispatch.avgDailyGridKWh} kWh</div>
-                </div>
-                <div class="storage-stat">
-                  <div class="label">Avg Daily Surplus</div>
-                  <div class="value value--amber" id="dispatch-stat-surplus">${dispatch.dailySurplusKWh} kWh</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        `}
-
-        <!-- ── Add Appliances CTA (always last) ──────────────────────── -->
-        <div class="refine-prompt-card" style="margin-top:24px">
-          <div class="refine-prompt-card__icon">⚡</div>
-          <div class="refine-prompt-card__body">
-            <div class="refine-prompt-card__title">${hasRealAppliances ? 'Update your home profile' : 'Your estimate is based on spending. Make it Sharper'}</div>
-            <div class="refine-prompt-card__desc">${hasRealAppliances
-              ? 'You can update your appliance list or usage schedule at any time to keep your solar recommendation accurate.'
-              : 'Right now we sized your solar system from your energy spend. Tell us which appliances you run and when, and we\'ll calculate a precise load curve, a seasonal forecast, and raise your confidence score.'
-            }</div>
-            <button class="btn btn--primary" onclick="window._navigate('addAppliances')">Add Appliances</button>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn--primary" id="pv-cta-installers-btn">See installers near me</button>
+            <button class="btn btn--outline" id="pv-cta-adjust-btn">Adjust Inputs</button>
           </div>
         </div>
 
@@ -347,6 +142,12 @@ export function renderSolarPVSystem(container, navigate) {
   `;
 
   window._navigate = navigate;
+
+  document.getElementById('pv-cta-installers-btn')
+    ?.addEventListener('click', () =>
+      showMiniPreloader('Finding installers near you…', 5000, () => navigate('market')));
+  document.getElementById('pv-cta-adjust-btn')
+    ?.addEventListener('click', () => navigate('step1'));
 
   // Tooltip click-to-open for mobile (hover handles desktop via CSS)
   document.querySelectorAll('.confidence-tooltip-wrap').forEach(wrap => {
@@ -361,79 +162,6 @@ export function renderSolarPVSystem(container, navigate) {
     document.querySelectorAll('.confidence-tooltip-wrap.is-open').forEach(w => w.classList.remove('is-open'));
   });
   drawGenChart(solar, months);
-  if (hasRealAppliances) {
-    drawGaugeChart(load.confidenceScore);
-    document.getElementById('spec-confidence-prompt').innerHTML = confidencePromptInner(load.confidenceReason, load.confidenceLabel, load.confidenceDirection);
-    requestAnimationFrame(() => {
-      drawDispatchCanvas('dispatch-canvas', dispatch);
-      syncProfileCardHeight();
-    });
-  }
-
-  if (hasRealAppliances) {
-    document.querySelectorAll('.profile-appliance-row[data-name]').forEach(row => {
-      row.addEventListener('click', () => {
-        const name = row.dataset.name;
-        const cb   = row.querySelector('.checkbox');
-        if (activeNames.has(name)) {
-          activeNames.delete(name);
-          cb.classList.remove('checked');
-        } else {
-          activeNames.add(name);
-          cb.classList.add('checked');
-        }
-
-        // Persist selection to state; null when everything is selected (default)
-        const allSelected = activeNames.size === appliances.length;
-        setState({ solarAppliances: allSelected ? null : [...activeNames] });
-
-        // Update indicator count
-        const indicator = document.getElementById('solar-selection-indicator');
-        if (indicator) {
-          indicator.textContent = `(${activeNames.size}/${appliances.length} selected)`;
-        }
-
-        updateLive();
-      });
-    });
-  }
-
-  function updateLive() {
-    const { load: l, solar: s, battery: b, dispatch: d } = computeLive();
-    const $ = id => document.getElementById(id);
-
-    $('spec-solar-kwp').textContent     = `${s.panel_kwp} kWp`;
-    $('spec-solar-count').textContent   = `Capacity · ${s.panel_count} panels`;
-    $('spec-inverter-kva').textContent  = `${s.inverter_kva} kVA`;
-    $('spec-battery-kwh').textContent   = `${b.battery_kwh} kWh`;
-    $('spec-battery-units').textContent = `Storage · ${b.battery_units_48v} units`;
-    $('spec-area-m2').textContent       = `${s.installation_m2} m²`;
-    $('spec-annual-gen').textContent    = annualGenText(s.annual_gen_kwh);
-
-    // Confidence score is frozen at initial render; it reflects data quality
-    // (spending vs full appliance list), not which appliances are solar-covered.
-
-    if ($('spec-storage-cap'))  $('spec-storage-cap').textContent  = `${b.storage_capacity} kWh`;
-    if ($('spec-storage-out'))  $('spec-storage-out').textContent  = `${b.storage_output.toFixed(2)} kW`;
-    if ($('spec-backup-ess'))   $('spec-backup-ess').textContent   = `${b.backup_hours_essentials}hrs`;
-    if ($('spec-backup-app'))   $('spec-backup-app').textContent   = `${b.backup_hours_appliances}hrs`;
-    if ($('spec-backup-home'))  $('spec-backup-home').textContent  = `${b.backup_hours_whole_home}hrs`;
-
-    if ($('dispatch-stat-reliance')) $('dispatch-stat-reliance').innerHTML = `${gridRelianceLabel} <strong>${Math.round(d.gridReliance_before*100)}% → ${Math.round(d.gridReliance_after*100)}%</strong>`;
-    if ($('dispatch-stat-grid'))     $('dispatch-stat-grid').innerHTML     = `Avg daily grid use <strong>${d.totalDemand.toFixed(1)} → ${d.avgDailyGridKWh} kWh</strong>`;
-    if ($('dispatch-stat-surplus'))  $('dispatch-stat-surplus').innerHTML  = `Avg daily surplus <strong>${d.dailySurplusKWh} kWh</strong>`;
-
-    drawGenChart(s, months);
-    if (hasRealAppliances) {
-      drawDispatchCanvas('dispatch-canvas', d);
-      requestAnimationFrame(syncProfileCardHeight);
-    }
-
-    // Keep state.results in sync so Final Quote and Cost Savings reflect
-    // the current appliance selection without requiring a page navigation.
-    computeResults();
-    syncFinalQuote();
-  }
 }
 
 function drawGenChart(solar, months) {
@@ -453,181 +181,3 @@ function drawGenChart(solar, months) {
   });
 }
 
-function drawGaugeChart(pct) {
-  const canvas = document.getElementById('gauge-chart');
-  if (!canvas) return;
-  Chart.getChart(canvas)?.destroy();
-  const ctx   = canvas.getContext('2d');
-  const color = pct >= 85 ? '#10B981' : pct >= 55 ? '#F59E0B' : '#EF4444';
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      datasets: [{
-        data: [pct, 100 - pct],
-        backgroundColor: [color, '#E5E7EB'],
-        borderWidth: 0,
-        circumference: 180,
-        rotation: 270
-      }]
-    },
-    options: { responsive: false, cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
-  });
-}
-
-function drawDispatchCanvas(canvasId, dispatch) {
-  // Replace canvas element to clear any stale event listeners from a prior draw
-  let canvas = document.getElementById(canvasId);
-  if (!canvas || !dispatch) return;
-  const fresh = canvas.cloneNode(false);
-  canvas.parentNode.replaceChild(fresh, canvas);
-  canvas = fresh;
-
-  const wrapper = canvas.parentElement;
-  const dpr  = window.devicePixelRatio || 1;
-  const cssW = wrapper.clientWidth || Math.min(window.innerWidth - 32, 600);
-  const cssH = 220;
-
-  canvas.width  = cssW * dpr;
-  canvas.height = cssH * dpr;
-  canvas.style.width  = cssW + 'px';
-  canvas.style.height = cssH + 'px';
-
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-
-  const ML = 46, MR = 12, MT = 10, MB = 28;
-  const cW = cssW - ML - MR;
-  const cH = cssH - MT - MB;
-
-  const hrs    = dispatch.hours;
-  const maxVal = Math.max(...hrs.map(h => h.demand + h.solar_to_charge), 0.01);
-  const yMax   = maxVal * 1.12;
-  const ySc    = cH / yMax;
-  const slotW  = cW / 24;
-  const bW     = Math.max(4, slotW * 0.60);   // slightly narrower bars
-  const CORNER = 5;                             // top-corner radius in px
-
-  const COLORS = { solar: '#FCBF1E', battery: '#2E86AB', grid: '#E84855', charge: '#A8DADC' };
-
-  // Y gridlines + labels
-  ctx.font      = '10px Outfit, sans-serif';
-  ctx.textAlign = 'right';
-  [0, 0.25, 0.5, 0.75, 1.0].forEach(t => {
-    const v = yMax * t;
-    const y = MT + cH - v * ySc;
-    ctx.strokeStyle = '#F3F4F6'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(ML, y); ctx.lineTo(ML + cW, y); ctx.stroke();
-    ctx.fillStyle = '#9CA3AF';
-    ctx.fillText(v.toFixed(1), ML - 4, y + 3.5);
-  });
-
-  // Rotated Y axis label
-  ctx.save();
-  ctx.translate(13, MT + cH / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = 'center'; ctx.fillStyle = '#6B7280';
-  ctx.fillText('kW', 0, 0);
-  ctx.restore();
-
-  // Helper: fill rect with rounded top corners only
-  function fillRoundedTop(x, y, w, h, r) {
-    if (h <= 0) return;
-    const R = Math.min(r, w / 2, h / 2);
-    ctx.beginPath();
-    ctx.moveTo(x, y + h);
-    ctx.lineTo(x, y + R);
-    ctx.quadraticCurveTo(x, y, x + R, y);
-    ctx.lineTo(x + w - R, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + R);
-    ctx.lineTo(x + w, y + h);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  // Draw bars
-  const barRects = [];
-  hrs.forEach(d => {
-    const segments = [
-      { v: d.solar_to_load,   c: COLORS.solar   },
-      { v: d.battery_to_load, c: COLORS.battery  },
-      { v: d.grid_to_load,    c: COLORS.grid     },
-      { v: d.solar_to_charge, c: COLORS.charge   },
-    ];
-
-    // Find topmost non-zero segment index for rounded corners
-    let topIdx = -1;
-    for (let i = segments.length - 1; i >= 0; i--) {
-      if (segments[i].v >= 0.001) { topIdx = i; break; }
-    }
-
-    const bx    = ML + d.hour * slotW + (slotW - bW) / 2;
-    const baseY = MT + cH;
-    let sy      = baseY;
-
-    segments.forEach((seg, i) => {
-      if (seg.v < 0.001) return;
-      const pH = seg.v * ySc;
-      sy -= pH;
-      ctx.fillStyle = seg.c;
-      if (i === topIdx) {
-        fillRoundedTop(bx, sy, bW, pH, CORNER);
-      } else {
-        ctx.fillRect(bx, sy, bW, pH);
-      }
-    });
-
-    barRects.push({ bx, bW, topY: sy, bottomY: baseY, d });
-  });
-
-  // X axis line
-  ctx.strokeStyle = '#D1D5DB'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(ML, MT + cH); ctx.lineTo(ML + cW, MT + cH); ctx.stroke();
-
-  // X axis labels every 3 hours
-  ctx.fillStyle = '#6B7280'; ctx.textAlign = 'center';
-  ctx.font = '9px Outfit, sans-serif';
-  for (let h = 0; h < 24; h += 3) {
-    const lbl = h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h - 12}pm`;
-    ctx.fillText(lbl, ML + h * slotW + slotW / 2, cssH - 6);
-  }
-
-  // Tooltip
-  const tooltip = document.getElementById('dispatch-tooltip');
-
-  canvas.addEventListener('mousemove', e => {
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-    const hit = barRects.find(r => mx >= r.bx && mx <= r.bx + r.bW);
-
-    if (!hit || my < MT || my > MT + cH) {
-      if (tooltip) tooltip.style.display = 'none';
-      return;
-    }
-
-    const d   = hit.d;
-    const hr  = d.hour;
-    const lbl = hr === 0 ? '12am' : hr < 12 ? `${hr}am` : hr === 12 ? '12pm' : `${hr - 12}pm`;
-
-    if (tooltip) {
-      let tx = mx + 14, ty = my - 106;
-      if (tx + 152 > cssW) tx = mx - 166;
-      if (ty < 0) ty = my + 14;
-      tooltip.style.left    = tx + 'px';
-      tooltip.style.top     = ty + 'px';
-      tooltip.style.display = 'block';
-      tooltip.innerHTML = `
-        <div style="font-weight:700;margin-bottom:5px;font-size:12px">${lbl}</div>
-        <div><span style="color:${COLORS.solar}">■</span> Solar: ${d.solar_to_load.toFixed(2)} kW</div>
-        <div><span style="color:${COLORS.battery}">■</span> Battery: ${d.battery_to_load.toFixed(2)} kW</div>
-        <div><span style="color:${COLORS.grid}">■</span> ${dispatch.gridLabel}: ${d.grid_to_load.toFixed(2)} kW</div>
-        <div><span style="color:${COLORS.charge}">■</span> Charging: ${d.solar_to_charge.toFixed(2)} kW</div>
-        <div style="margin-top:5px;padding-top:5px;border-top:1px solid #374151;color:#A8B4C4;font-size:10px">Battery Level (SoC): ${d.soc_pct.toFixed(1)}%</div>
-      `;
-    }
-  });
-
-  canvas.addEventListener('mouseleave', () => {
-    if (tooltip) tooltip.style.display = 'none';
-  });
-}

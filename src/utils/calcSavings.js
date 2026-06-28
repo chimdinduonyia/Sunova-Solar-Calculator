@@ -6,7 +6,7 @@ const BOS_FACTOR              = 0.15;
 const BATTERY_LIFESPAN_YEARS  = 10;
 const DESIGN_LIFE_YEARS       = 25;
 const PANEL_DEGRADATION       = 0.005;
-const TARIFF_ESCALATION_RATE  = 0.07;
+const TARIFF_ESCALATION_RATE  = 0.01;
 const GRID_EMISSION_FACTOR    = 0.43;   // kgCO₂/kWh
 const PMS_EMISSION_FACTOR     = 0.65;   // kgCO₂/kWh
 const AGO_EMISSION_FACTOR     = 0.70;   // kgCO₂/kWh
@@ -160,19 +160,8 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
     ? parseFloat((total_system_cost / annual_savings).toFixed(1))
     : 99;
 
-  // Undiscounted 25-year ROI
-  const total_returns = annual_savings * DESIGN_LIFE_YEARS;
-  const ROI = Math.round(
-    ((total_returns - total_system_cost - battery_replacement_cost) / total_system_cost) * 100
-  );
-
-  // CAGR of total returns on total investment
-  const totalInvested = total_system_cost + battery_replacement_cost;
-  const annualised_ROI = total_returns > 0 && totalInvested > 0
-    ? parseFloat(
-        ((Math.pow(total_returns / totalInvested, 1 / DESIGN_LIFE_YEARS) - 1) * 100).toFixed(1)
-      )
-    : 0;
+  // ROI derived from the escalated lifetime cashflow — consistent with the Lifetime Savings figure.
+  // Computed after the cashflow loop so lifetime_savings is available.
 
   // ── Step 6: Fuel savings ──────────────────────────────────────────────
   let litres_saved_per_year = 0, fuel_naira_saved_annual = 0;
@@ -208,8 +197,7 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
 
   for (let y = 1; y <= DESIGN_LIFE_YEARS; y++) {
     const escalated_savings  = annual_savings * Math.pow(1 + TARIFF_ESCALATION_RATE, y);
-    const battery_deduction  = y === BATTERY_LIFESPAN_YEARS ? battery_replacement_cost : 0;
-    const net_this_year      = escalated_savings - battery_deduction;
+    const net_this_year      = escalated_savings;
     const prev               = cumulative;
     cumulative              += net_this_year;
 
@@ -229,6 +217,11 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
     if (cumulative >= 0) { payback_year_index = DESIGN_LIFE_YEARS; payback_exact = DESIGN_LIFE_YEARS; }
     else                 { payback_year_index = 99;                 payback_exact = 99; }
   }
+
+  const lifetime_savings = cashflow[DESIGN_LIFE_YEARS].cumulative;
+  const ROI = total_system_cost > 0
+    ? Math.round((lifetime_savings / total_system_cost) * 100)
+    : 0;
 
   // ── Labels for chart axes ─────────────────────────────────────────────
   const current_label = energyMix === 'grid_only'      ? 'Grid'
@@ -261,8 +254,7 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
     // Returns
     simple_payback_years,
     ROI,
-    annualised_ROI,
-    lifetime_savings: cashflow[DESIGN_LIFE_YEARS].cumulative,
+    lifetime_savings,
 
     // Fuel
     litres_saved_per_year,

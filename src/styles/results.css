@@ -826,6 +826,19 @@
     grid-template-columns: 1fr !important;
   }
 
+  /* Autonomy persona layouts: stack on mobile */
+  .autonomy-mid-grid,
+  .autonomy-hero-strip,
+  .autonomy-context-metrics {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Right-column flex wrapper inside storage-details (autonomy):
+     already column-direction, just ensure it fills width */
+  .storage-details > div[style*="flex-direction:column"] {
+    width: 100%;
+  }
+
   /* System spec cards: force 2×2 on mobile */
   .system-specs {
     display: grid !important;

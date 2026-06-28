@@ -156,7 +156,7 @@ export function renderStep1(container, navigate) {
           </div>
 
           ${!MAPBOX_TOKEN
-            ? `<p style="font-size:12px;color:#EF4444;margin-top:8px">Address search unavailable — VITE_MAPBOX_TOKEN not configured.</p>`
+            ? `<p style="font-size:12px;color:#EF4444;margin-top:8px">Address search unavailable. VITE_MAPBOX_TOKEN not configured.</p>`
             : ''
           }
 
@@ -259,7 +259,7 @@ export function renderStep1(container, navigate) {
       continueBtn.disabled   = false;
     } else {
       setState({ location: null });
-      infoBox.innerHTML     = `<p style="font-size:13px;color:#EF4444;margin:0">We don't have solar data for this region yet — please try a major Nigerian city.</p>`;
+      infoBox.innerHTML     = `<p style="font-size:13px;color:#EF4444;margin:0">We don't have solar data for this region yet. Please try a major Nigerian city.</p>`;
       infoBox.style.display = 'block';
       continueBtn.disabled  = true;
     }

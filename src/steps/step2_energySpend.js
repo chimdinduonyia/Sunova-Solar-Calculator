@@ -2,6 +2,18 @@ import { getState, setState, getData } from '../state.js';
 import { renderProgressBar } from '../components/progressBar.js';
 import { renderSlider, bindSlider, formatNaira } from '../components/slider.js';
 import { renderRadioCards, bindRadioCards } from '../components/radioCard.js';
+import { computeResults } from '../utils/computeResults.js';
+import { showPreloader } from '../preloader.js';
+
+// Band B grid-only + Bands C/D (any grid source) → skip goal wizard, go straight to autonomy report
+// Generator only always uses the savings persona regardless of any prior tariff selection
+function isAutonomyPersona(state) {
+  if (!state.tariffBand || !state.powerSource) return false;
+  if (state.powerSource === 'generator_only') return false;
+  if (state.powerSource === 'grid_only' && state.tariffBand === 'Band B') return true;
+  if (['Band C', 'Band D'].includes(state.tariffBand)) return true;
+  return false;
+}
 
 const POLE_SVG   = `<img src="/icons/grid_only.png" width="72" height="72" style="object-fit:contain">`;
 const GEN_SVG    = `<img src="/icons/generator_only.png" width="72" height="72" style="object-fit:contain">`;
@@ -58,12 +70,11 @@ export function renderStep2(container, navigate) {
               `).join('')}
             </div>
             ${s.tariffBand ? `
-              <div class="card" style="margin-top:10px;margin-bottom:16px;background:var(--color-primary-bg);border-color:var(--color-primary-light);padding:10px 14px">
+              <div class="card" style="width:fit-content;margin-top:10px;margin-bottom:16px;background:var(--color-primary-bg);border-color:var(--color-primary-light);padding:10px 14px">
                 <div style="display:flex;align-items:center;gap:14px">
                   <div class="tag tag--amber">${s.tariffBand}</div>
                   <div style="font-size:12px;color:var(--color-text-secondary)">
-                    ${tariffs.find(t => t.band === s.tariffBand)?.hours_of_supply || ''} hrs/day
-                    &nbsp;·&nbsp; ₦${tariffs.find(t => t.band === s.tariffBand)?.tariff_naira_per_kwh || ''}/kWh
+                    ₦${tariffs.find(t => t.band === s.tariffBand)?.tariff_naira_per_kwh || ''}/kWh
                     &nbsp;<span class="badge-nerc">NERC</span>
                   </div>
                 </div>
@@ -83,7 +94,7 @@ export function renderStep2(container, navigate) {
         </div>
 
         <div class="step-footer">
-          <button class="btn btn--primary btn--lg" id="continue-btn" ${!canContinue ? 'disabled' : ''}>Continue</button>
+          <button class="btn btn--primary btn--lg" id="continue-btn" ${!canContinue ? 'disabled' : ''}>${canContinue && isAutonomyPersona(s) ? 'Generate Results' : 'Continue'}</button>
         </div>
       </div>
     `;
@@ -93,7 +104,16 @@ export function renderStep2(container, navigate) {
 
   function bindAll() {
     document.getElementById('back-btn').addEventListener('click', () => navigate('step1'));
-    document.getElementById('continue-btn').addEventListener('click', () => navigate('step3'));
+    document.getElementById('continue-btn').addEventListener('click', () => {
+      const state = getState();
+      if (isAutonomyPersona(state)) {
+        setState({ goal: 'backup', backupHours: state.backupHours || 6, reportPersona: 'autonomy' });
+        computeResults();
+        showPreloader(() => navigate('costSavings'));
+      } else {
+        navigate('step3');
+      }
+    });
 
     bindRadioCards('power-source', val => {
       setState({ powerSource: val });

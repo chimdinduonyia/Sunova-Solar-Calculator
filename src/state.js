@@ -7,6 +7,7 @@ const _state = {
   generatorSize: null,
   goal: null,
   backupHours: 4,
+  reportPersona: null,   // 'savings' | 'autonomy'
   budget: 1500000,
   results: null,
   _data: {}

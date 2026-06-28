@@ -42,12 +42,11 @@ export function renderStep3(container, navigate) {
           `).join('')}
         </div>
         ${state.tariffBand ? `
-          <div class="card" style="margin-bottom:20px;background:var(--color-primary-bg);border-color:var(--color-primary-light);padding:12px 16px">
+          <div class="card" style="width:fit-content;margin-bottom:20px;background:var(--color-primary-bg);border-color:var(--color-primary-light);padding:12px 16px">
             <div style="display:flex;align-items:center;gap:16px">
               <div class="tag tag--amber">${state.tariffBand}</div>
               <div style="font-size:13px;color:var(--color-text-secondary)" id="tariff-desc">
-                ${tariffs.find(t => t.band === state.tariffBand)?.hours_of_supply || ''} hrs supply/day
-                &nbsp;·&nbsp; ₦${tariffs.find(t => t.band === state.tariffBand)?.tariff_naira_per_kwh || ''}/kWh
+                ₦${tariffs.find(t => t.band === state.tariffBand)?.tariff_naira_per_kwh || ''}/kWh
                 &nbsp;<span class="badge-nerc">NERC</span>
               </div>
             </div>

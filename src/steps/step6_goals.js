@@ -80,6 +80,7 @@ export function renderStep6(container, navigate) {
   }
 
   document.getElementById('generate-btn').addEventListener('click', () => {
+    setState({ reportPersona: 'savings' });
     computeResults();
     showPreloader(() => navigate('costSavings'));
   });

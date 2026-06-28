@@ -11,9 +11,9 @@ export function computeResults() {
   const fuelPrices = getData('fuel_prices')          || [];
   const genData    = getData('generator_efficiency') || [];
 
-  const load     = calcLoad(state, tariffData, fuelPrices, genData);
-  const battery  = calcBattery(load, state.goal, state.backupHours);
-  const solar    = calcSolar(load, state.location, state.goal, battery.battery_kwh);
+  const load    = calcLoad(state, tariffData, fuelPrices, genData);
+  const battery = calcBattery(load, state.goal, state.backupHours);
+  const solar   = calcSolar(load, state.location, state.goal, battery.battery_kwh);
   const dispatch = calcDispatch({
     hourlyProfile: load.hourlyProfile,
     pvKWp:         solar.panel_kwp,
@@ -23,5 +23,5 @@ export function computeResults() {
   });
   const savings = calcSavings({ load, solar, battery, dispatch, tariffData, fuelPrices, genData, state });
 
-  setState({ results: { load, solar, battery, dispatch, savings } });
+  setState({ results: { load, solar, battery, dispatch, savings, inverter_battery_only: false } });
 }

@@ -34,14 +34,5 @@
     "customer_type": "Residential – Standard",
     "zone_example": "Peri-urban / secondary cities",
     "notes": ""
-  },
-  {
-    "band": "Band E",
-    "hours_of_supply": "<8",
-    "tariff_naira_per_kwh": 4,
-    "monthly_fixed_charge_naira": 400,
-    "customer_type": "Lifeline / Low income",
-    "zone_example": "Rural and underserved areas",
-    "notes": "Subsidised rate"
   }
 ]

@@ -94,6 +94,16 @@ export function bindSlider(id, formatFn = formatNaira, onChange) {
     }
   }
 
+  // Prevent accidental value jumps when tapping anywhere on the track.
+  // Only allow pointer interactions that start within 10% of track width from the thumb.
+  input.addEventListener('pointerdown', e => {
+    const rect = input.getBoundingClientRect();
+    if (rect.width === 0) return;
+    const clickPct  = (e.clientX - rect.left) / rect.width;
+    const thumbPct  = (Number(input.value) - min) / (max - min);
+    if (Math.abs(clickPct - thumbPct) > 0.10) e.preventDefault();
+  }, { capture: true });
+
   input.addEventListener('input', update);
   input.addEventListener('change', update);
 

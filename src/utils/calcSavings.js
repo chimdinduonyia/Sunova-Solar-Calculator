@@ -263,10 +263,16 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
     // Carbon
     co2_avoided_tonnes,
 
-    // Dispatch fractions
+    // Dispatch fractions (post-solar)
     solar_fraction:  parseFloat(solar_fraction.toFixed(3)),
     grid_fraction:   parseFloat(grid_fraction.toFixed(3)),
     gen_fraction:    parseFloat(gen_fraction.toFixed(3)),
+    // Pre-solar energy mix shares (used internally for blended cost; NOT for spend breakdown)
+    grid_share:      parseFloat(grid_share.toFixed(3)),
+    gen_share:       parseFloat(gen_share.toFixed(3)),
+    // Actual pre-solar monthly spend by source (straight from user inputs)
+    grid_monthly_spend: state.powerSource !== 'generator_only' ? (state.gridSpend || 0) : 0,
+    gen_monthly_spend:  state.powerSource !== 'grid_only'      ? (state.fuelSpend || 0) : 0,
 
     // Cash flow
     cashflow,

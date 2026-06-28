@@ -97,7 +97,7 @@ function renderContent(container, navigate, isAutonomy) {
           <!-- Left: dispatch chart (autonomy) or gen chart (savings) -->
           <div class="card">
             ${isAutonomy ? `
-              <div style="font-size:15px;font-weight:700;margin-bottom:6px">Hourly Energy Dispatch Simulation</div>
+              <div style="font-size:15px;font-weight:700;margin-bottom:6px">A Day in Your Home</div>
               <div style="font-size:11px;color:#6B7280;display:flex;flex-wrap:wrap;gap:20px;margin-bottom:6px">
                 <span>${gridRelianceLabel} <strong id="dispatch-stat-reliance">${Math.round(dispatch.gridReliance_before * 100)}% → ${Math.round(dispatch.gridReliance_after * 100)}%</strong></span>
                 <span>Avg daily ${gridUseLabel} use <strong id="dispatch-stat-grid">${dispatch.totalDemand.toFixed(1)} → ${dispatch.avgDailyGridKWh} kWh</strong></span>

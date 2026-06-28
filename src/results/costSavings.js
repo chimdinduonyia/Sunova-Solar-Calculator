@@ -244,7 +244,7 @@ export function renderCostSavings(container, navigate) {
 
         <div class="savings-bottom-grid">
           <div class="card">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+            <div class="cashflow-card-header" style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
               <div class="section-title" style="margin-bottom:0">25-Year Cumulative Savings</div>
               <span style="font-size:11px;font-weight:600;color:#374151;background:#F3F4F6;border:1px solid #E5E7EB;border-radius:20px;padding:2px 10px;white-space:nowrap">Est. System Cost ${N(savings.total_system_cost)}</span>
             </div>

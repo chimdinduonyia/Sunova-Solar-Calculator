@@ -30,7 +30,7 @@ function renderContent(container, navigate, isAutonomy) {
 
   const pageTitle = isAutonomy ? 'Recommended Solar System' : (invBattOnly ? 'Your backup power recommendation' : 'Your personalized solar PV system');
   const pageSub   = isAutonomy
-    ? 'Designed for your home\'s evening peak and night backup window. Adjust the target backup hours below to resize the system.'
+    ? 'Designed for your home\'s evening peak and night backup window.'
     : (invBattOnly
         ? 'Sized for your energy needs. Add solar panels later as your consumption grows.'
         : 'Here is the breakdown of your solar PV system');
@@ -50,7 +50,7 @@ function renderContent(container, navigate, isAutonomy) {
         </div>
 
         ${isAutonomy ? `
-        <div style="display:flex;align-items:center;gap:16px;background:var(--color-primary-bg);border:1px solid var(--color-primary-light);border-radius:10px;padding:12px 16px;margin-bottom:24px;flex-wrap:wrap">
+        <div class="backup-hrs-control" style="display:flex;align-items:center;gap:16px;background:var(--color-primary-bg);border:1px solid var(--color-primary-light);border-radius:10px;padding:12px 16px;margin-bottom:24px;flex-wrap:wrap">
           <span style="font-size:14px;color:var(--color-text-secondary)">Choose your target backup hours</span>
           <div style="display:flex;align-items:center;gap:10px">
             <button id="backup-hrs-minus" style="width:32px;height:32px;border:1.5px solid var(--color-primary);border-radius:8px;background:none;font-size:18px;font-weight:700;color:var(--color-primary);cursor:pointer;line-height:1">-</button>

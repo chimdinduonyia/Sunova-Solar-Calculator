@@ -833,6 +833,18 @@
     grid-template-columns: 1fr !important;
   }
 
+  /* Backup hours control: extra breathing room below subtitle on mobile */
+  .backup-hrs-control {
+    margin-top: 16px !important;
+  }
+
+  /* Cumulative savings card header: stack title + cost badge on mobile */
+  .cashflow-card-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+
   /* Right-column flex wrapper inside storage-details (autonomy):
      already column-direction, just ensure it fills width */
   .storage-details > div[style*="flex-direction:column"] {

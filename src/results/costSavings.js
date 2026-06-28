@@ -17,9 +17,9 @@ export function renderCostSavings(container, navigate) {
 
   const tip = text => `<span class="confidence-tooltip-wrap" style="display:inline-flex;vertical-align:middle;margin-left:4px"><button class="confidence-tooltip-btn" type="button">?</button><span class="confidence-tooltip-box">${text}</span></span>`;
 
-  const pageTitle    = isAutonomy ? 'Energy Independence Breakdown' : 'Cost Savings Breakdown';
+  const pageTitle    = isAutonomy ? 'Energy Independence with Solar' : 'Cost Savings Breakdown';
   const pageSubtitle = isAutonomy
-    ? 'What energy security looks like for your home, sized for your evening peak and backup needs'
+    ? 'Solar can guarantee you more hours of light, even when there is NEPA outage'
     : 'See how much you save overtime with solar power';
 
   // ── Shared KPI card builders ───────────────────────────────────────────────
@@ -100,10 +100,10 @@ export function renderCostSavings(container, navigate) {
         </div>
 
         ${isAutonomy ? `
-        <div class="autonomy-hero-strip" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;background:var(--color-primary-bg);border:1px solid var(--color-primary-light);border-radius:12px;padding:20px;margin-bottom:28px">
+        <div class="autonomy-hero-strip" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;background:#ffffff;border:1px solid var(--color-border-light);border-radius:12px;padding:20px;margin-bottom:28px">
           <div>
             <div style="font-size:11px;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">System Investment</div>
-            <div style="font-size:24px;font-weight:800">${N(savings.total_system_cost)}</div>
+            <div id="hero-system-cost" style="font-size:24px;font-weight:800">${N(savings.total_system_cost)}</div>
             <div style="font-size:11px;color:var(--color-text-muted);margin-top:2px">one-time cost</div>
           </div>
           <div>
@@ -145,8 +145,8 @@ export function renderCostSavings(container, navigate) {
           ${kpiFuelSavings()}
         </div>
 
-        <!-- Cost Comparison (left) + Energy Bill Savings & Carbon (right stacked) -->
-        <div class="autonomy-mid-grid" style="display:grid;grid-template-columns:1.5fr 1fr;gap:24px;margin-bottom:24px">
+        <!-- Cost Comparison (left) + Energy Bill Savings, Carbon & Context card (right stacked) -->
+        <div class="autonomy-mid-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px">
           <div class="card" style="padding:20px">
             <div class="section-title" style="margin-bottom:16px">Cost Comparison</div>
             <canvas id="compare-chart" height="200"></canvas>
@@ -155,47 +155,42 @@ export function renderCostSavings(container, navigate) {
           <div style="display:flex;flex-direction:column;gap:16px">
             ${kpiAnnualSavings()}
             ${kpiCarbon()}
-          </div>
-        </div>
-
-        <!-- Financial context card with ROI / PBP / Lifetime -->
-        <div class="card" style="margin-bottom:24px;background:#F9FAFB;border-color:#E5E7EB">
-          <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:20px">
-            <svg style="flex-shrink:0;margin-top:3px" width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#6B7280" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="8" cy="8" r="6.5"/>
-              <line x1="8" y1="7" x2="8" y2="11"/>
-              <circle cx="8" cy="5" r="0.5" fill="#6B7280" stroke="none"/>
-            </svg>
-            <div>
-              <div style="font-size:15px;font-weight:700;margin-bottom:6px;color:#111827">A word on the numbers</div>
+            <div class="card" style="background:#F9FAFB;border-color:#E5E7EB;padding:16px;flex:1">
+              <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px">
+                <svg style="flex-shrink:0;margin-top:2px" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6B7280" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="8" cy="8" r="6.5"/>
+                  <line x1="8" y1="7" x2="8" y2="11"/>
+                  <circle cx="8" cy="5" r="0.5" fill="#6B7280" stroke="none"/>
+                </svg>
+                <div style="font-size:13px;font-weight:700;color:#111827">A word on the numbers</div>
+              </div>
               ${savings.ROI >= 0 ? `
-              <p style="margin:0;font-size:13px;color:#4B5563;line-height:1.7">
-                Getting a solar system makes financial sense for you in the long run. If you get solar today, you should break even by year ${savings.payback_exact} and make ${savings.ROI}% on your investment over 25 years.
+              <p style="margin:0 0 14px;font-size:12px;color:#4B5563;line-height:1.65">
+                Getting a solar system makes financial sense for you in the long run. If you get solar today, you should break even by year ${savings.payback_exact} (${paybackMonth(savings.payback_exact)}) and make ${savings.ROI}% on your investment over 25 years.
                 <br><br>
                 But the more compelling advantage is the <strong>energy independence</strong> it gives you: constant power through NEPA outages and power on your own terms.
               </p>
               ` : `
-              <p style="margin:0;font-size:13px;color:#4B5563;line-height:1.7">
+              <p style="margin:0 0 14px;font-size:12px;color:#4B5563;line-height:1.65">
                 At your current energy tariff, a full solar PV system is unlikely to break even within the typical 25-year horizon. Your monthly bill is already quite modest compared to the cost of installing solar, so it doesn't make much financial sense here.
                 <br><br>
                 The benefit you get from solar here is <strong>Energy Independence</strong>: No more NEPA outages dictating your schedule and power on your own terms.
               </p>
               `}
-            </div>
-          </div>
-          <div class="autonomy-context-metrics" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding-top:16px;border-top:1px solid #E5E7EB">
-            <div>
-              <div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">ROI ${tip('Total return on investment over 25 years, calculated as total savings minus total costs as a percentage of the initial system cost.')}</div>
-              <div style="font-size:22px;font-weight:800;color:${savings.ROI < 0 ? '#EF4444' : '#111827'}">${savings.ROI}%</div>
-            </div>
-            <div>
-              <div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Payback Period ${tip('How many years before accumulated energy savings fully recover the system cost.')}</div>
-              <div style="font-size:22px;font-weight:800;color:#111827">${savings.payback_exact >= 99 ? 'Not within 25 yrs' : `${savings.payback_exact} yrs`}</div>
-            </div>
-            <div>
-              <div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Lifetime Savings ${tip('Total net savings over 25 years, after deducting the initial system cost. Includes 1% annual tariff escalation.')}</div>
-              <div style="font-size:22px;font-weight:800;color:#111827">${N(savings.lifetime_savings)}</div>
-              <div style="font-size:11px;color:#9CA3AF;margin-top:2px">Over 25 Years</div>
+              <div style="display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid #E5E7EB">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;letter-spacing:.5px">ROI ${tip('Total return on investment over 25 years, calculated as total savings minus total costs as a percentage of the initial system cost.')}</div>
+                  <div style="font-size:17px;font-weight:800;color:${savings.ROI < 0 ? '#EF4444' : '#111827'}">${savings.ROI}%</div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;letter-spacing:.5px">Payback ${tip('How many years before accumulated energy savings fully recover the system cost.')}</div>
+                  <div style="font-size:17px;font-weight:800;color:#111827">${savings.payback_exact >= 99 ? '> 25 yrs' : `${savings.payback_exact} yrs`}</div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;letter-spacing:.5px">Lifetime ${tip('Total net savings over 25 years, after deducting the initial system cost. Includes 1% annual tariff escalation.')}</div>
+                  <div style="font-size:17px;font-weight:800;color:#111827">${N(savings.lifetime_savings)}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

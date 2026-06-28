@@ -28,9 +28,9 @@ function renderContent(container, navigate, isAutonomy) {
     return kwh >= 1000 ? `${(kwh / 1000).toFixed(1)} MWh/yr` : `${kwh.toLocaleString()} kWh/yr`;
   }
 
-  const pageTitle = isAutonomy ? 'Your Energy Independence System' : (invBattOnly ? 'Your backup power recommendation' : 'Your personalized solar PV system');
+  const pageTitle = isAutonomy ? 'Recommended Solar System' : (invBattOnly ? 'Your backup power recommendation' : 'Your personalized solar PV system');
   const pageSub   = isAutonomy
-    ? 'Sized for your evening peak and backup window. Adjust backup hours below to resize the system.'
+    ? 'Designed for your home\'s evening peak and night backup window. Adjust the target backup hours below to resize the system.'
     : (invBattOnly
         ? 'Sized for your energy needs. Add solar panels later as your consumption grows.'
         : 'Here is the breakdown of your solar PV system');
@@ -265,6 +265,7 @@ function refreshSpecCards() {
   const state = getState();
   set('hero-backup-hours',        `${state.backupHours}h`);
   if (savings) set('hero-solar-independence', `${Math.round(savings.solar_fraction * 100)}%`);
+  if (savings) set('hero-system-cost', '₦' + Number(savings.total_system_cost).toLocaleString('en-NG'));
 
   drawDispatchChart(dispatch);
 }

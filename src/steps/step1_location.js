@@ -123,7 +123,7 @@ export function renderStep1(container, navigate) {
             <h1 class="step-title">Where is your home located?</h1>
             <p class="step-subtitle">We'll use this to calculate solar irradiance in your area</p>
           </div>
-          <span style="font-size:72px">🌍</span>
+          <img src="/icons/globe-icon.png" width="72" height="72" style="object-fit:contain">
         </div>
 
         <div class="card" style="max-width:480px">

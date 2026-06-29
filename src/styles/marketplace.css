@@ -979,6 +979,10 @@ tr:nth-child(odd) .cq-td--best { background: rgba(255,248,214,.55); }
   from { opacity: 0; transform: translateX(-50%) translateY(10px); }
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
+@keyframes mk-toast-in-mobile {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 #mk-toast {
   position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
   background: #111827; color: #fff; font-size: 13px; font-weight: 600;
@@ -986,6 +990,13 @@ tr:nth-child(odd) .cq-td--best { background: rgba(255,248,214,.55); }
   box-shadow: 0 8px 28px rgba(0,0,0,.35);
   animation: mk-toast-in .25s ease both;
   white-space: nowrap; pointer-events: none;
+}
+@media (max-width: 640px) {
+  #mk-toast {
+    left: 16px; right: 16px; transform: none;
+    white-space: normal; text-align: center;
+    animation-name: mk-toast-in-mobile;
+  }
 }
 
 /* ── "In comparison" button slide animation ── */

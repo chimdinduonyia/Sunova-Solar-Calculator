@@ -63,12 +63,22 @@ const renderers = {
   financing:     renderFinancing,
 };
 
-let _current       = 'step1';
-let _isScrollMode  = false;
+let _current        = 'step1';
+let _isScrollMode   = false;
 let _mobileNavBound = false;
-let _scrollCleanup = null;
+let _scrollCleanup  = null;
+let _poppingState   = false;
 
-export function navigate(route) {
+export function navigate(route, { replace = false } = {}) {
+  // Push/replace history entry
+  if (!_poppingState) {
+    if (replace) {
+      history.replaceState({ route }, '', '#' + route);
+    } else {
+      history.pushState({ route }, '', '#' + route);
+    }
+  }
+
   // Within scroll view: scroll to section without re-rendering
   if (_isScrollMode && SCROLL_ROUTES.includes(route)) {
     _current = route;
@@ -257,6 +267,13 @@ function bindMobileNav() {
 export function init() {
   window._navigate = navigate;
 
+  window.addEventListener('popstate', (e) => {
+    const route = e.state?.route || 'calculator';
+    _poppingState = true;
+    navigate(route);
+    _poppingState = false;
+  });
+
   // Wizard logos → step 1
   document.querySelectorAll('.logo, .mobile-top-bar').forEach(el => {
     el.style.cursor = 'pointer';
@@ -272,5 +289,5 @@ export function init() {
     });
   });
 
-  render();
+  navigate('step1', { replace: true });
 }

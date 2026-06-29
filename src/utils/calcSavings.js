@@ -80,9 +80,8 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
     batteryKWh_recommended * BATTERY_COST_PER_KWH +
     inverterKVA            * INVERTER_COST_PER_KVA
   );
-  const bos_cost                 = Math.round(equipment_cost * BOS_FACTOR);
-  const total_system_cost        = equipment_cost + bos_cost;
-  const battery_replacement_cost = Math.round(batteryKWh_recommended * BATTERY_COST_PER_KWH);
+  const bos_cost          = Math.round(equipment_cost * BOS_FACTOR);
+  const total_system_cost = equipment_cost + bos_cost;
 
   const isWithinBudget  = userBudget > 0 ? total_system_cost <= userBudget : true;
   const budgetSurplus   = Math.max(0, userBudget - total_system_cost);
@@ -117,7 +116,7 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
     * ((1 - Math.pow(1 - PANEL_DEGRADATION, DESIGN_LIFE_YEARS)) / PANEL_DEGRADATION);
 
   const LCOE = lifetime_generation_kWh > 0
-    ? Math.round((total_system_cost + battery_replacement_cost) / lifetime_generation_kWh)
+    ? Math.round(total_system_cost / lifetime_generation_kWh)
     : 45;
 
   // ── Step 4: Dispatch fractions ────────────────────────────────────────
@@ -153,7 +152,12 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
   const post_solar_monthly_cost = Math.round(post_solar_blended_cost * monthlyKWh);
 
   // ── Step 5: Savings metrics ───────────────────────────────────────────
-  const monthly_savings = current_monthly_cost - post_solar_monthly_cost;
+  // Energy-only post-solar cost excludes LCOE amortisation so the cashflow
+  // is not double-charged (system cost already enters as the year-0 outlay).
+  const post_solar_energy_only_monthly = Math.round(
+    (grid_fraction * tariff_naira_per_kwh + gen_fraction * gen_cost_per_kwh) * monthlyKWh
+  );
+  const monthly_savings = current_monthly_cost - post_solar_energy_only_monthly;
   const annual_savings  = monthly_savings * 12;
 
   const simple_payback_years = annual_savings > 0
@@ -187,8 +191,7 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
   const co2_avoided_tonnes = parseFloat((solar_kwh_annual * emission_factor / 1000).toFixed(1));
 
   // ── Step 8: 26-entry cumulative cash flow (year 0–25) ─────────────────
-  // Savings escalate at 7%/yr starting from year 1.
-  // Battery replacement is a one-off deduction at year 10.
+  // Savings escalate at TARIFF_ESCALATION_RATE/yr starting from year 1.
   let cumulative = -total_system_cost;
   let payback_year_index = -1;
   let payback_exact = null;
@@ -234,7 +237,6 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
     total_system_cost,
     equipment_cost,
     bos_cost,
-    battery_replacement_cost,
     isWithinBudget,
     budgetSurplus,
     budgetShortfall,

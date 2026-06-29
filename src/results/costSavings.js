@@ -246,7 +246,6 @@ export function renderCostSavings(container, navigate) {
           <div class="card">
             <div class="cashflow-card-header" style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
               <div class="section-title" style="margin-bottom:0">25-Year Cumulative Savings</div>
-              <span style="font-size:11px;font-weight:600;color:#374151;background:#F3F4F6;border:1px solid #E5E7EB;border-radius:20px;padding:2px 10px;white-space:nowrap">Est. System Cost ${N(savings.total_system_cost)}</span>
             </div>
             <div style="position:relative">
               <canvas id="cashflow-chart" style="width:100%;height:280px;display:block"></canvas>
@@ -499,6 +498,44 @@ function drawCashflowCanvas(savings) {
   ctx.font = '10px Outfit, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('Year', PADL + cw / 2, PADT + ch + 36);
+
+  // ── Annotation lines: lifetime savings (top) + system cost (bottom) ──────
+  const fmtA = v => {
+    const abs = Math.abs(v);
+    if (abs >= 1_000_000) return `₦${(abs / 1_000_000).toFixed(1)}M`;
+    if (abs >= 1_000)     return `₦${Math.round(abs / 1_000)}k`;
+    return `₦${Math.round(abs)}`;
+  };
+  const lx = PADL + cw + 6;
+
+  ctx.save();
+  ctx.setLineDash([3, 5]);
+  ctx.lineWidth   = 1;
+  ctx.strokeStyle = '#D1D5DB';
+
+  // Top: lifetime savings — at year-25 endpoint
+  ctx.beginPath(); ctx.moveTo(PADL, last.y); ctx.lineTo(PADL + cw, last.y); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.textAlign = 'left';
+  ctx.font      = '8.5px Outfit, sans-serif';
+  ctx.fillStyle = '#9CA3AF';
+  ctx.fillText('Lifetime savings', lx, last.y - 3);
+  ctx.font      = 'bold 9.5px Outfit, sans-serif';
+  ctx.fillStyle = '#6B7280';
+  ctx.fillText((savings.lifetime_savings > 0 ? '+' : '') + fmtA(savings.lifetime_savings), lx, last.y + 9);
+
+  // Bottom: system cost — at year-0 starting point
+  ctx.setLineDash([3, 5]);
+  ctx.beginPath(); ctx.moveTo(PADL, points[0].y); ctx.lineTo(PADL + cw, points[0].y); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font      = '8.5px Outfit, sans-serif';
+  ctx.fillStyle = '#9CA3AF';
+  ctx.fillText('Est. System Cost', lx, points[0].y - 3);
+  ctx.font      = 'bold 9.5px Outfit, sans-serif';
+  ctx.fillStyle = '#6B7280';
+  ctx.fillText(fmtA(savings.total_system_cost), lx, points[0].y + 9);
+
+  ctx.restore();
 
   const tooltip = document.getElementById('cashflow-tooltip');
   if (!tooltip) return;

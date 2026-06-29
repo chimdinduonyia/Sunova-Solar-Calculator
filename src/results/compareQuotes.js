@@ -57,7 +57,6 @@ function _render() {
     </div>
     <div class="cq-page">
       <div style="margin-bottom:20px">
-        <div class="mk-header-pill"><span style="width:6px;height:6px;border-radius:50%;background:var(--color-primary);display:inline-block"></span>QUOTE COMPARISON</div>
         <h1 class="mk-h1">${title}</h1>
         <p class="mk-sub">Our value score weights price 40%, warranty &amp; kit quality 30%, installation speed 15%, and customer ratings 15%.</p>
       </div>

@@ -569,6 +569,7 @@ tr:nth-child(odd) .cq-td--best { background: rgba(255,248,214,.55); }
 /* ── Financing ── */
 .fc-page { padding: clamp(20px,3vw,32px) clamp(16px,3vw,30px) 80px; max-width: 1180px; margin: 0 auto; }
 .fc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+.fc-left { position: sticky; top: 70px; }
 .fc-h1 { font-size: clamp(22px,3vw,32px); font-weight: 800; letter-spacing: -.02em; margin-bottom: 6px; }
 .fc-sub { color: var(--color-text-secondary); font-size: 14px; margin-bottom: 24px; line-height: 1.6; }
 

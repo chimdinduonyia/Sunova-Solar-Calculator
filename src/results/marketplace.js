@@ -236,7 +236,6 @@ function renderMarketView(container) {
     <div class="mk-page">
       <div class="mk-market-hdr">
         <div>
-          <div class="mk-header-pill">LIVE QUOTES</div>
           <h1 class="mk-h1">Quotes for your home in ${locationName}</h1>
           <p class="mk-sub">Installers near you have received your request. Quotes will appear as they respond.</p>
         </div>
@@ -441,7 +440,6 @@ function renderGrid(container) {
     </div>
     <div class="mk-grid-page">
       <div style="margin-bottom:20px">
-        <div class="mk-header-pill">ALL INSTALLERS</div>
         <h1 class="mk-h1">All solar installers in ${cityState || 'your area'}</h1>
         <p class="mk-sub">Browse all ${scored.length} NNEL-verified installers. Click any card to view their full profile.</p>
       </div>

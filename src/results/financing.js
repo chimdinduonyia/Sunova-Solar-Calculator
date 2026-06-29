@@ -101,7 +101,7 @@ function _render() {
 
       <div class="fc-grid">
         <!-- LEFT: system card + configurator (loan only) or summary (self) -->
-        <div>
+        <div class="fc-left">
           <div class="fc-card">
             <div class="fc-card-label">Your system</div>
             <div class="fc-system-row">

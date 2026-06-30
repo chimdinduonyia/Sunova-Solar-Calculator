@@ -428,7 +428,7 @@ function drawCashflowCanvas(savings) {
     ctx.fillStyle = '#9CA3AF';
     ctx.font = 'bold 10px Outfit, sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('Investment Line', PADL + cw + 5, zeroY + 4);
+    ctx.fillText('Break Even', PADL + cw + 5, zeroY + 4);
   }
 
   ctx.strokeStyle = '#E5E7EB';

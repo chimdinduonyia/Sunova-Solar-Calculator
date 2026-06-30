@@ -711,6 +711,7 @@ tr:nth-child(odd) .cq-td--best { background: rgba(255,248,214,.55); }
   .mk-map-col { order: 1; position: static; height: 340px; }
   .mk-list-col { order: 2; }
   .fc-grid { grid-template-columns: 1fr; }
+  .fc-left { position: static; }
 }
 
 /* Large mobile — header row, banner, bar */

@@ -1,5 +1,6 @@
 import { fmt } from '../data/installers.js';
 import { getState } from '../state.js';
+import { mkState } from './marketplace.js';
 import CITY_MAP_DATA from '../data/cityMapData.json';
 
 function getCityData(s) { return CITY_MAP_DATA[s] || CITY_MAP_DATA['Abuja (FCT)']; }
@@ -254,6 +255,7 @@ function _render() {
     _container.querySelector('[data-bank="self"]')?.addEventListener('click', () => {
       fcState.picked = { id: 'self', name: 'self-fund', isSelf: true, monthly: 0, total: currentPrice(), approval: 'N/A' };
       fcState.view = 'done';
+      mkState.financedQuoteId = _selectedInstaller?.id ?? null;
       _render();
     });
   }
@@ -308,6 +310,7 @@ function showLoanModal(bank, downAmt, financed) {
     showApplyingPreloader(() => {
       fcState.picked = bank;
       fcState.view   = 'done';
+      mkState.financedQuoteId = _selectedInstaller?.id ?? null;
       _render();
     });
   });

@@ -4,9 +4,10 @@ import { renderStep3 } from './steps/step6_goals.js';
 import { renderLoadProfile }   from './results/loadProfile.js';
 import { renderSolarPVSystem } from './results/solarPVSystem.js';
 import { renderCostSavings }   from './results/costSavings.js';
-import { renderMarketplace }   from './results/marketplace.js';
+import { renderMarketplace, mkState } from './results/marketplace.js';
 import { renderCompareQuotes } from './results/compareQuotes.js';
 import { renderFinancing }     from './results/financing.js';
+import { renderMyQuotes }      from './results/myQuotes.js';
 import { computeResults } from './utils/computeResults.js';
 
 const WIZARD_ROUTES  = ['step1', 'step2', 'step3'];
@@ -44,6 +45,12 @@ const TABS = [
     paths: `<rect x="1" y="4" width="4" height="9" rx="1"/><rect x="6" y="2" width="4" height="11" rx="1"/><rect x="11" y="6" width="4" height="7" rx="1"/>`
   },
   {
+    route: 'myQuotes',
+    label: 'My Quotes',
+    sublabel: 'Saved & Negotiating',
+    paths: `<path d="M11 2H5a1 1 0 00-1 1v11l4-2 4 2V3a1 1 0 00-1-1z"/>`
+  },
+  {
     route: 'financing',
     label: 'Financing',
     sublabel: 'Payment Plans',
@@ -60,6 +67,7 @@ const renderers = {
   solarPVSystem: renderSolarPVSystem,
   market:        renderMarketplace,
   compare:       renderCompareQuotes,
+  myQuotes:      renderMyQuotes,
   financing:     renderFinancing,
 };
 
@@ -204,7 +212,7 @@ function render() {
     const r = { step1: renderStep1, step2: renderStep2, step3: renderStep3 };
     r[_current](container, navigate);
     document.querySelector('.right-panel').scrollTop = 0;
-  } else if (['market', 'compare', 'financing'].includes(_current)) {
+  } else if (['market', 'compare', 'myQuotes', 'financing'].includes(_current)) {
     wizardLayout.classList.add('hidden');
     resultsLayout.classList.remove('hidden');
     renderResultsNav();
@@ -224,6 +232,7 @@ function renderResultsNav() {
 
   const activeRoute = _current;
 
+  const savedCount = mkState.savedQuotes.length;
   nav.innerHTML = TABS.map(tab => `
     <div class="results-nav__item${tab.route === activeRoute ? ' active' : ''}" data-route="${tab.route}">
       <svg class="results-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -233,6 +242,7 @@ function renderResultsNav() {
         <span class="results-nav__label">${tab.label}</span>
         <span class="results-nav__sublabel">${tab.sublabel}</span>
       </div>
+      ${tab.route === 'myQuotes' ? `<span class="results-nav__count-badge" style="display:${savedCount > 0 ? 'flex' : 'none'}">${savedCount}</span>` : ''}
     </div>
   `).join('');
 

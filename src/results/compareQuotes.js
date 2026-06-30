@@ -1,6 +1,5 @@
 import { INSTALLERS, withScores, fmt } from '../data/installers.js';
-import { mkState, toggleShortlist, showBoQModal } from './marketplace.js';
-import { setFinancingInstaller } from './financing.js';
+import { mkState, toggleShortlist, showBoQModal, saveQuote } from './marketplace.js';
 import { getState } from '../state.js';
 import CITY_MAP_DATA from '../data/cityMapData.json';
 
@@ -8,6 +7,7 @@ function getCityData(s) { return CITY_MAP_DATA[s] || CITY_MAP_DATA['Abuja (FCT)'
 
 const ARROW_L = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" style="display:inline-block;vertical-align:middle;margin-right:5px"><polyline points="9,2 4,7 9,12"/></svg>`;
 const ARROW_R = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" style="display:inline-block;vertical-align:middle;margin-left:5px"><polyline points="5,2 10,7 5,12"/></svg>`;
+const TICK    = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" style="display:inline-block;vertical-align:middle;margin-right:4px"><polyline points="1,6 4,10 11,2"/></svg>`;
 
 const ROW_DEFS = [
   { label: 'Total quote',   key: 'price',     render: (it)     => fmt(it.price),                      bestFn: items => items.reduce((b,i) => i.price < b.price ? i : b) ,   bestTag: 'Lowest' },
@@ -74,7 +74,7 @@ function _render() {
         <div class="cq-banner-right">
           <div class="cq-banner-price">${fmt(globalBest.price)}</div>
           <div class="cq-banner-score">Value score ${globalBest.score}/100</div>
-          <button class="cq-pick-btn" id="cq-pick-best">Select &amp; Finance ${ARROW_R}</button>
+          <button class="cq-pick-btn" id="cq-pick-best">${mkState.savedQuotes.includes(globalBest.id) ? `${TICK} Saved to My Quotes` : `Save Quote ${ARROW_R}`}</button>
         </div>
       </div>
 
@@ -138,12 +138,16 @@ function _render() {
               </tr>`;
             }).join('')}
             <tr>
-              <td class="cq-col-label cq-td-footer">Proceed with</td>
-              ${cmpData.map(it => `
+              <td class="cq-col-label cq-td-footer">Save quote</td>
+              ${cmpData.map(it => {
+                const isSaved = mkState.savedQuotes.includes(it.id);
+                return `
                 <td class="cq-td-footer ${it.id === cmpBestId ? 'cq-td--best' : ''}">
-                  <button class="cq-finance-btn ${it.id === cmpBestId ? 'best' : ''}" data-finance="${it.id}">Finance this</button>
-                </td>
-              `).join('')}
+                  <button class="cq-finance-btn ${it.id === cmpBestId ? 'best' : ''} ${isSaved ? 'cq-saved' : ''}" data-save="${it.id}">
+                    ${isSaved ? `${TICK} Saved` : 'Save Quote'}
+                  </button>
+                </td>`;
+              }).join('')}
               ${canAdd ? `<td class="cq-td-footer"></td>` : ''}
             </tr>
           </tbody>
@@ -180,19 +184,18 @@ function _render() {
     });
   }
 
-  // Finance buttons — pass the selected installer to the checkout
-  _container.querySelectorAll('[data-finance]').forEach(btn => {
+  // Save quote buttons
+  _container.querySelectorAll('[data-save]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const inst = cmpData.find(i => i.id === btn.dataset.finance);
-      if (inst) setFinancingInstaller(inst);
-      _navigate('financing');
+      saveQuote(btn.dataset.save);
+      _render();
     });
   });
 
-  // Best-value CTA
+  // Best-value banner CTA
   _container.querySelector('#cq-pick-best')?.addEventListener('click', () => {
-    setFinancingInstaller(globalBest);
-    _navigate('financing');
+    saveQuote(globalBest.id);
+    _navigate('myQuotes');
   });
 
   // Back

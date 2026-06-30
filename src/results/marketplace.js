@@ -25,6 +25,8 @@ export const mkState = {
   gridFilter:        { minRating: 0, district: 'all', sort: 'score' },
   mapInstance:       null,       // active mapboxgl.Map instance
   mapMarkers:        {},         // { [installerId]: mapboxgl.Marker }
+  savedQuotes:       [],         // installer IDs saved to My Quotes
+  financedQuoteId:   null,       // set once user applies for financing
 };
 
 let _container   = null;
@@ -33,6 +35,23 @@ let _rerendering = false;
 
 // ── Exports ───────────────────────────────────────────────────────────────────
 export function getShortlist() { return mkState.shortlist; }
+
+export function saveQuote(id) {
+  if (!mkState.savedQuotes.includes(id)) mkState.savedQuotes.push(id);
+  refreshNavBadge();
+}
+export function unsaveQuote(id) {
+  const idx = mkState.savedQuotes.indexOf(id);
+  if (idx >= 0) mkState.savedQuotes.splice(idx, 1);
+  refreshNavBadge();
+}
+export function refreshNavBadge() {
+  const count  = mkState.savedQuotes.length;
+  const badge  = document.querySelector('[data-route="myQuotes"] .results-nav__count-badge');
+  if (!badge) return;
+  badge.textContent    = count;
+  badge.style.display  = count > 0 ? 'flex' : 'none';
+}
 
 export function toggleShortlist(id) {
   const idx = mkState.shortlist.indexOf(id);

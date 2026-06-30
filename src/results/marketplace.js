@@ -562,7 +562,7 @@ function renderStorefront(container) {
             : `<button class="btn--amber" style="padding:13px 20px;font-size:13px;display:inline-flex;align-items:center;gap:6px" id="sf-toggle">
                 + Add to comparison
                </button>`}
-          <button class="btn--dark-outline" style="font-size:12px;padding:9px 16px;white-space:nowrap" id="sf-boq-btn">View Quote</button>
+          <button class="sf-view-quote-btn" id="sf-boq-btn">View Quote</button>
         </div>
       </div>`;
   } else {

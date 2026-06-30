@@ -451,11 +451,11 @@
 
 /* Quote panel */
 .sf-quote-panel {
-  background: var(--color-primary-bg); border: 1.5px solid var(--color-primary);
+  background: #ffffff; border: 1.5px solid var(--color-border-light);
   border-radius: 15px; padding: 20px; margin-bottom: 28px;
   display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;
 }
-.sf-quote-label { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--color-primary-dark); margin-bottom: 4px; }
+.sf-quote-label { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: capitalize; color: var(--color-primary-dark); margin-bottom: 4px; }
 .sf-quote-price { font-size: clamp(28px,5vw,38px); font-weight: 800; color: var(--color-text); line-height: 1; margin-bottom: 6px; }
 .sf-quote-sub { font-size: 12px; color: var(--color-text-secondary); }
 

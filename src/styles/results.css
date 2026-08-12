@@ -100,12 +100,79 @@
   flex-shrink: 0;
 }
 
+/* ── Quick actions: print / share ── */
+.results-sidebar__quick-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  height: 36px;
+  padding: 0 10px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.icon-btn:hover {
+  background: var(--color-border-light);
+  border-color: #9CA3AF;
+  color: var(--color-text);
+}
+.icon-btn svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
 /* ── Main content area ── */
 .results-main {
   flex: 1;
   height: 100%;
   overflow-y: auto;
   background: var(--color-white);
+  padding-bottom: 96px; /* keep content clear of the fixed sticky CTA bar */
+}
+
+/* ── Sticky CTA bar: stays visible over the report without reaching the end ── */
+.results-sticky-cta {
+  position: fixed;
+  left: 232px;
+  right: 0;
+  bottom: 0;
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 32px;
+  background: var(--color-white);
+  border-top: 1.5px solid var(--color-border);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+}
+.results-sticky-cta__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.results-sticky-cta__text strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.results-sticky-cta__text span {
+  font-size: 12px;
+  color: var(--color-text-secondary);
 }
 
 /* ── Page enter transition ── */
@@ -795,6 +862,19 @@
   /* Prevent horizontal scroll */
   .results-main {
     overflow-x: hidden;
+    padding-bottom: 112px;
+  }
+
+  /* Sticky CTA bar: full width, no sidebar offset, stacked text + button */
+  .results-sticky-cta {
+    left: 0;
+    padding: 12px 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .results-sticky-cta .btn {
+    width: 100%;
   }
 
   /* In scroll mode the padded content div is: results-main > section-div > content-div.
@@ -807,8 +887,7 @@
     padding-right: 16px !important;
   }
 
-  #section-loadProfile > div:first-child,
-  #section-finalQuote  > div:first-child {
+  #section-loadProfile > div:first-child {
     padding-left:  24px !important;
     padding-right: 24px !important;
   }
@@ -915,5 +994,25 @@
     max-width: 100%;
     max-height: 90dvh;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+}
+
+/* ── Print: the report only, no chrome ── */
+@media print {
+  .results-sidebar,
+  .results-mobile-topbar,
+  .offcanvas-backdrop,
+  .results-sticky-cta,
+  #modal-root {
+    display: none !important;
+  }
+  .results-layout {
+    display: block !important;
+    height: auto !important;
+  }
+  .results-main {
+    overflow: visible !important;
+    height: auto !important;
+    padding-bottom: 0 !important;
   }
 }

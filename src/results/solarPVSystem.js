@@ -1,6 +1,6 @@
 import { getState, setState } from '../state.js';
-import { showMiniPreloader } from '../preloader.js';
 import { computeResults } from '../utils/computeResults.js';
+import { CTA_URL } from '../config.js';
 
 export function renderSolarPVSystem(container, navigate) {
   const { results, reportPersona, backupHours: initBackupHours } = getState();
@@ -175,10 +175,10 @@ function renderContent(container, navigate, isAutonomy) {
         <div style="margin-top:28px;padding-top:24px;border-top:1px solid var(--color-border-light);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
           <div>
             <div style="font-size:17px;font-weight:700;margin-bottom:4px">Ready to go solar?</div>
-            <p style="color:var(--color-text-secondary);font-size:14px;margin:0;max-width:420px;line-height:1.5">We'll match you with vetted installers near you. They see your exact energy needs and send in real quotes.</p>
+            <p style="color:var(--color-text-secondary);font-size:15.4px;margin:0;max-width:520px;line-height:1.5">Get Started on your solar journey. Sign up for NNEL Project SHINE today and let the sun pay your bills.</p>
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn btn--primary" id="pv-cta-installers-btn">See installers near me</button>
+            <a class="btn btn--primary" id="pv-cta-get-started-btn" href="${CTA_URL}" target="_blank" rel="noopener noreferrer">Get Started</a>
             <button class="btn btn--outline" id="pv-cta-adjust-btn">Adjust Inputs</button>
           </div>
         </div>
@@ -188,9 +188,6 @@ function renderContent(container, navigate, isAutonomy) {
 
   window._navigate = navigate;
 
-  document.getElementById('pv-cta-installers-btn')
-    ?.addEventListener('click', () =>
-      showMiniPreloader('Finding installers near you…', 5000, () => navigate('market')));
   document.getElementById('pv-cta-adjust-btn')
     ?.addEventListener('click', () => navigate('step1'));
 

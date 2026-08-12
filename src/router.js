@@ -4,11 +4,9 @@ import { renderStep3 } from './steps/step6_goals.js';
 import { renderLoadProfile }   from './results/loadProfile.js';
 import { renderSolarPVSystem } from './results/solarPVSystem.js';
 import { renderCostSavings }   from './results/costSavings.js';
-import { renderMarketplace, mkState } from './results/marketplace.js';
-import { renderCompareQuotes } from './results/compareQuotes.js';
-import { renderFinancing }     from './results/financing.js';
-import { renderMyQuotes }      from './results/myQuotes.js';
 import { computeResults } from './utils/computeResults.js';
+import { CTA_URL } from './config.js';
+import { openModal, bindModalClose, modalHtml } from './components/modal.js';
 
 const WIZARD_ROUTES  = ['step1', 'step2', 'step3'];
 const SCROLL_ROUTES  = ['costSavings', 'loadProfile', 'solarPVSystem'];
@@ -32,44 +30,7 @@ const TABS = [
     sublabel: 'Recommendation',
     paths: `<circle cx="8" cy="8" r="2.5"/><line x1="8" y1="1" x2="8" y2="3"/><line x1="8" y1="13" x2="8" y2="15"/><line x1="1" y1="8" x2="3" y2="8"/><line x1="13" y1="8" x2="15" y2="8"/><line x1="3.34" y1="3.34" x2="4.75" y2="4.75"/><line x1="11.25" y1="11.25" x2="12.66" y2="12.66"/><line x1="12.66" y1="3.34" x2="11.25" y2="4.75"/><line x1="4.75" y1="11.25" x2="3.34" y2="12.66"/>`
   },
-  {
-    route: 'market',
-    label: 'Find Installers',
-    sublabel: 'Solar Marketplace',
-    paths: `<circle cx="6" cy="6" r="4"/><line x1="9.5" y1="9.5" x2="15" y2="15"/>`
-  },
-  {
-    route: 'compare',
-    label: 'Compare Quotes',
-    sublabel: 'Side by Side',
-    paths: `<rect x="1" y="4" width="4" height="9" rx="1"/><rect x="6" y="2" width="4" height="11" rx="1"/><rect x="11" y="6" width="4" height="7" rx="1"/>`
-  },
-  {
-    route: 'myQuotes',
-    label: 'My Quotes',
-    sublabel: 'Saved & Negotiating',
-    paths: `<path d="M11 2H5a1 1 0 00-1 1v11l4-2 4 2V3a1 1 0 00-1-1z"/>`
-  },
-  {
-    route: 'financing',
-    label: 'Financing',
-    sublabel: 'Payment Plans',
-    paths: `<circle cx="8" cy="8" r="6.5"/><line x1="8" y1="5" x2="8" y2="8"/><line x1="8" y1="8" x2="11" y2="8"/>`
-  }
 ];
-
-const renderers = {
-  step1: renderStep1,
-  step2: renderStep2,
-  step3: renderStep3,
-  costSavings:   renderCostSavings,
-  loadProfile:   renderLoadProfile,
-  solarPVSystem: renderSolarPVSystem,
-  market:        renderMarketplace,
-  compare:       renderCompareQuotes,
-  myQuotes:      renderMyQuotes,
-  financing:     renderFinancing,
-};
 
 let _current        = 'step1';
 let _isScrollMode   = false;
@@ -212,15 +173,6 @@ function render() {
     const r = { step1: renderStep1, step2: renderStep2, step3: renderStep3 };
     r[_current](container, navigate);
     document.querySelector('.right-panel').scrollTop = 0;
-  } else if (['market', 'compare', 'myQuotes', 'financing'].includes(_current)) {
-    wizardLayout.classList.add('hidden');
-    resultsLayout.classList.remove('hidden');
-    renderResultsNav();
-    bindMobileNav();
-    const container = document.getElementById('results-content');
-    container.innerHTML = '';
-    renderers[_current](container, navigate);
-    requestAnimationFrame(() => { container.scrollTop = 0; });
   }
 }
 
@@ -232,7 +184,6 @@ function renderResultsNav() {
 
   const activeRoute = _current;
 
-  const savedCount = mkState.savedQuotes.length;
   nav.innerHTML = TABS.map(tab => `
     <div class="results-nav__item${tab.route === activeRoute ? ' active' : ''}" data-route="${tab.route}">
       <svg class="results-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -242,7 +193,6 @@ function renderResultsNav() {
         <span class="results-nav__label">${tab.label}</span>
         <span class="results-nav__sublabel">${tab.sublabel}</span>
       </div>
-      ${tab.route === 'myQuotes' ? `<span class="results-nav__count-badge" style="display:${savedCount > 0 ? 'flex' : 'none'}">${savedCount}</span>` : ''}
     </div>
   `).join('');
 
@@ -251,9 +201,73 @@ function renderResultsNav() {
   });
 
   actionsEl.innerHTML = `
+    <div class="results-sidebar__quick-actions">
+      <button class="icon-btn" id="print-report-btn" type="button" title="Print report" aria-label="Print report">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 5.5a1 1 0 0 1 1-1h1.15l.62-1.1A1 1 0 0 1 5.63 3h4.74a1 1 0 0 1 .86.4l.62 1.1H13a1 1 0 0 1 1 1v6.7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5.5Z"/>
+          <circle cx="8" cy="9" r="2.4"/>
+        </svg>
+        <span>Print</span>
+      </button>
+      <button class="icon-btn" id="share-app-btn" type="button" title="Share app" aria-label="Share app">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12.5" cy="3.5" r="1.7"/>
+          <circle cx="3.5" cy="8" r="1.7"/>
+          <circle cx="12.5" cy="12.5" r="1.7"/>
+          <line x1="5" y1="7.1" x2="11" y2="4.3"/>
+          <line x1="5" y1="8.9" x2="11" y2="11.7"/>
+        </svg>
+        <span>Share</span>
+      </button>
+    </div>
     <button class="btn btn--outline btn--sm btn--full" id="adjust-energy-btn">Adjust Inputs</button>
   `;
   document.getElementById('adjust-energy-btn')?.addEventListener('click', () => navigate('step1'));
+  document.getElementById('print-report-btn')?.addEventListener('click', handlePrintReport);
+  document.getElementById('share-app-btn')?.addEventListener('click', handleShareApp);
+}
+
+// ── Print report ─────────────────────────────────────────────────────────
+
+function handlePrintReport() {
+  window.print();
+}
+
+// ── Share app ────────────────────────────────────────────────────────────
+
+function handleShareApp() {
+  // Share the app itself (not a personalised results URL — state lives in
+  // memory, not the URL), so friends land on step 1 and run their own numbers.
+  const shareUrl = `${window.location.origin}${window.location.pathname}`;
+
+  openModal(modalHtml({
+    title: 'Share NNEL Solar Hub',
+    subtitle: 'Send this link to friends and family so they can size their own solar system.',
+    body: `
+      <div style="padding:20px 0 24px;display:flex;gap:8px">
+        <input type="text" id="share-link-input" readonly value="${shareUrl}"
+          style="flex:1;min-width:0;padding:10px 12px;border:1.5px solid var(--color-border);border-radius:8px;font-size:13px;color:var(--color-text-secondary);background:var(--color-border-light)">
+        <button class="btn btn--primary btn--sm" id="share-copy-btn" type="button">Copy</button>
+      </div>
+    `,
+  }));
+  bindModalClose();
+
+  const input   = document.getElementById('share-link-input');
+  const copyBtn = document.getElementById('share-copy-btn');
+
+  input?.addEventListener('click', () => input.select());
+
+  copyBtn?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+    } catch {
+      input.select();
+      document.execCommand('copy');
+    }
+    copyBtn.textContent = 'Copied';
+    setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1800);
+  });
 }
 
 function bindMobileNav() {
@@ -299,5 +313,14 @@ export function init() {
     });
   });
 
+  bindStickyCta();
+
   navigate('step1', { replace: true });
+}
+
+// ── Sticky CTA bar (results layout, always visible while scrolling the report) ──
+
+function bindStickyCta() {
+  const btn = document.getElementById('sticky-cta-btn');
+  if (btn) btn.href = CTA_URL;
 }

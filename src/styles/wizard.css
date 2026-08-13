@@ -984,6 +984,11 @@ input[type=range].sunova-slider::-moz-range-thumb {
     display: none;
   }
 
+  /* Hide the step 1 globe illustration on mobile */
+  .step1-globe {
+    display: none;
+  }
+
   .progress-bar__dot {
     width: 32px;
     height: 32px;

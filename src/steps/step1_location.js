@@ -194,7 +194,7 @@ export function renderStep1(container, navigate) {
             <h1 class="step-title" style="font-size:var(--font-size-2xl)">Where is your home located?</h1>
             <p class="step-subtitle" style="font-size:16px;margin-bottom:0">We'll use this to calculate solar irradiance in your area</p>
           </div>
-          <img src="/icons/globe-icon.png" width="77" height="77" style="object-fit:contain">
+          <img src="/icons/globe-icon.png" width="77" height="77" class="step1-globe" style="object-fit:contain">
         </div>
 
         <div class="card" style="max-width:552px;padding:18px">

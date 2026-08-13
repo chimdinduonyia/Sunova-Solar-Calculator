@@ -96,10 +96,16 @@ function renderScrollMode(scrollTo) {
   renderSolarPVSystem(document.getElementById('section-solarPVSystem'), navigate);
 
   _scrollCleanup = initScrollSpy();
+  setScrollProgress(0);
 
   if (scrollTo) {
     requestAnimationFrame(() => scrollToSection(scrollTo));
   }
+}
+
+function setScrollProgress(pct) {
+  const bar = document.getElementById('scroll-progress-bar');
+  if (bar) bar.style.width = `${Math.max(0, Math.min(100, pct))}%`;
 }
 
 function getScrollContainer() {
@@ -145,6 +151,12 @@ function initScrollSpy() {
       _current = activeRoute;
       setActiveTab(activeRoute);
     }
+
+    const scrollTop    = panel ? panel.scrollTop    : window.scrollY;
+    const scrollHeight = panel ? panel.scrollHeight : document.documentElement.scrollHeight;
+    const clientHeight = panel ? panel.clientHeight : window.innerHeight;
+    const scrollable   = scrollHeight - clientHeight;
+    setScrollProgress(scrollable > 0 ? (scrollTop / scrollable) * 100 : 0);
   }
 
   target.addEventListener('scroll', onScroll, { passive: true });
@@ -204,8 +216,10 @@ function renderResultsNav() {
     <div class="results-sidebar__quick-actions">
       <button class="icon-btn" id="print-report-btn" type="button" title="Print report" aria-label="Print report">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M2 5.5a1 1 0 0 1 1-1h1.15l.62-1.1A1 1 0 0 1 5.63 3h4.74a1 1 0 0 1 .86.4l.62 1.1H13a1 1 0 0 1 1 1v6.7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5.5Z"/>
-          <circle cx="8" cy="9" r="2.4"/>
+          <path d="M4.5 6.2V2.8a.6.6 0 0 1 .6-.6h5.8a.6.6 0 0 1 .6.6v3.4"/>
+          <rect x="2" y="6.2" width="12" height="5.2" rx="1"/>
+          <rect x="4.5" y="9.4" width="7" height="3.8" rx=".4"/>
+          <circle cx="11.2" cy="8.3" r=".4" fill="currentColor" stroke="none"/>
         </svg>
         <span>Print</span>
       </button>
@@ -318,9 +332,12 @@ export function init() {
   navigate('step1', { replace: true });
 }
 
-// ── Sticky CTA bar (results layout, always visible while scrolling the report) ──
+// ── Sticky CTA (results layout, always visible while scrolling the report) ──
+// Desktop: horizontal bar. Mobile: floating capsule button in its place.
 
 function bindStickyCta() {
   const btn = document.getElementById('sticky-cta-btn');
   if (btn) btn.href = CTA_URL;
+  const fab = document.getElementById('mobile-cta-fab');
+  if (fab) fab.href = CTA_URL;
 }

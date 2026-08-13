@@ -434,7 +434,7 @@ input[type=range].sunova-slider::-moz-range-thumb {
 }
 .loc-icon { flex-shrink: 0; }
 .loc-input {
-  flex: 1; border: none; outline: none; padding: 12px 0;
+  flex: 1; border: none; outline: none; padding: 10px 0;
   font-family: var(--font-family); font-size: var(--font-size-base);
   color: var(--color-text); background: transparent;
 }
@@ -469,6 +469,139 @@ input[type=range].sunova-slider::-moz-range-thumb {
 .loc-sug-sub {
   font-size: 11px; color: var(--color-text-muted);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ── Address location map ── */
+.loc-map {
+  position: relative;
+  width: 100%;
+  height: 219px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1.5px solid var(--color-border);
+  background: #E5E9EC;
+}
+.loc-map__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  /* Grayscale/duotone treatment: strip Mapbox's default colour palette (green
+     parks, blue water, orange/yellow roads) down to black, grey and white. */
+  filter: grayscale(100%) contrast(1.12) brightness(1.03);
+}
+.loc-map__img.is-dragging {
+  cursor: grabbing;
+}
+.loc-map__pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -100%);
+  z-index: 4;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35));
+}
+.loc-map__zoom {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+.loc-map__zoom button {
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: rgba(255,255,255,0.95);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.loc-map__zoom button:first-child {
+  border-bottom: 1px solid var(--color-border-light);
+}
+.loc-map__zoom button:hover {
+  background: var(--color-border-light);
+}
+.loc-map__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  background: var(--color-border-light);
+}
+.loc-map-hint {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: 5px;
+}
+
+.loc-map-overlay {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 5;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 150px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--color-primary-light);
+  border-radius: var(--radius-md);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.14);
+}
+.loc-map-overlay--error {
+  border-color: rgba(239,68,68,0.35);
+  min-width: 0;
+  max-width: 200px;
+}
+.loc-map-overlay__row {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.loc-map-overlay__label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+.loc-map-overlay__value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.loc-map-overlay__value--amber { color: var(--color-primary-dark); }
+.loc-map-overlay__error {
+  font-size: 12px;
+  color: #EF4444;
+  margin: 0;
+  line-height: 1.5;
 }
 
 /* ── Tariff band pills ── */
@@ -823,7 +956,7 @@ input[type=range].sunova-slider::-moz-range-thumb {
 }
 
 /* ── Responsive: mobile (≤768px) ── */
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
   .left-panel {
     display: none;
   }
@@ -950,5 +1083,7 @@ input[type=range].sunova-slider::-moz-range-thumb {
     min-width: 96px;
   }
 
-  .loc-zone-field { display: none; }
+  .loc-map { height: 170px; }
+  .loc-map-overlay { top: 10px; right: 10px; padding: 10px 12px; min-width: 128px; }
+  .loc-map-overlay__row--zone { display: none; }
 }

@@ -51,7 +51,6 @@ export function renderStep2(container, navigate) {
         <div class="wizard-header">
           <button class="back-btn" id="back-btn">← Back</button>
           ${renderProgressBar(2)}
-          <div style="width:90px"></div>
         </div>
 
         <div class="step-body">

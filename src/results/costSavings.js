@@ -12,7 +12,7 @@ function paybackMonth(years) {
 export function renderCostSavings(container, navigate) {
   const state = getState();
   if (!state.results) { navigate('step1'); return; }
-  const { savings, inverter_battery_only: invBattOnly } = state.results;
+  const { savings, battery, inverter_battery_only: invBattOnly } = state.results;
   const isAutonomy = state.reportPersona === 'autonomy';
 
   const tip = text => `<span class="confidence-tooltip-wrap" style="display:inline-flex;vertical-align:middle;margin-left:4px"><button class="confidence-tooltip-btn" type="button">?</button><span class="confidence-tooltip-box">${text}</span></span>`;
@@ -84,8 +84,8 @@ export function renderCostSavings(container, navigate) {
         <span style="font-weight:600;color:#374151">${N(before)} <span style="color:#9CA3AF;font-weight:400;font-size:11px">→</span> ${N(after)}</span>
       </div>`;
     return [
-      grid_before > 0 ? row('Grid spend', grid_before, grid_after) : '',
-      gen_before  > 0 ? row('Generator',  gen_before,  gen_after)  : '',
+      grid_before > 0 ? row('Grid Spend', grid_before, grid_after) : '',
+      gen_before  > 0 ? row('Gen. Spend', gen_before,  gen_after)  : '',
     ].join('');
   };
 
@@ -102,9 +102,9 @@ export function renderCostSavings(container, navigate) {
         ${isAutonomy ? `
         <div class="autonomy-hero-strip" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;background:#ffffff;border:1px solid var(--color-border-light);border-radius:12px;padding:20px;margin-bottom:28px">
           <div>
-            <div style="font-size:11px;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">System Investment</div>
-            <div id="hero-system-cost" style="font-size:24px;font-weight:800">${N(savings.total_system_cost)}</div>
-            <div style="font-size:11px;color:var(--color-text-muted);margin-top:2px">one-time cost</div>
+            <div style="font-size:11px;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Battery Capacity</div>
+            <div id="hero-battery-kwh" style="font-size:24px;font-weight:800">${battery.battery_kwh} kWh</div>
+            <div style="font-size:11px;color:var(--color-text-muted);margin-top:2px">recommended storage</div>
           </div>
           <div>
             <div style="font-size:11px;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Backup Coverage</div>
@@ -148,7 +148,10 @@ export function renderCostSavings(container, navigate) {
         <!-- Cost Comparison (left) + Energy Bill Savings, Carbon & Context card (right stacked) -->
         <div class="autonomy-mid-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px">
           <div class="card" style="padding:20px">
-            <div class="section-title" style="margin-bottom:16px">Cost Comparison</div>
+            <div style="margin-bottom:16px">
+              <div class="section-title" style="margin-bottom:2px">Cost Comparison</div>
+              <p style="font-size:12px;color:var(--color-text-secondary);margin:0">Business-as-usual vs With solar</p>
+            </div>
             <canvas id="compare-chart" height="200"></canvas>
             <div style="margin-top:14px;border-top:1px solid #F3F4F6;padding-top:4px">${compareBreakdown()}</div>
           </div>
@@ -244,8 +247,9 @@ export function renderCostSavings(container, navigate) {
 
         <div class="savings-bottom-grid">
           <div class="card">
-            <div class="cashflow-card-header" style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+            <div class="cashflow-card-header" style="display:flex;flex-direction:column;gap:2px;margin-bottom:16px">
               <div class="section-title" style="margin-bottom:0">25-Year Cumulative Savings</div>
+              <p style="font-size:12px;color:var(--color-text-secondary);margin:0">See how much you can save over 25 years</p>
             </div>
             <div style="position:relative">
               <canvas id="cashflow-chart" style="width:100%;height:280px;display:block"></canvas>
@@ -263,7 +267,10 @@ export function renderCostSavings(container, navigate) {
             </div>
           </div>
           <div class="card">
-            <div class="section-title" style="margin-bottom:16px">Cost Comparison</div>
+            <div style="margin-bottom:16px">
+              <div class="section-title" style="margin-bottom:2px">Cost Comparison</div>
+              <p style="font-size:12px;color:var(--color-text-secondary);margin:0">Business-as-usual vs With solar</p>
+            </div>
             <canvas id="compare-chart" height="200"></canvas>
             <div style="margin-top:14px;border-top:1px solid #F3F4F6;padding-top:4px">${compareBreakdown()}</div>
           </div>
@@ -280,7 +287,7 @@ export function renderCostSavings(container, navigate) {
           <circle cx="8" cy="5" r="0.5" fill="#6B7280" stroke="none"/>
         </svg>
         <p style="margin:0;font-size:12px;color:#6B7280;line-height:1.6">
-          These are ballpark estimates based on the energy spend and location you provided. Actual savings will depend on how you actually consume energy, future tariff changes, and installer pricing. Fuel savings apply only if you currently use a generator.
+          These are indicative estimates based on the energy spend and location you provided. Actual savings will depend on future tariff changes and installer pricing. Fuel savings apply only if you currently use a generator.
         </p>
       </div>
 
@@ -563,12 +570,17 @@ function drawCashflowCanvas(savings) {
 function drawComparison(savings) {
   const ctx = document.getElementById('compare-chart')?.getContext('2d');
   if (!ctx) return;
+
+  // "Before" bar reflects what the user actually typed into the wizard
+  // (grid + generator spend), not the modelled blended-tariff estimate.
+  const beforeSpend = (savings.grid_monthly_spend || 0) + (savings.gen_monthly_spend || 0);
+
   new Chart(ctx, {
     type: 'bar',
     data: {
       labels: [savings.current_label || 'Grid+Gen', savings.solar_label || 'With Solar'],
       datasets: [{
-        data: [savings.current_monthly_cost, savings.post_solar_monthly_cost],
+        data: [beforeSpend, savings.post_solar_monthly_cost],
         backgroundColor: ['#E74C3C', '#1B4F72'],
         borderRadius: 6,
         barThickness: 60,
@@ -588,7 +600,7 @@ function drawComparison(savings) {
         },
         y: {
           grid: { color: '#F3F4F6' },
-          suggestedMax: Math.max(savings.current_monthly_cost, savings.post_solar_monthly_cost) * 1.4,
+          suggestedMax: Math.max(beforeSpend, savings.post_solar_monthly_cost) * 1.4,
           ticks: { font: { size: 10, family: 'Outfit, sans-serif' }, callback: v => `₦${(v / 1000).toFixed(0)}k` },
         },
       },

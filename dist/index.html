@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Noto+Sans:wght@400;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script type="module" crossorigin src="/assets/index-C9By040z.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-B2TfdPll.css">
+  <script type="module" crossorigin src="/assets/index-DJs1Wqmy.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-HcABcIUZ.css">
 </head>
 <body>
   <div id="app">
@@ -19,8 +19,7 @@
       <aside class="left-panel">
         <div class="left-panel__overlay">
           <div class="logo">
-            <img src="/icons/nnpc-icon.png" width="28" height="28" alt="NNPC logo" style="object-fit:contain;display:block">
-            <span>NNEL Solar Hub</span>
+            <img src="/SHINE Logo Light.png" alt="Project SHINE" style="height:56px;width:auto;object-fit:contain;display:block">
           </div>
           <div class="left-panel__hero">
             <img src="/icons/half-sun-icon.png" alt="" aria-hidden="true" style="width:160px;height:auto;margin-bottom:16px;display:block">
@@ -31,8 +30,7 @@
       </aside>
       <main class="right-panel">
         <div class="mobile-top-bar">
-          <img src="/icons/nnpc-icon.png" width="24" height="24" alt="NNPC logo" style="object-fit:contain;display:block">
-          <span>NNEL Solar Hub</span>
+          <img src="/SHINE Logo Dark.png" alt="Project SHINE" style="height:48px;width:auto;object-fit:contain;display:block">
         </div>
         <div id="wizard-content"></div>
       </main>
@@ -40,20 +38,19 @@
 
     <!-- results layout -->
     <div id="results-layout" class="results-layout hidden">
+      <div class="scroll-progress" id="scroll-progress"><div class="scroll-progress__bar" id="scroll-progress-bar"></div></div>
       <div class="results-mobile-topbar">
         <button class="hamburger-btn" id="results-hamburger" aria-label="Open navigation">
           <span></span><span></span><span></span>
         </button>
         <div class="results-mobile-topbar__logo">
-          <img src="/icons/nnpc-icon.png" width="22" height="22" alt="NNPC logo" style="object-fit:contain;display:block">
-          <span>NNEL Solar Hub</span>
+          <img src="/SHINE Logo Dark.png" alt="Project SHINE" style="height:44px;width:auto;object-fit:contain;display:block">
         </div>
       </div>
       <div class="offcanvas-backdrop" id="offcanvas-backdrop"></div>
       <aside class="results-sidebar">
         <div class="results-sidebar__logo">
-          <img src="/icons/nnpc-icon.png" width="22" height="22" alt="NNPC logo" style="object-fit:contain;display:block">
-          <span>NNEL Solar Hub</span>
+          <img src="/SHINE Logo Dark.png" alt="Project SHINE" style="height:48px;width:auto;object-fit:contain;display:block">
           <button class="offcanvas-close-btn" id="offcanvas-close-btn" aria-label="Close navigation">✕</button>
         </div>
         <nav id="results-nav" class="results-sidebar__nav"></nav>
@@ -68,6 +65,8 @@
         </div>
         <a class="btn btn--primary" id="sticky-cta-btn" href="#" target="_blank" rel="noopener noreferrer">Get Started</a>
       </div>
+
+      <a class="mobile-cta-fab" id="mobile-cta-fab" href="#" target="_blank" rel="noopener noreferrer">Get Started</a>
     </div>
   </div>
 

@@ -33,7 +33,7 @@ function renderContent(container, navigate, isAutonomy) {
     ? 'Designed for your home\'s evening peak and night backup window.'
     : (invBattOnly
         ? 'Sized for your energy needs. Add solar panels later as your consumption grows.'
-        : 'Here is the breakdown of your solar PV system');
+        : 'Here are indicative specs for your solar home system');
 
   const solarKwpStr   = invBattOnly ? '--.-- kWp'         : `${solar.panel_kwp} kWp`;
   const solarPanelStr = invBattOnly ? 'Capacity · -- panels' : `Capacity · ${solar.panel_count} panels`;
@@ -262,7 +262,7 @@ function refreshSpecCards() {
   const state = getState();
   set('hero-backup-hours',        `${state.backupHours}h`);
   if (savings) set('hero-solar-independence', `${Math.round(savings.solar_fraction * 100)}%`);
-  if (savings) set('hero-system-cost', '₦' + Number(savings.total_system_cost).toLocaleString('en-NG'));
+  set('hero-battery-kwh', `${battery.battery_kwh} kWh`);
 
   drawDispatchChart(dispatch);
 }

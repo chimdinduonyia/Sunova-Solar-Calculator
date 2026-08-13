@@ -135,6 +135,24 @@
   flex-shrink: 0;
 }
 
+/* ── Scroll progress watcher: thin bar pinned to the very top of the viewport ── */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 400;
+  background: transparent;
+  pointer-events: none;
+}
+.scroll-progress__bar {
+  height: 100%;
+  width: 0%;
+  background: var(--color-primary);
+  transition: width 0.1s linear;
+}
+
 /* ── Main content area ── */
 .results-main {
   flex: 1;
@@ -173,6 +191,26 @@
 .results-sticky-cta__text span {
   font-size: 12px;
   color: var(--color-text-secondary);
+}
+
+/* ── Mobile CTA: floating capsule button instead of the desktop bar ── */
+.mobile-cta-fab {
+  display: none;
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 250;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+  color: #ffffff;
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
 }
 
 /* ── Page enter transition ── */
@@ -279,7 +317,7 @@
 
 .cta-hero-title { font-size: clamp(28px, 5.5vw, 62px); }
 
-@media (max-width: 640px) {
+@media screen and (max-width: 640px) {
   .cta-outer { padding: 12px 10px 16px; }
   .cta-inner  { padding: 52px 28px; }
   .cta-hero-title { font-size: clamp(22px, 6.5vw, 36px); }
@@ -683,7 +721,7 @@
 }
 
 /* ── Responsive: mobile (≤768px) ── */
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
   /* Mobile top bar */
   .results-mobile-topbar {
     display: flex;
@@ -862,19 +900,15 @@
   /* Prevent horizontal scroll */
   .results-main {
     overflow-x: hidden;
-    padding-bottom: 112px;
+    padding-bottom: 88px;
   }
 
-  /* Sticky CTA bar: full width, no sidebar offset, stacked text + button */
+  /* Desktop sticky CTA bar is replaced by the floating capsule button on mobile */
   .results-sticky-cta {
-    left: 0;
-    padding: 12px 16px;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
+    display: none;
   }
-  .results-sticky-cta .btn {
-    width: 100%;
+  .mobile-cta-fab {
+    display: flex;
   }
 
   /* In scroll mode the padded content div is: results-main > section-div > content-div.
@@ -1003,6 +1037,7 @@
   .results-mobile-topbar,
   .offcanvas-backdrop,
   .results-sticky-cta,
+  .scroll-progress,
   #modal-root {
     display: none !important;
   }

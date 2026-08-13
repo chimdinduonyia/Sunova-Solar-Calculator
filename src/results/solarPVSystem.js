@@ -174,7 +174,7 @@ function renderContent(container, navigate, isAutonomy) {
 
         <div style="margin-top:28px;padding-top:24px;border-top:1px solid var(--color-border-light);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
           <div>
-            <div style="font-size:17px;font-weight:700;margin-bottom:4px">Ready to go solar?</div>
+            <div style="font-size:20px;font-weight:700;margin-bottom:4px">Ready to go solar?</div>
             <p style="color:var(--color-text-secondary);font-size:15.4px;margin:0;max-width:520px;line-height:1.5">Get Started on your solar journey. Sign up for NNEL Project SHINE today and let the sun pay your bills.</p>
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">

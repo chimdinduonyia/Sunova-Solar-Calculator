@@ -17,7 +17,13 @@ export function renderStep6(container, navigate) {
   container.innerHTML = `
     <div class="wizard-step">
       <div class="wizard-header">
-        <button class="back-btn" id="back-btn">← Back</button>
+        <button class="back-btn" id="back-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="13" y1="8" x2="3" y2="8"/>
+            <polyline points="7,3.5 3,8 7,12.5"/>
+          </svg>
+          Back
+        </button>
         ${renderProgressBar(3)}
       </div>
 

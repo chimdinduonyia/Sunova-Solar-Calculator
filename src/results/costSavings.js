@@ -64,8 +64,8 @@ export function renderCostSavings(container, navigate) {
   const kpiCarbon = () => `
     <div class="savings-kpi">
       <div>
-        <div class="savings-kpi__label">Carbon Emission Avoided ${tip('The CO₂ emissions your solar system prevents each year by replacing fossil fuel electricity with clean solar energy.')}</div>
-        <div class="savings-kpi__value">${savings.co2_avoided_tonnes} tCO₂/Year</div>
+        <div class="savings-kpi__label">Carbon Emission Avoided ${tip('The CO<sub>2</sub> emissions your solar system prevents each year by replacing fossil fuel electricity with clean solar energy.')}</div>
+        <div class="savings-kpi__value">${savings.co2_avoided_tonnes} tCO<sub>2</sub>/Year</div>
       </div>
       <div class="savings-kpi__icon"><img src="/icons/emissions_avoided.png" width="64" height="64" style="object-fit:contain"></div>
     </div>`;
@@ -237,8 +237,8 @@ export function renderCostSavings(container, navigate) {
           <div class="card">
             <div class="savings-kpi" style="border:none;padding:0">
               <div>
-                <div class="savings-kpi__label">Carbon Emission Avoided ${tip('The CO₂ emissions your solar system prevents each year by replacing fossil fuel electricity with clean solar energy.')}</div>
-                <div class="savings-kpi__value">${savings.co2_avoided_tonnes} tCO₂/Year</div>
+                <div class="savings-kpi__label">Carbon Emission Avoided ${tip('The CO<sub>2</sub> emissions your solar system prevents each year by replacing fossil fuel electricity with clean solar energy.')}</div>
+                <div class="savings-kpi__value">${savings.co2_avoided_tonnes} tCO<sub>2</sub>/Year</div>
               </div>
               <div class="savings-kpi__icon"><img src="/icons/emissions_avoided.png" width="64" height="64" style="object-fit:contain"></div>
             </div>

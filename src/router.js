@@ -213,6 +213,12 @@ function renderResultsNav() {
   });
 
   actionsEl.innerHTML = `
+    <div class="results-cta-card">
+      <div class="results-cta-card__title">Ready to go solar?</div>
+      <div class="results-cta-card__divider"></div>
+      <div class="results-cta-card__subtitle">Get Started on your solar journey. Sign up for NNEL Project SHINE today and let the sun pay your bills.</div>
+      <a class="btn btn--primary btn--full" id="sidebar-cta-btn" href="${CTA_URL}" target="_blank" rel="noopener noreferrer">Get Started</a>
+    </div>
     <div class="results-sidebar__quick-actions">
       <button class="icon-btn" id="print-report-btn" type="button" title="Print report" aria-label="Print report">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -327,17 +333,5 @@ export function init() {
     });
   });
 
-  bindStickyCta();
-
   navigate('step1', { replace: true });
-}
-
-// ── Sticky CTA (results layout, always visible while scrolling the report) ──
-// Desktop: horizontal bar. Mobile: floating capsule button in its place.
-
-function bindStickyCta() {
-  const btn = document.getElementById('sticky-cta-btn');
-  if (btn) btn.href = CTA_URL;
-  const fab = document.getElementById('mobile-cta-fab');
-  if (fab) fab.href = CTA_URL;
 }

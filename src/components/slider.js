@@ -1,5 +1,18 @@
+// The ₦ glyph is wrapped in .ngn (see global.css) so its outline can be
+// thickened to match the bold digits beside it. That trick — and Outfit
+// itself — only renders reliably in regular DOM text; <input> elements have
+// their own font-fallback behavior for glyphs outside the basic character
+// set that doesn't reliably follow the page's font-family (confirmed: the
+// exact same glyph, same CSS, renders correctly in a sibling <span> but not
+// inside the bubble's <input>). So the editable input never carries the
+// symbol at all — it gets a separate, static prefix element instead.
 export function formatNaira(val) {
-  return '₦' + Number(val).toLocaleString('en-NG');
+  return '<span class="ngn">₦</span>' + Number(val).toLocaleString('en-NG');
+}
+
+// Plain-text variant (no markup) for the editable <input>'s own value.
+function formatNairaNumber(val) {
+  return Number(val).toLocaleString('en-NG');
 }
 
 function parseNaira(str) {
@@ -8,6 +21,34 @@ function parseNaira(str) {
 
 function thumbOffset(pct) {
   return (14 - (pct / 100) * 28).toFixed(1);
+}
+
+// Width of the editable amount input, sized to the EXACT rendered pixel
+// width of its text (not a "ch" character-count guess — "ch" is based on
+// the width of the "0" glyph, so any buffer added for "breathing room"
+// shows up as real, visible dead space to the right of a left-aligned
+// input, reading as off-center inside the bubble). A hidden span mirrors
+// the input's own computed font so this tracks the real weight/size
+// exactly, even if that CSS changes later.
+let _measureEl = null;
+function measureTextWidth(referenceEl, text) {
+  if (!_measureEl) {
+    _measureEl = document.createElement('span');
+    _measureEl.style.position   = 'absolute';
+    _measureEl.style.visibility = 'hidden';
+    _measureEl.style.whiteSpace = 'pre';
+    _measureEl.style.left = '-9999px';
+    _measureEl.style.top  = '-9999px';
+    document.body.appendChild(_measureEl);
+  }
+  _measureEl.style.font = getComputedStyle(referenceEl).font;
+  _measureEl.textContent = text;
+  return _measureEl.getBoundingClientRect().width;
+}
+
+function sizeInput(el, text) {
+  // +2px only for caret rendering room, not a character's worth of gap.
+  el.style.width = Math.ceil(measureTextWidth(el, text)) + 2 + 'px';
 }
 
 export function renderSlider({ id, value, min, max, step = 1000, ticks, label = 'per month', formatFn = formatNaira }) {
@@ -21,19 +62,25 @@ export function renderSlider({ id, value, min, max, step = 1000, ticks, label = 
     return `<span class="slider-tick ${isActive ? 'active' : ''}" data-val="${t}" style="left:${tickPct}%;transform:${xform}">${formatFn(t)}</span>`;
   }).join('') : '';
 
+  const numStr = formatNairaNumber(value);
+
   return `
     <div class="slider-wrapper">
       <div style="text-align:center;margin-bottom:16px">
         <div class="slider-bubble">
-          <input
-            type="text"
-            class="slider-bubble__val"
-            id="${id}-val"
-            value="${formatFn(value)}"
-            inputmode="numeric"
-            autocomplete="off"
-            aria-label="Monthly spend in Naira"
-          />
+          <div class="slider-bubble__amount">
+            <span class="ngn slider-bubble__prefix">₦</span>
+            <input
+              type="text"
+              class="slider-bubble__val"
+              id="${id}-val"
+              value="${numStr}"
+              style="width:${numStr.length + 1}ch"
+              inputmode="numeric"
+              autocomplete="off"
+              aria-label="Monthly spend in Naira"
+            />
+          </div>
           <span class="slider-bubble__label">${label}</span>
         </div>
       </div>
@@ -68,18 +115,26 @@ export function bindSlider(id, formatFn = formatNaira, onChange) {
   const max  = Number(input.max);
   const step = Number(input.step) || 1;
 
+  // renderSlider's initial HTML uses a rough "ch"-based width guess (no
+  // input exists in the DOM yet to measure precisely against at that
+  // point) — correct it to the exact pixel width now, synchronously,
+  // before the browser paints.
+  sizeInput(valEl, valEl.value);
+
   function update() {
     const val = Number(input.value);
     const pct = ((val - min) / (max - min)) * 100;
     const offset = thumbOffset(pct);
 
     input.style.background = `linear-gradient(to right, var(--color-primary) ${pct}%, var(--color-border) ${pct}%)`;
-    valEl.value = formatFn(val);
+    const numStr = formatNairaNumber(val);
+    valEl.value = numStr;
+    sizeInput(valEl, numStr);
 
     if (tooltip) {
       tooltip.style.left = `calc(${pct}% + ${offset}px)`;
       const tooltipVal = tooltip.querySelector('.slider-tooltip__val');
-      if (tooltipVal) tooltipVal.textContent = formatFn(val);
+      if (tooltipVal) tooltipVal.innerHTML = formatFn(val);
     }
 
     if (onChange) onChange(val);
@@ -117,9 +172,13 @@ export function bindSlider(id, formatFn = formatNaira, onChange) {
   // Allow the displayed value to be edited directly
   valEl.addEventListener('focus', () => {
     // Show the raw number so the user can type over it easily
-    valEl.value = parseNaira(valEl.value) || '';
+    const raw = String(parseNaira(valEl.value) || '');
+    valEl.value = raw;
+    sizeInput(valEl, raw || '0');
     valEl.select();
   });
+
+  valEl.addEventListener('input', () => sizeInput(valEl, valEl.value || '0'));
 
   valEl.addEventListener('blur', () => {
     const raw = parseNaira(valEl.value);

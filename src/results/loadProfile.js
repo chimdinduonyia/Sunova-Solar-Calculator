@@ -1,6 +1,8 @@
 import { getState } from '../state.js';
 
-const N = v => '₦' + Number(v).toLocaleString('en-NG');
+// Wrapped so .ngn (global.css) can thicken the ₦ glyph to match the bold
+// digits beside it — no mainstream webfont bolds that character correctly.
+const N = v => '<span class="ngn">₦</span>' + Number(v).toLocaleString('en-NG');
 
 export function renderLoadProfile(container, navigate) {
   const state = getState();

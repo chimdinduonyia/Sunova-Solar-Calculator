@@ -79,7 +79,7 @@ export function renderStep2(container, navigate) {
                 <div style="display:flex;align-items:center;gap:14px">
                   <div class="tag tag--amber">${s.tariffBand}</div>
                   <div style="font-size:12px;color:var(--color-text-secondary)">
-                    ₦${tariffs.find(t => t.band === s.tariffBand)?.tariff_naira_per_kwh || ''}/kWh
+                    <span class="ngn">₦</span>${tariffs.find(t => t.band === s.tariffBand)?.tariff_naira_per_kwh || ''}/kWh
                     &nbsp;<span class="badge-nerc">NERC</span>
                   </div>
                 </div>

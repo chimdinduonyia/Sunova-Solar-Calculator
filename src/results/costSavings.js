@@ -1,6 +1,22 @@
 import { getState } from '../state.js';
 
-const N = (v) => '₦' + Number(v).toLocaleString('en-NG');
+// Wrapped so .ngn (global.css) can thicken the ₦ glyph to match the bold
+// digits beside it — no mainstream webfont bolds that character correctly.
+const N = (v) => '<span class="ngn">₦</span>' + Number(v).toLocaleString('en-NG');
+
+// Canvas equivalent of the .ngn stroke: canvas text can't take CSS, so this
+// draws the text normally, then strokes it once more on top to thicken it —
+// same reasoning as .ngn in global.css.
+function fillTextBold(ctx, text, x, y) {
+  ctx.fillText(text, x, y);
+  const sizeMatch = /([\d.]+)px/.exec(ctx.font);
+  const size = sizeMatch ? parseFloat(sizeMatch[1]) : 10;
+  ctx.save();
+  ctx.lineWidth = Math.max(0.5, size * 0.035);
+  ctx.strokeStyle = ctx.fillStyle;
+  ctx.strokeText(text, x, y);
+  ctx.restore();
+}
 
 function paybackMonth(years) {
   const now = new Date();
@@ -378,7 +394,7 @@ function drawCashflowCanvas(savings) {
   tickValues.forEach(val => {
     const y = toY(val);
     if (y < PADT - 4 || y > PADT + ch + 4) return;
-    ctx.fillText(fmt(val), PADL - 7, y + 3.5);
+    fillTextBold(ctx, fmt(val), PADL - 7, y + 3.5);
   });
 
   ctx.strokeStyle = '#E5E7EB';
@@ -529,7 +545,7 @@ function drawCashflowCanvas(savings) {
   ctx.fillText('Lifetime savings', lx, last.y - 3);
   ctx.font      = 'bold 9.5px Outfit, sans-serif';
   ctx.fillStyle = '#6B7280';
-  ctx.fillText((savings.lifetime_savings > 0 ? '+' : '') + fmtA(savings.lifetime_savings), lx, last.y + 9);
+  fillTextBold(ctx, (savings.lifetime_savings > 0 ? '+' : '') + fmtA(savings.lifetime_savings), lx, last.y + 9);
 
   // Bottom: system cost — at year-0 starting point
   ctx.setLineDash([3, 5]);
@@ -540,7 +556,7 @@ function drawCashflowCanvas(savings) {
   ctx.fillText('Est. System Cost', lx, points[0].y - 3);
   ctx.font      = 'bold 9.5px Outfit, sans-serif';
   ctx.fillStyle = '#6B7280';
-  ctx.fillText(fmtA(savings.total_system_cost), lx, points[0].y + 9);
+  fillTextBold(ctx, fmtA(savings.total_system_cost), lx, points[0].y + 9);
 
   ctx.restore();
 
@@ -559,7 +575,7 @@ function drawCashflowCanvas(savings) {
       tooltip.style.left    = (closest.x + 10) + 'px';
       tooltip.style.top     = Math.max(4, closest.y - 48) + 'px';
       tooltip.style.display = 'block';
-      tooltip.innerHTML = `<div>Year ${closest.year}: ${sign}${(v => '₦' + Number(v).toLocaleString('en-NG'))(closest.cumulative)}</div>`;
+      tooltip.innerHTML = `<div>Year ${closest.year}: ${sign}${(v => '<span class="ngn">₦</span>' + Number(v).toLocaleString('en-NG'))(closest.cumulative)}</div>`;
     } else {
       tooltip.style.display = 'none';
     }
@@ -617,7 +633,7 @@ function drawComparison(savings) {
         meta.data.forEach((bar, i) => {
           const val = data.datasets[0].data[i];
           c.fillStyle = '#374151';
-          c.fillText('₦' + Number(val).toLocaleString('en-NG'), bar.x, bar.y - 4);
+          fillTextBold(c, '₦' + Number(val).toLocaleString('en-NG'), bar.x, bar.y - 4);
         });
         c.restore();
       },

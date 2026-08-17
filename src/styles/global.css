@@ -17,6 +17,24 @@ button, input, select, textarea {
 
 .hidden { display: none !important; }
 
+/* The Naira Sign (₦) glyph is pinned to a single thin weight inside every
+   mainstream webfont (confirmed across ten major Google Fonts), unlike the
+   digits beside it, which bold correctly. Rather than substituting a
+   hand-built symbol, we keep the real ₦ character and just thicken it with
+   a thin outline — an em-based width so it scales with font-size, tracking
+   the current text color automatically. Wrap just the symbol in <span
+   class="ngn"> wherever it's mixed with other text (used via innerHTML).
+   Never put it inside an <input> — form controls have their own font
+   fallback behavior for glyphs outside the basic character set that
+   doesn't reliably honor the page's font-family, even though the exact
+   same CSS renders it correctly in a sibling <span> (confirmed directly:
+   the wizard slider's bubble showed the ₦ in a fallback serif font while
+   the tick labels right below it, same page, same font stack, rendered
+   correctly — the editable input is what breaks it, not the CSS). */
+.ngn {
+  -webkit-text-stroke: 0.035em currentColor;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;

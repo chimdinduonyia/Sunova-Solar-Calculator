@@ -1,3 +1,22 @@
+/* Google Fonts serves 'Outfit' as several subset files split by unicode
+   range, and the Naira Sign (₦, U+20A6) lives in a secondary "latin-ext"
+   file — a separate network request from the "latin" subset carrying the
+   rest of the UI's text. If that request is ever blocked (corporate
+   network, ad-blocker, DNS filtering, etc.) while the "latin" subset still
+   loads fine, ₦ silently falls all the way through to a system fallback
+   font while everything else on the page looks completely normal — which
+   is indistinguishable, at a glance, from "the font just doesn't apply."
+   Self-hosting this one glyph, same-origin, removes that failure mode
+   entirely: it always loads with the rest of the app's own assets. */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/outfit-currency-glyphs.woff2') format('woff2');
+  unicode-range: U+20A6;
+}
+
 :root {
   --color-primary: #FCBF1E;
   --color-primary-dark: #D9A100;

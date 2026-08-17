@@ -74,7 +74,7 @@ function renderContent(container, navigate, isAutonomy) {
         Check the appliances you want solar to cover
         &nbsp;<span id="solar-selection-indicator" style="color:var(--color-text-muted);font-weight:400">(${activeNames.size}/${appliances.length} selected)</span>
       </div>
-      <div class="interactive-profile">
+      <div class="interactive-profile ${isAutonomy ? '' : 'interactive-profile--compact'}">
         ${appliances.map(a => `
           <div class="profile-appliance-row js-profile-row" data-name="${escAttr(a.name)}" style="cursor:pointer;user-select:none">
             <div class="checkbox ${activeNames.has(a.name) ? 'checked' : ''}"></div>

@@ -350,11 +350,16 @@
    card far past the left column's chart + reliance stack, throwing the
    two-column layout out of alignment. Anything past the 5th appliance is
    still reachable by scrolling inside the list; the "Update Appliances"
-   button sits fixed just below it either way. */
+   button sits fixed just below it either way. This is the default (used by
+   the Energy Independence / autonomy persona); the savings persona uses the
+   tighter 4-row --compact variant below. */
 .interactive-profile {
   padding: var(--spacing-4);
   max-height: calc(2 * var(--spacing-4) + 5 * 57px);
   overflow-y: auto;
+}
+.interactive-profile--compact {
+  max-height: calc(2 * var(--spacing-4) + 4 * 57px);
 }
 .profile-appliance-row {
   display: flex; align-items: center; gap: 10px;

@@ -1,8 +1,9 @@
 // ── Confirmed constants ───────────────────────────────────────────────
-const PV_COST_PER_KWP         = 260000;
-const BATTERY_COST_PER_KWH    = 280000;
+const PV_COST_PER_KWP         = 220000;
+const BATTERY_COST_PER_KWH    = 250000;
 const INVERTER_COST_PER_KVA   = 200000;
-const BOS_FACTOR              = 0.15;
+const BOS_FACTOR              = 0.10;
+const LABOUR_FACTOR           = 0.05;
 const BATTERY_LIFESPAN_YEARS  = 10;
 const DESIGN_LIFE_YEARS       = 25;
 const PANEL_DEGRADATION       = 0.005;
@@ -82,7 +83,8 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
     inverterKVA            * INVERTER_COST_PER_KVA
   );
   const bos_cost          = Math.round(equipment_cost * BOS_FACTOR);
-  const total_system_cost = equipment_cost + bos_cost;
+  const labour_cost       = Math.round(equipment_cost * LABOUR_FACTOR);
+  const total_system_cost = equipment_cost + bos_cost + labour_cost;
 
   const isWithinBudget  = userBudget > 0 ? total_system_cost <= userBudget : true;
   const budgetSurplus   = Math.max(0, userBudget - total_system_cost);
@@ -238,6 +240,7 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
     total_system_cost,
     equipment_cost,
     bos_cost,
+    labour_cost,
     isWithinBudget,
     budgetSurplus,
     budgetShortfall,

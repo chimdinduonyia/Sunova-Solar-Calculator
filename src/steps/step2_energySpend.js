@@ -29,10 +29,15 @@ const SOURCES = [
   { id: 'generator_only', emoji: GEN_SVG,   name: 'Generator Only',   desc: 'No grid, I run a generator for power' },
 ];
 
+// Four tiers instead of three: "Heavy" shares the same petrol-generator form
+// factor as "Standard" (real 7–10 kVA units still look like a regular
+// gasoline genset, not a soundproofed diesel cabinet) — only "Extra-large"
+// steps up to the big silent-diesel form factor.
 const GEN_CARDS = [
-  { id: 'small',  emoji: GEN_SVG_SMALL,  label: 'I better pass my neighbour', name: 'Small (1–2 KVA)' },
-  { id: 'medium', emoji: GEN_SVG_MEDIUM, label: 'Gasoline generator',          name: 'Medium (3–5 KVA)' },
-  { id: 'large',  emoji: GEN_SVG_LARGE,  label: 'Silent diesel generator',     name: 'Large (6–10 KVA)' }
+  { id: 'basic',    emoji: GEN_SVG_SMALL,  label: 'I better pass my neighbour',    name: 'Basic (0.7–2 KVA)' },
+  { id: 'standard', emoji: GEN_SVG_MEDIUM, label: 'Petrol generator',              name: 'Standard (2.5–6 KVA)' },
+  { id: 'heavy',    emoji: GEN_SVG_MEDIUM, label: 'Petrol / diesel generator',     name: 'Heavy (7–10 KVA)' },
+  { id: 'xlarge',   emoji: GEN_SVG_LARGE,  label: 'Silent diesel generator',       name: 'Extra-large (10–20 KVA)' },
 ];
 
 export function renderStep2(container, navigate) {

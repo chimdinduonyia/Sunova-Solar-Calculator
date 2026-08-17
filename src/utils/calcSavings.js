@@ -13,13 +13,14 @@ const AGO_EMISSION_FACTOR     = 0.70;   // kgCO₂/kWh
 
 // Mirror calcLoad.js's resolveGenerator; keeps kWh/litre consistent across both utils
 const GEN_SIZE_MAP = {
-  small:  { types: ['Small Portable'],          preferFuel: 'PMS', defaultKwh: 2.27 },
-  medium: { types: ['Mid-size'],                preferFuel: 'PMS', defaultKwh: 3.38 },
-  large:  { types: ['Mid-size', 'Large Home'],  preferFuel: 'AGO', defaultKwh: 3.71 },
+  basic:    { types: ['Basic'],       preferFuel: 'PMS', defaultKwh: 1.18 },
+  standard: { types: ['Standard'],    preferFuel: 'PMS', defaultKwh: 1.67 },
+  heavy:    { types: ['Heavy'],       preferFuel: 'PMS', defaultKwh: 2.00 },
+  xlarge:   { types: ['Extra-large'], preferFuel: 'AGO', defaultKwh: 2.86 },
 };
 
 function resolveGenerator(generatorSize, genData) {
-  const mapping = GEN_SIZE_MAP[generatorSize] || GEN_SIZE_MAP.medium;
+  const mapping = GEN_SIZE_MAP[generatorSize] || GEN_SIZE_MAP.standard;
   const data = genData || [];
   let candidates = data.filter(g =>
     mapping.types.includes(g.type) && g.fuel_type.includes(mapping.preferFuel)
@@ -272,9 +273,23 @@ export function calcSavings({ load, solar, battery, dispatch, tariffData, fuelPr
     // Pre-solar energy mix shares (used internally for blended cost; NOT for spend breakdown)
     grid_share:      parseFloat(grid_share.toFixed(3)),
     gen_share:       parseFloat(gen_share.toFixed(3)),
-    // Actual pre-solar monthly spend by source (straight from user inputs)
-    grid_monthly_spend: state.powerSource !== 'generator_only' ? (state.gridSpend || 0) : 0,
-    gen_monthly_spend:  state.powerSource !== 'grid_only'      ? (state.fuelSpend || 0) : 0,
+    // "Before" spend by source: once appliances are the authoritative load
+    // basis, scope this to what those appliances actually draw rather than
+    // pinning it to the raw wizard bill — otherwise adding/removing
+    // appliances wouldn't move the "before" side of the comparison at all.
+    grid_monthly_spend: state.powerSource !== 'generator_only'
+      ? (load.usingApplianceData ? Math.round(dailyGridKWh * tariff_naira_per_kwh * 30) : (state.gridSpend || 0))
+      : 0,
+    gen_monthly_spend: state.powerSource !== 'grid_only'
+      ? (load.usingApplianceData ? Math.round(dailyGenKWh * gen_cost_per_kwh * 30) : (state.fuelSpend || 0))
+      : 0,
+
+    // "After" spend by source, and the energy-only total — deliberately
+    // excludes the solar system's own cost (LCOE) so a fully off-grid setup
+    // correctly shows ₦0 rather than a blended LCOE figure.
+    grid_after_monthly: Math.round(grid_fraction * tariff_naira_per_kwh * monthlyKWh),
+    gen_after_monthly:  Math.round(gen_fraction  * gen_cost_per_kwh   * monthlyKWh),
+    post_solar_energy_only_monthly,
 
     // Cash flow
     cashflow,

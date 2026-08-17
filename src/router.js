@@ -4,6 +4,7 @@ import { renderStep3 } from './steps/step6_goals.js';
 import { renderLoadProfile }   from './results/loadProfile.js';
 import { renderSolarPVSystem } from './results/solarPVSystem.js';
 import { renderCostSavings }   from './results/costSavings.js';
+import { renderAddAppliances } from './results/addAppliances.js';
 import { computeResults } from './utils/computeResults.js';
 import { CTA_URL } from './config.js';
 import { openModal, bindModalClose, modalHtml } from './components/modal.js';
@@ -185,6 +186,15 @@ function render() {
     const r = { step1: renderStep1, step2: renderStep2, step3: renderStep3 };
     r[_current](container, navigate);
     document.querySelector('.right-panel').scrollTop = 0;
+  } else if (_current === 'addAppliances') {
+    wizardLayout.classList.add('hidden');
+    resultsLayout.classList.remove('hidden');
+    renderResultsNav();
+    bindMobileNav();
+    const container = document.getElementById('results-content');
+    container.innerHTML = '';
+    renderAddAppliances(container, navigate);
+    requestAnimationFrame(() => { container.scrollTop = 0; });
   }
 }
 

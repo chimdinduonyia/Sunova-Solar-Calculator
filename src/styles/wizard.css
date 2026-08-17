@@ -818,6 +818,32 @@ input[type=range].sunova-slider::-moz-range-thumb {
 
 .gantt-select:focus { border-color: var(--color-primary); }
 
+/* ── Live consumption/peak-demand readout, above the timeline ── */
+.gantt-summary {
+  display: flex;
+  gap: 28px;
+  padding: 14px 20px;
+  background: var(--color-primary-bg);
+  border-bottom: 1px solid var(--color-border-light);
+}
+.gantt-summary__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.gantt-summary__label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.gantt-summary__value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
 .gantt-timeline-header {
   display: flex;
   align-items: center;

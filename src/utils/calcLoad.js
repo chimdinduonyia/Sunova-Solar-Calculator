@@ -19,6 +19,8 @@ export function calcLoad(state, tariffData, fuelPricesData, genEfficiencyData) {
     generatorSize,
     powerSource,
     location,
+    appliances,
+    customSchedule,
   } = state;
 
   // ── STEP 1: BILL-BASED TOTAL DAILY kWh ──────────────────────────────
@@ -39,16 +41,49 @@ export function calcLoad(state, tariffData, fuelPricesData, genEfficiencyData) {
     }
   }
 
-  const totalDailyKWh = Math.max(1, dailyGridKWh + dailyGenKWh);
+  const billTotalDailyKWh = Math.max(1, dailyGridKWh + dailyGenKWh);
 
-  // ── STEP 2: TYPICAL HOURLY PROFILE ─────────────────────────────────
+  // ── STEP 2: TYPICAL HOURLY PROFILE (bill-based fallback/baseline) ──
   // Scale the Nigerian residential typical pattern to bill-derived daily kWh.
   // peakKW at hour 19 ≈ totalDailyKWh / 6.93 (load factor ≈ 0.29).
 
-  const scale = totalDailyKWh / TYPICAL_PROFILE_SUM;
-  const hourlyProfile = TYPICAL_PROFILE.map(c => parseFloat((c * scale).toFixed(3)));
-  const peakHour = 19;
-  const peakKW = parseFloat(hourlyProfile[peakHour].toFixed(2));
+  const scale = billTotalDailyKWh / TYPICAL_PROFILE_SUM;
+  const typicalHourlyProfile = TYPICAL_PROFILE.map(c => parseFloat((c * scale).toFixed(3)));
+
+  // ── STEP 3: BOTTOM-UP APPLIANCE OVERRIDE ────────────────────────────
+  // When the user has picked specific appliances and a duty-cycle schedule
+  // (via the appliance selector + Gantt), that becomes the authoritative
+  // basis for load — it reflects exactly what they intend to run on solar,
+  // rather than an inferred share of their whole electricity bill.
+  let totalDailyKWh = billTotalDailyKWh;
+  let hourlyProfile = typicalHourlyProfile;
+  let usingApplianceData = false;
+  let confidence = null;
+
+  if (appliances?.length > 0 && customSchedule?.length > 0) {
+    const gantt = computeGanttProfile(customSchedule, appliances);
+    if (gantt.total > 0) {
+      totalDailyKWh = gantt.total;
+      hourlyProfile = gantt.hourly.map(v => parseFloat(v.toFixed(3)));
+      usingApplianceData = true;
+
+      // Bill-derived grid/generator split still holds proportionally — rescale
+      // it to the appliance-derived total so calcSavings' grid/gen share math
+      // (and the "before" cost bar) reflects the appliances actually chosen.
+      const rescale = billTotalDailyKWh > 0 ? totalDailyKWh / billTotalDailyKWh : 1;
+      dailyGridKWh *= rescale;
+      dailyGenKWh  *= rescale;
+
+      // Confidence: how closely the appliance-derived total tracks the bill estimate.
+      const variance = billTotalDailyKWh > 0
+        ? Math.abs(totalDailyKWh - billTotalDailyKWh) / billTotalDailyKWh
+        : 1;
+      confidence = variance <= 0.25 ? 'High' : variance <= 0.60 ? 'Medium' : 'Low';
+    }
+  }
+
+  const peakHour = hourlyProfile.reduce((best, v, h) => v > hourlyProfile[best] ? h : best, 0);
+  const peakKW   = parseFloat(hourlyProfile[peakHour].toFixed(2));
 
   return {
     totalDailyKWh:  parseFloat(totalDailyKWh.toFixed(2)),
@@ -58,31 +93,76 @@ export function calcLoad(state, tariffData, fuelPricesData, genEfficiencyData) {
     peakHour,
     peakKW,
     monthlyKWh: parseFloat((totalDailyKWh * 30).toFixed(1)),
+    usingApplianceData,
+    confidence,
+    // Always the bill-derived total, regardless of appliance selection — the
+    // Load Summary page reads these so it keeps describing the whole home's
+    // actual consumption, not just whatever subset is being solarized.
+    billTotalDailyKWh: parseFloat(billTotalDailyKWh.toFixed(2)),
+    billMonthlyKWh:    parseFloat((billTotalDailyKWh * 30).toFixed(1)),
   };
+}
+
+// Sum an appliance's rated draw across every hour it overlaps its Gantt
+// segments, producing a 24-slot kW profile and its daily kWh total.
+// Exported so the Gantt editor can show a live consumption/peak-demand
+// summary without duplicating this math.
+export function computeGanttProfile(customSchedule, appliances) {
+  const applianceMap = Object.fromEntries(appliances.map(a => [a.name, a]));
+  const hourly = new Array(24).fill(0);
+
+  customSchedule.forEach(row => {
+    const app = applianceMap[row.name];
+    if (!app || !row.segments?.length) return;
+    const kw = (app.rated_watts * (app.qty || 1)) / 1000;
+    for (let h = 0; h < 24; h++) {
+      const frac = hourOverlapFraction(h, row.segments);
+      if (frac > 0) hourly[h] += kw * frac;
+    }
+  });
+
+  const total = hourly.reduce((s, v) => s + v, 0);
+  return { hourly, total };
+}
+
+// Fraction of hour [h, h+1) covered by any of the given {start,end} segments.
+function hourOverlapFraction(hour, segments) {
+  let covered = 0;
+  for (const seg of segments) {
+    const overlap = Math.min(hour + 1, seg.end) - Math.max(hour, seg.start);
+    if (overlap > 0) covered += overlap;
+  }
+  return Math.min(1, covered);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
+// Four tiers instead of three: "Heavy" shares the same petrol-generator form
+// factor as "Standard" (real 7–10 kVA units still look like a regular
+// gasoline genset, not a soundproofed diesel cabinet) — only "Extra-large"
+// steps up to the big silent-diesel form factor. See generator_efficiency.json.
 function resolveGenerator(generatorSize, genEfficiencyData) {
   const defaults = {
-    small:  { fuelTypeStr: 'PMS', kwhPerLitre: 2.27 },
-    medium: { fuelTypeStr: 'PMS', kwhPerLitre: 3.38 },
-    large:  { fuelTypeStr: 'AGO', kwhPerLitre: 3.71 },
+    basic:    { fuelTypeStr: 'PMS', kwhPerLitre: 1.18 },
+    standard: { fuelTypeStr: 'PMS', kwhPerLitre: 1.67 },
+    heavy:    { fuelTypeStr: 'PMS', kwhPerLitre: 2.00 },
+    xlarge:   { fuelTypeStr: 'AGO', kwhPerLitre: 2.86 },
   };
   if (!genEfficiencyData || genEfficiencyData.length === 0) {
-    return defaults[generatorSize] || defaults.medium;
+    return defaults[generatorSize] || defaults.standard;
   }
   const sizeMap = {
-    small:  { types: ['Small Portable'],         preferFuel: 'PMS' },
-    medium: { types: ['Mid-size'],               preferFuel: 'PMS' },
-    large:  { types: ['Mid-size', 'Large Home'], preferFuel: 'AGO' },
+    basic:    { types: ['Basic'],       preferFuel: 'PMS' },
+    standard: { types: ['Standard'],    preferFuel: 'PMS' },
+    heavy:    { types: ['Heavy'],       preferFuel: 'PMS' },
+    xlarge:   { types: ['Extra-large'], preferFuel: 'AGO' },
   };
-  const mapping = sizeMap[generatorSize] || sizeMap.medium;
+  const mapping = sizeMap[generatorSize] || sizeMap.standard;
   let candidates = genEfficiencyData.filter(g =>
     mapping.types.includes(g.type) && g.fuel_type.includes(mapping.preferFuel)
   );
   if (!candidates.length) candidates = genEfficiencyData.filter(g => mapping.types.includes(g.type));
-  if (!candidates.length) return defaults[generatorSize] || defaults.medium;
+  if (!candidates.length) return defaults[generatorSize] || defaults.standard;
   const kwhPerLitre = candidates.reduce((s, g) => s + g.kwh_per_litre, 0) / candidates.length;
   return { fuelTypeStr: mapping.preferFuel, kwhPerLitre };
 }

@@ -10,6 +10,20 @@ const _state = {
   reportPersona: null,   // 'savings' | 'autonomy'
   budget: 1500000,
   results: null,
+
+  // Appliance selection (optional bottom-up load basis — overrides the
+  // bill-based estimate when populated; see calcLoad.js)
+  appliances: [],        // [{name, category, rated_watts, typical_daily_hours, daily_wh, qty}]
+  customSchedule: null,  // [{name, category, segments: [{start, end}]}] — Gantt duty cycle per appliance
+  usagePattern: null,    // last-selected preset name from usage_patterns.json
+  houseType: null,       // 'bungalow' | 'duplex' | 'terrace'
+  rooms: 0,               // number of bedrooms (scales default LED bulb count)
+  solarAppliances: null,  // Set/array of names, or null = everything — Interactive Profile's live subset filter
+  // Which version of the smart report to compute/show once appliances exist:
+  // 'full' = whole-home load, ignoring added appliances entirely
+  // 'essentials' = scoped to the added/selected appliances only
+  reportBasis: 'essentials',
+
   _data: {}
 };
 

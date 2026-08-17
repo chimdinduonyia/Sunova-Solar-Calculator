@@ -23,7 +23,7 @@ function renderApplianceModal(applianceData, selectedAppliances) {
         <div class="appliance-modal-row__img-placeholder">${getCategoryEmoji(a.category)}</div>
         <div style="flex:1">
           <div class="appliance-modal-row__name">${a.name}</div>
-          <div class="appliance-modal-row__watts">${a.rated_watts}W · ${a.typical_daily_hours}h/day</div>
+          <div class="appliance-modal-row__watts">${a.rated_watts}W</div>
         </div>
         <div class="counter" data-name="${escAttr(a.name)}">
           <button class="counter__btn" data-action="dec">−</button>
@@ -43,20 +43,71 @@ function renderApplianceModal(applianceData, selectedAppliances) {
 }
 
 
-// Bungalow: 9 rooms, Duplex: 14 rooms, Terrace: 20 rooms
-const DEFAULT_ROOMS = { bungalow: 9, duplex: 14, terrace: 20 };
-// 3 bulbs per room: 2 x 9W + 1 x 15W
-const BULBS_PER_ROOM = { '9W': 2, '15W': 1 };
+// "Rooms" means bedrooms — the one figure the user adjusts directly via the
+// +/- counter. Parlours and kitchens are fixed per house type; bathrooms are
+// derived from the bedroom count (see bathroomsFor). Defaults seed the
+// counter the moment a house type is picked, before any manual adjustment.
+const DEFAULT_BEDROOMS = { bungalow: 3, duplex: 5, terrace: 8 };
 
-function buildHousePreselection(houseType, rooms, houseDefaults) {
+const HOUSE_LAYOUT = {
+  bungalow: { parlours: 1, kitchens: 1 },
+  duplex:   { parlours: 2, kitchens: 1 },
+  terrace:  { parlours: 2, kitchens: 2 },  // twice the bungalow's parlours & kitchens
+};
+
+// Bathrooms assumed from bedrooms: one en-suite per bedroom (standard for
+// mid/upper Nigerian residential builds) plus one shared guest toilet off
+// the parlour — a common, defensible baseline rather than a fixed count.
+function bathroomsFor(bedrooms) {
+  return Math.max(1, bedrooms) + 1;
+}
+
+function houseLayoutFor(houseType, bedrooms) {
+  const layout = HOUSE_LAYOUT[houseType] || HOUSE_LAYOUT.bungalow;
+  return { ...layout, bedrooms, bathrooms: bathroomsFor(bedrooms) };
+}
+
+// Lighting points per space — a "point" is one fixture/switch position.
+// Bedrooms and kitchens get a modest ambient+task pairing; the parlour (the
+// largest, most-used space) gets the most coverage; bathrooms get a single
+// fixture. This mirrors typical Nigerian residential wiring practice and
+// replaces the old flat "3 bulbs per generic room" assumption.
+const LIGHTING_POINTS = {
+  bedroom:  { '9W': 2, '15W': 0 },  // ceiling + reading/wall light
+  parlour:  { '9W': 2, '15W': 1 },  // ambient + brighter accent, larger area
+  kitchen:  { '9W': 1, '15W': 1 },  // general + brighter task/hood light
+  bathroom: { '9W': 1, '15W': 0 },  // single fixture, small space
+};
+
+function computeLightingCounts(houseType, bedrooms) {
+  const { parlours, kitchens, bathrooms } = houseLayoutFor(houseType, bedrooms);
+  const spaces = { bedroom: bedrooms, parlour: parlours, kitchen: kitchens, bathroom: bathrooms };
+  let w9 = 0, w15 = 0;
+  for (const [space, count] of Object.entries(spaces)) {
+    const pts = LIGHTING_POINTS[space];
+    w9  += count * pts['9W'];
+    w15 += count * pts['15W'];
+  }
+  return { w9, w15 };
+}
+
+function roomsTooltipText(houseType) {
+  const { parlours, kitchens } = HOUSE_LAYOUT[houseType] || HOUSE_LAYOUT.bungalow;
+  const p = parlours === 1 ? 'parlour' : 'parlours';
+  const k = kitchens === 1 ? 'kitchen' : 'kitchens';
+  return `"Rooms" means bedrooms. For this house type we assume ${parlours} ${p} and ${kitchens} ${k}, plus one en-suite bathroom per bedroom and a shared guest toilet. Together these drive our lighting-point estimate below.`;
+}
+
+function buildHousePreselection(houseType, bedrooms, houseDefaults) {
   const base = (houseDefaults[houseType] || []).filter(
     a => !a.name.startsWith('LED Bulb')
   );
-  const r = (rooms && rooms > 0) ? rooms : (DEFAULT_ROOMS[houseType] || 9);
+  const r = (bedrooms && bedrooms > 0) ? bedrooms : (DEFAULT_BEDROOMS[houseType] || DEFAULT_BEDROOMS.bungalow);
+  const { w9, w15 } = computeLightingCounts(houseType, r);
   return [
     ...base,
-    { name: 'LED Bulb (9W)',  qty: r * BULBS_PER_ROOM['9W']  },
-    { name: 'LED Bulb (15W)', qty: r * BULBS_PER_ROOM['15W'] },
+    { name: 'LED Bulb (9W)',  qty: w9 },
+    { name: 'LED Bulb (15W)', qty: w15 },
   ];
 }
 
@@ -93,6 +144,10 @@ export function renderAddAppliances(container, navigate) {
               ${s.houseType === h.id ? `
                 <div class="rooms-counter">
                   <span class="rooms-counter__label">Rooms</span>
+                  <span class="confidence-tooltip-wrap">
+                    <button class="confidence-tooltip-btn" type="button">?</button>
+                    <span class="confidence-tooltip-box">${roomsTooltipText(h.id)}</span>
+                  </span>
                   <button class="rooms-counter__btn" id="rooms-dec">–</button>
                   <span class="rooms-counter__val" id="rooms-val">${s.rooms}</span>
                   <button class="rooms-counter__btn" id="rooms-inc">+</button>
@@ -135,24 +190,41 @@ export function renderAddAppliances(container, navigate) {
     document.getElementById('done-btn').addEventListener('click', () => {
       if (_ganttCleanup) { _ganttCleanup(); _ganttCleanup = null; }
       computeResults();
-      navigate('solarPVSystem');
+      // Land back at the top of the report (Cost Savings, the first scroll
+      // section) rather than jumping down to Solar PV System at the bottom.
+      navigate('costSavings');
     });
 
     document.querySelectorAll('#house-type-cards .radio-card').forEach(card => {
       card.addEventListener('click', e => {
         if (e.target.closest('.rooms-counter')) return;
-        setState({ houseType: card.dataset.value });
+        const houseType = card.dataset.value;
+        // Seed the rooms (bedroom) counter with this house type's default —
+        // the user can then +/- adjust from there.
+        setState({ houseType, rooms: DEFAULT_BEDROOMS[houseType] || DEFAULT_BEDROOMS.bungalow });
         render();
       });
     });
 
     document.getElementById('rooms-dec')?.addEventListener('click', () => {
-      setState({ rooms: Math.max(0, getState().rooms - 1) });
+      setState({ rooms: Math.max(1, getState().rooms - 1) });
       document.getElementById('rooms-val').textContent = getState().rooms;
     });
     document.getElementById('rooms-inc')?.addEventListener('click', () => {
       setState({ rooms: getState().rooms + 1 });
       document.getElementById('rooms-val').textContent = getState().rooms;
+    });
+
+    document.querySelectorAll('.confidence-tooltip-wrap').forEach(wrap => {
+      wrap.querySelector('.confidence-tooltip-btn')?.addEventListener('click', e => {
+        e.stopPropagation();
+        const isOpen = wrap.classList.contains('is-open');
+        document.querySelectorAll('.confidence-tooltip-wrap.is-open').forEach(w => w.classList.remove('is-open'));
+        if (!isOpen) wrap.classList.add('is-open');
+      });
+    });
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.confidence-tooltip-wrap.is-open').forEach(w => w.classList.remove('is-open'));
     });
 
     document.querySelectorAll('.appliance-chip__remove').forEach(btn => {
@@ -199,6 +271,7 @@ export function renderAddAppliances(container, navigate) {
           counter.querySelector('.counter__val').textContent = selections[name].qty;
         } else {
           delete selections[name];
+          counter.querySelector('.counter__val').textContent = 0;
         }
       });
 
@@ -223,6 +296,13 @@ export function renderAddAppliances(container, navigate) {
         customSchedule: getState().customSchedule
           ? getState().customSchedule.filter(row => newNames.has(row.name))
           : null,
+        // Reset the Interactive Profile's live subset — default to "everything
+        // in the updated list is solarized" rather than carrying over a stale
+        // selection that may no longer match.
+        solarAppliances: null,
+        // Default back to the Essentials Only view whenever the appliance
+        // list changes — that's the whole point of updating it.
+        reportBasis: 'essentials',
       });
       closeModal();
       render();

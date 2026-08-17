@@ -1,4 +1,5 @@
 ﻿import { getState, setState, getData } from '../state.js';
+import { computeGanttProfile } from '../utils/calcLoad.js';
 
 const PATTERNS = ['Work From Home', 'Office Worker', 'Night Shift', 'Stay-at-Home', 'Student', 'Weekend'];
 
@@ -92,6 +93,19 @@ export function initGantt(containerId, appliances) {
 
   function saveState() {
     setState({ customSchedule: rows.map(r => ({ ...r, segments: r.segments.map(s => ({ ...s })) })) });
+    updateSummary();
+  }
+
+  // Live "total consumption / peak demand" readout derived from the current
+  // appliance set + duty schedule — recomputed on every edit so it always
+  // reflects what's actually laid out on the Gantt, not the bill estimate.
+  function updateSummary() {
+    const { hourly, total } = computeGanttProfile(rows, appliances);
+    const peakKW = hourly.length ? Math.max(...hourly) : 0;
+    const kwhEl  = container.querySelector('#gantt-summary-kwh');
+    const peakEl = container.querySelector('#gantt-summary-peak');
+    if (kwhEl)  kwhEl.textContent  = `${total.toFixed(2)} kWh/day`;
+    if (peakEl) peakEl.textContent = `${peakKW.toFixed(2)} kW`;
   }
 
   function renderRows() {
@@ -219,6 +233,16 @@ export function initGantt(containerId, appliances) {
           <select class="gantt-select" id="gantt-pattern-sel">
             ${PATTERNS.map(p => `<option value="${p}" ${selectedPattern === p ? 'selected' : ''}>${p}</option>`).join('')}
           </select>
+        </div>
+      </div>
+      <div class="gantt-summary">
+        <div class="gantt-summary__stat">
+          <span class="gantt-summary__label">Estimated Daily Consumption</span>
+          <span class="gantt-summary__value" id="gantt-summary-kwh">-- kWh/day</span>
+        </div>
+        <div class="gantt-summary__stat">
+          <span class="gantt-summary__label">Peak Demand</span>
+          <span class="gantt-summary__value" id="gantt-summary-peak">-- kW</span>
         </div>
       </div>
       <div class="gantt-timeline-header">

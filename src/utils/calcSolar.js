@@ -1,5 +1,4 @@
-const PANEL_WATT        = 585;    // W per panel, Jinko Solar 585W Mono PERC Half-Cell
-const PERF_RATIO        = 0.75;   // system performance ratio (PR)
+const PANEL_WATT        = 620;    // W per panel
 const POWER_FACTOR      = 0.80;   // inverter power factor
 const SURGE_FACTOR      = 1.25;   // motor startup surge headroom (AC, fridge, pump)
 const INST_M2_PER_KWP   = 6.5;   // installation area per kWp
@@ -52,8 +51,11 @@ export function calcSolar(load, location, goal = null, batteryKWh = 0) {
   }
   const effectiveDailyKWh = daytimeKWh + nighttimeSolarKWh;
 
-  // Method 1: peak sun hours
-  const pvKWp_method1 = effectiveDailyKWh / (psh * PERF_RATIO);
+  // Method 1: peak sun hours. No performance-ratio derate here — the
+  // Global Solar Atlas irradiance figures (psh, annualYield) already embed
+  // real-world performance losses, so applying PERF_RATIO on top of them
+  // would double-count that derate.
+  const pvKWp_method1 = effectiveDailyKWh / psh;
 
   // Method 2: annual yield
   const pvKWp_method2 = (effectiveDailyKWh * 365) / annualYield;
@@ -80,7 +82,7 @@ export function calcSolar(load, location, goal = null, batteryKWh = 0) {
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const monthly_gen = months.map(m => ({
     month: m,
-    kwh: Math.round(pvKWp_actual * (location?.monthly?.[m.toLowerCase()] || psh) * 30 * PERF_RATIO)
+    kwh: Math.round(pvKWp_actual * (location?.monthly?.[m.toLowerCase()] || psh) * 30)
   }));
 
   return {

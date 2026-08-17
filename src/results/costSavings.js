@@ -1,4 +1,7 @@
-import { getState } from '../state.js';
+import { getState, setState } from '../state.js';
+import { computeResults } from '../utils/computeResults.js';
+import { renderLoadProfile } from './loadProfile.js';
+import { renderSolarPVSystem } from './solarPVSystem.js';
 
 // Wrapped so .ngn (global.css) can thicken the ₦ glyph to match the bold
 // digits beside it — no mainstream webfont bolds that character correctly.
@@ -30,6 +33,22 @@ export function renderCostSavings(container, navigate) {
   if (!state.results) { navigate('step1'); return; }
   const { savings, battery, inverter_battery_only: invBattOnly } = state.results;
   const isAutonomy = state.reportPersona === 'autonomy';
+
+  // Smart-report toggle: once appliances exist, let the user flip between
+  // sizing/savings for the whole home ("Full Load") and just the appliances
+  // they picked ("Sel. Appliances" / reportBasis: 'essentials'). Hidden
+  // entirely until appliances exist.
+  const hasAppliances = state.appliances && state.appliances.length > 0;
+  const reportBasis    = state.reportBasis === 'full' ? 'full' : 'essentials';
+  const reportBasisToggle = hasAppliances ? `
+    <div class="report-basis-toggle" data-active="${reportBasis}">
+      <button class="report-basis-toggle__label" data-value="full" type="button">Full Load</button>
+      <span class="report-basis-toggle__switch" data-value="essentials">
+        <span class="report-basis-toggle__thumb"></span>
+      </span>
+      <button class="report-basis-toggle__label" data-value="essentials" type="button" title="Selected Appliances">Sel. Appliances</button>
+    </div>
+  ` : '';
 
   const tip = text => `<span class="confidence-tooltip-wrap" style="display:inline-flex;vertical-align:middle;margin-left:4px"><button class="confidence-tooltip-btn" type="button">?</button><span class="confidence-tooltip-box">${text}</span></span>`;
 
@@ -87,11 +106,12 @@ export function renderCostSavings(container, navigate) {
     </div>`;
 
   // ── Cost comparison breakdown rows ─────────────────────────────────────────
+  // "After" is what's still paid to grid/generator once solar covers its
+  // share — it deliberately excludes the solar system's own cost, so a fully
+  // off-grid setup correctly shows ₦0 rather than a blended LCOE figure.
   const compareBreakdown = () => {
-    const psb = savings.post_solar_blended_cost || 1;
-    const solar_after = Math.round((savings.solar_fraction * savings.LCOE) / psb * savings.post_solar_monthly_cost);
-    const gen_after   = Math.round((savings.gen_fraction * savings.gen_cost_per_kwh) / psb * savings.post_solar_monthly_cost);
-    const grid_after  = savings.post_solar_monthly_cost - solar_after - gen_after;
+    const grid_after  = savings.grid_after_monthly || 0;
+    const gen_after   = savings.gen_after_monthly  || 0;
     const grid_before = savings.grid_monthly_spend || 0;
     const gen_before  = savings.gen_monthly_spend  || 0;
     const row = (label, before, after) => `
@@ -113,6 +133,7 @@ export function renderCostSavings(container, navigate) {
             <h2 style="font-size:32px;font-weight:800;margin-bottom:4px">${pageTitle}</h2>
             <p style="color:var(--color-text-secondary);font-size:16px">${pageSubtitle}</p>
           </div>
+          ${reportBasisToggle}
         </div>
 
         ${isAutonomy ? `
@@ -325,8 +346,38 @@ export function renderCostSavings(container, navigate) {
     document.querySelectorAll('.confidence-tooltip-wrap.is-open').forEach(w => w.classList.remove('is-open'));
   });
 
+  bindReportBasisToggle(container, navigate);
+
   if (!isAutonomy) drawCashflowCanvas(savings);
   drawComparison(savings);
+}
+
+// Switching Full Load ↔ Sel. Appliances recomputes the whole results object
+// on the new basis and re-renders all three scroll-mode sections in place,
+// so system specs, load profile and the money numbers all stay in sync.
+function bindReportBasisToggle(container, navigate) {
+  // The switch itself just flips to whatever the current state isn't; the two
+  // outer labels jump straight to the state they name.
+  container.querySelectorAll('.report-basis-toggle .report-basis-toggle__label, .report-basis-toggle .report-basis-toggle__switch').forEach(el => {
+    el.addEventListener('click', () => {
+      const current = getState().reportBasis || 'essentials';
+      const value = el.classList.contains('report-basis-toggle__switch')
+        ? (current === 'full' ? 'essentials' : 'full')
+        : el.dataset.value;
+      if (current === value) return;
+
+      setState({ reportBasis: value });
+      computeResults();
+
+      renderCostSavings(container, navigate);
+
+      const loadSection = document.getElementById('section-loadProfile');
+      if (loadSection) renderLoadProfile(loadSection, navigate);
+
+      const pvSection = document.getElementById('section-solarPVSystem');
+      if (pvSection) renderSolarPVSystem(pvSection, navigate);
+    });
+  });
 }
 
 function drawCashflowCanvas(savings) {
@@ -590,16 +641,23 @@ function drawComparison(savings) {
   // "Before" bar reflects what the user actually typed into the wizard
   // (grid + generator spend), not the modelled blended-tariff estimate.
   const beforeSpend = (savings.grid_monthly_spend || 0) + (savings.gen_monthly_spend || 0);
+  // "With Solar" bar is what's still paid to grid/generator after solar takes
+  // its share — not a blended figure that folds the solar system's own cost
+  // back in. A fully off-grid setup genuinely lands on ₦0 here.
+  const afterSpend = savings.post_solar_energy_only_monthly || 0;
 
   new Chart(ctx, {
     type: 'bar',
     data: {
       labels: [savings.current_label || 'Grid+Gen', savings.solar_label || 'With Solar'],
       datasets: [{
-        data: [beforeSpend, savings.post_solar_monthly_cost],
+        data: [beforeSpend, afterSpend],
         backgroundColor: ['#E74C3C', '#1B4F72'],
         borderRadius: 6,
         barThickness: 60,
+        // Keep a ₦0 bar visibly present (a thin sliver) instead of vanishing
+        // entirely — e.g. for a fully off-grid system.
+        minBarLength: 6,
       }],
     },
     options: {
@@ -616,7 +674,7 @@ function drawComparison(savings) {
         },
         y: {
           grid: { color: '#F3F4F6' },
-          suggestedMax: Math.max(beforeSpend, savings.post_solar_monthly_cost) * 1.4,
+          suggestedMax: Math.max(beforeSpend, afterSpend, 1) * 1.4,
           ticks: { font: { size: 10, family: 'Outfit, sans-serif' }, callback: v => `₦${(v / 1000).toFixed(0)}k` },
         },
       },

@@ -1,9 +1,17 @@
 import { getState, setState } from '../state.js';
 import { computeResults } from '../utils/computeResults.js';
+import { renderCostSavings } from './costSavings.js';
 import { CTA_URL } from '../config.js';
 
+const escAttr = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+
+function getCategoryEmoji(cat) {
+  const map = { Cooling: '❄️', Lighting: '💡', Kitchen: '🍳', Entertainment: '📺', 'ICT / Office': '💻', Laundry: '🫧', Water: '💧', Security: '🔒' };
+  return map[cat] || '🔌';
+}
+
 export function renderSolarPVSystem(container, navigate) {
-  const { results, reportPersona, backupHours: initBackupHours } = getState();
+  const { results, reportPersona } = getState();
   if (!results) { navigate('step1'); return; }
 
   const isAutonomy = reportPersona === 'autonomy';
@@ -12,7 +20,7 @@ export function renderSolarPVSystem(container, navigate) {
 }
 
 function renderContent(container, navigate, isAutonomy) {
-  const { results, backupHours } = getState();
+  const { results, backupHours, appliances, solarAppliances, reportBasis } = getState();
   const { solar, battery, dispatch, inverter_battery_only: invBattOnly } = results;
 
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -21,6 +29,14 @@ function renderContent(container, navigate, isAutonomy) {
                           : powerSource === 'generator_only' ? 'Generator Reliance'
                           :                                    'Grid Reliance (Grid + Gen)';
   const gridUseLabel      = powerSource === 'generator_only' ? 'generator' : 'grid';
+
+  const hasAppliances = appliances && appliances.length > 0;
+  // "Essentials Only" report view: appliances exist AND the smart-report
+  // toggle isn't set to "Full Load". The Interactive Profile card and the
+  // appliance-scoped layout only make sense in this view — "Full Load"
+  // shows the normal whole-home layout even once appliances have been added.
+  const essentialsView = hasAppliances && reportBasis !== 'full';
+  const activeNames = solarAppliances ? new Set(solarAppliances) : new Set(appliances.map(a => a.name));
 
   const tip = text => `<span class="confidence-tooltip-wrap" style="display:inline-flex;vertical-align:middle;margin-left:4px"><button class="confidence-tooltip-btn" type="button">?</button><span class="confidence-tooltip-box">${text}</span></span>`;
 
@@ -36,8 +52,78 @@ function renderContent(container, navigate, isAutonomy) {
         : 'Here are indicative specs for your solar home system');
 
   const solarKwpStr   = invBattOnly ? '--.-- kWp'         : `${solar.panel_kwp} kWp`;
-  const solarPanelStr = invBattOnly ? 'Capacity · -- panels' : `Capacity · ${solar.panel_count} panels`;
+  const solarPanelStr = invBattOnly ? 'Capacity · -- panels' : `Capacity · ${solar.panel_count} panels · ${solar.panelWattage} W`;
   const mountingStr   = invBattOnly ? '--.-- m²'           : `${solar.installation_m2} m²`;
+
+  // Shown under Backup Potential before any appliances are selected.
+  const appliancePromptBox = `
+    <div class="appliance-cta-box">
+      <div class="appliance-cta-box__title">Just need solar for the essentials?</div>
+      <div class="appliance-cta-box__desc">Pick exactly which appliances you want to run on solar and we'll resize your system to match.</div>
+      <button class="appliance-cta-box__btn" id="select-appliances-btn" type="button">Select Appliances</button>
+    </div>
+  `;
+
+  // Shown once appliances exist — a live checklist that resizes the system
+  // and recalculates savings as items are checked/unchecked, without leaving
+  // the report. Replaces the prompt box entirely once populated.
+  const interactiveProfileCard = `
+    <div class="card interactive-profile-card">
+      <div class="section-title" style="margin-bottom:4px">Interactive Profile</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:10px">
+        Check the appliances you want solar to cover
+        &nbsp;<span id="solar-selection-indicator" style="color:var(--color-text-muted);font-weight:400">(${activeNames.size}/${appliances.length} selected)</span>
+      </div>
+      <div class="interactive-profile">
+        ${appliances.map(a => `
+          <div class="profile-appliance-row js-profile-row" data-name="${escAttr(a.name)}" style="cursor:pointer;user-select:none">
+            <div class="checkbox ${activeNames.has(a.name) ? 'checked' : ''}"></div>
+            <div class="profile-appliance-row__img-placeholder">${getCategoryEmoji(a.category || '')}</div>
+            <span>${a.name}</span>
+            <span style="margin-left:auto;font-size:12px;color:var(--color-text-muted)">×${a.qty}</span>
+          </div>
+        `).join('')}
+      </div>
+      <button class="btn btn--outline btn--sm btn--full js-update-appliances" type="button" style="margin-top:14px">Update Appliances</button>
+    </div>
+  `;
+
+  const generationCard = `
+    <div class="card">
+      <div class="section-title" style="margin-bottom:4px">Projected Generation ${invBattOnly ? '' : `<span class="pill--amber">kWh</span>`}</div>
+      ${invBattOnly
+        ? `<div class="value value--amber" style="font-size:18px;font-weight:700;margin-bottom:12px">N/A (backup only)</div><p style="font-size:12px;color:var(--color-text-muted);line-height:1.6;margin:0">No solar panels in this configuration.</p>`
+        : `<div class="value value--amber" id="spec-annual-gen" style="font-size:18px;font-weight:700;margin-bottom:12px">${annualGenText(solar.annual_gen_kwh)}</div><canvas id="gen-chart" height="140"></canvas>`
+      }
+    </div>
+  `;
+
+  const storageDetailsCard = `
+    <div class="card">
+      <div class="section-title" style="margin-bottom:12px">Storage Details</div>
+      <div style="display:flex;gap:32px;margin-bottom:20px">
+        <div class="storage-stat"><div class="label">Capacity</div><div class="value value--amber" id="spec-storage-cap">${battery.storage_capacity} kWh</div></div>
+        <div class="storage-stat"><div class="label">Output</div><div class="value value--amber" id="spec-storage-out">${battery.storage_output.toFixed(2)} kW</div></div>
+      </div>
+      <div class="section-title" style="margin-bottom:10px">Backup Potential</div>
+      <div class="backup-potential">
+        <div class="backup-item"><div class="label">Essentials</div><div class="value value--amber" id="spec-backup-ess">${battery.backup_hours_essentials}hrs</div></div>
+        <div class="backup-item"><div class="label">Appliances</div><div class="value value--amber" id="spec-backup-app">${battery.backup_hours_appliances}hrs</div></div>
+        <div class="backup-item"><div class="label">Whole home</div><div class="value value--amber" id="spec-backup-home">${battery.backup_hours_whole_home}hrs</div></div>
+      </div>
+      ${!hasAppliances ? appliancePromptBox : ''}
+    </div>
+  `;
+
+  const gridRelianceInner = `
+    <div class="section-title" style="margin-bottom:12px">${gridRelianceLabel}</div>
+    <div style="display:flex;gap:32px;flex-wrap:wrap">
+      <div class="storage-stat"><div class="label">Before Solar</div><div class="value" style="color:var(--color-text-muted)">${Math.round(dispatch.gridReliance_before * 100)}%</div></div>
+      <div class="storage-stat"><div class="label">After Solar</div><div class="value value--amber" id="dispatch-reliance-after">${Math.round(dispatch.gridReliance_after * 100)}%</div></div>
+      <div class="storage-stat"><div class="label">Avg Daily ${gridUseLabel.charAt(0).toUpperCase() + gridUseLabel.slice(1)} Use</div><div class="value value--amber"><span style="color:var(--color-text-muted)">${dispatch.totalDemand.toFixed(1)}</span> → ${dispatch.avgDailyGridKWh} kWh</div></div>
+      <div class="storage-stat"><div class="label">Avg Daily Surplus</div><div class="value value--amber" id="dispatch-surplus">${dispatch.dailySurplusKWh} kWh</div></div>
+    </div>
+  `;
 
   container.innerHTML = `
     <div style="padding:40px 40px 60px">
@@ -93,10 +179,10 @@ function renderContent(container, navigate, isAutonomy) {
           </div>
         </div>
 
+        ${isAutonomy ? `
         <div class="storage-details">
-          <!-- Left: dispatch chart (autonomy) or gen chart (savings) -->
-          <div class="card">
-            ${isAutonomy ? `
+          <div style="display:flex;flex-direction:column;gap:24px">
+            <div class="card">
               <div style="font-size:15px;font-weight:700;margin-bottom:6px">A Day in Your Home</div>
               <div style="font-size:11px;color:#6B7280;display:flex;flex-wrap:wrap;gap:20px;margin-bottom:6px">
                 <span>${gridRelianceLabel} <strong id="dispatch-stat-reliance">${Math.round(dispatch.gridReliance_before * 100)}% → ${Math.round(dispatch.gridReliance_after * 100)}%</strong></span>
@@ -111,66 +197,31 @@ function renderContent(container, navigate, isAutonomy) {
                 <span style="display:flex;align-items:center;gap:5px;font-size:10px;color:#6B7280"><span style="width:12px;height:12px;background:#7DD3E8;border-radius:2px;display:inline-block"></span>Charging</span>
               </div>
               <canvas id="dispatch-chart" height="220"></canvas>
-            ` : `
-              <div class="section-title" style="margin-bottom:4px">Projected Generation ${invBattOnly ? '' : `<span class="pill--amber">kWh</span>`}</div>
-              ${invBattOnly
-                ? `<div class="value value--amber" style="font-size:18px;font-weight:700;margin-bottom:12px">N/A (backup only)</div><p style="font-size:12px;color:var(--color-text-muted);line-height:1.6;margin:0">No solar panels in this configuration.</p>`
-                : `<div class="value value--amber" id="spec-annual-gen" style="font-size:18px;font-weight:700;margin-bottom:12px">${annualGenText(solar.annual_gen_kwh)}</div><canvas id="gen-chart" height="140"></canvas>`
-              }
-            `}
+            </div>
+            <div class="card">${gridRelianceInner}</div>
           </div>
 
-          <!-- Right: storage + reliance stacked (autonomy) or storage alone (savings) -->
-          ${isAutonomy ? `
           <div style="display:flex;flex-direction:column;gap:24px">
-            <div class="card">
-              <div class="section-title" style="margin-bottom:12px">Storage Details</div>
-              <div style="display:flex;gap:32px;margin-bottom:20px">
-                <div class="storage-stat"><div class="label">Capacity</div><div class="value value--amber" id="spec-storage-cap">${battery.storage_capacity} kWh</div></div>
-                <div class="storage-stat"><div class="label">Output</div><div class="value value--amber" id="spec-storage-out">${battery.storage_output.toFixed(2)} kW</div></div>
-              </div>
-              <div class="section-title" style="margin-bottom:10px">Backup Potential</div>
-              <div class="backup-potential">
-                <div class="backup-item"><div class="label">Essentials</div><div class="value value--amber" id="spec-backup-ess">${battery.backup_hours_essentials}hrs</div></div>
-                <div class="backup-item"><div class="label">Appliances</div><div class="value value--amber" id="spec-backup-app">${battery.backup_hours_appliances}hrs</div></div>
-                <div class="backup-item"><div class="label">Whole home</div><div class="value value--amber" id="spec-backup-home">${battery.backup_hours_whole_home}hrs</div></div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="section-title" style="margin-bottom:12px">${gridRelianceLabel}</div>
-              <div style="display:flex;gap:24px;flex-wrap:wrap">
-                <div class="storage-stat"><div class="label">Before Solar</div><div class="value" style="color:var(--color-text-muted)">${Math.round(dispatch.gridReliance_before * 100)}%</div></div>
-                <div class="storage-stat"><div class="label">After Solar</div><div class="value value--amber" id="dispatch-reliance-after">${Math.round(dispatch.gridReliance_after * 100)}%</div></div>
-                <div class="storage-stat"><div class="label">Daily ${gridUseLabel.charAt(0).toUpperCase() + gridUseLabel.slice(1)} Use</div><div class="value value--amber"><span style="color:var(--color-text-muted)">${dispatch.totalDemand.toFixed(1)}</span> → <span id="dispatch-surplus-inline">${dispatch.avgDailyGridKWh}</span> kWh</div></div>
-                <div class="storage-stat"><div class="label">Daily Surplus</div><div class="value value--amber" id="dispatch-surplus">${dispatch.dailySurplusKWh} kWh</div></div>
-              </div>
-            </div>
+            ${storageDetailsCard}
+            ${essentialsView ? interactiveProfileCard : ''}
           </div>
-          ` : `
-          <div class="card">
-            <div class="section-title" style="margin-bottom:12px">Storage Details</div>
-            <div style="display:flex;gap:32px;margin-bottom:20px">
-              <div class="storage-stat"><div class="label">Capacity</div><div class="value value--amber" id="spec-storage-cap">${battery.storage_capacity} kWh</div></div>
-              <div class="storage-stat"><div class="label">Output</div><div class="value value--amber" id="spec-storage-out">${battery.storage_output.toFixed(2)} kW</div></div>
-            </div>
-            <div class="section-title" style="margin-bottom:10px">Backup Potential</div>
-            <div class="backup-potential">
-              <div class="backup-item"><div class="label">Essentials</div><div class="value value--amber" id="spec-backup-ess">${battery.backup_hours_essentials}hrs</div></div>
-              <div class="backup-item"><div class="label">Appliances</div><div class="value value--amber" id="spec-backup-app">${battery.backup_hours_appliances}hrs</div></div>
-              <div class="backup-item"><div class="label">Whole home</div><div class="value value--amber" id="spec-backup-home">${battery.backup_hours_whole_home}hrs</div></div>
-            </div>
-          </div>
-          <div class="card" style="grid-column:1/-1">
-            <div class="section-title" style="margin-bottom:12px">${gridRelianceLabel}</div>
-            <div style="display:flex;gap:32px;flex-wrap:wrap">
-              <div class="storage-stat"><div class="label">Before Solar</div><div class="value" style="color:var(--color-text-muted)">${Math.round(dispatch.gridReliance_before * 100)}%</div></div>
-              <div class="storage-stat"><div class="label">After Solar</div><div class="value value--amber" id="dispatch-reliance-after">${Math.round(dispatch.gridReliance_after * 100)}%</div></div>
-              <div class="storage-stat"><div class="label">Avg Daily ${gridUseLabel.charAt(0).toUpperCase() + gridUseLabel.slice(1)} Use</div><div class="value value--amber"><span style="color:var(--color-text-muted)">${dispatch.totalDemand.toFixed(1)}</span> → ${dispatch.avgDailyGridKWh} kWh</div></div>
-              <div class="storage-stat"><div class="label">Avg Daily Surplus</div><div class="value value--amber" id="dispatch-surplus">${dispatch.dailySurplusKWh} kWh</div></div>
-            </div>
-          </div>
-          `}
         </div>
+        ` : essentialsView ? `
+        <div class="pv-generation-row">
+          ${generationCard}
+          ${interactiveProfileCard}
+        </div>
+        <div class="storage-details">
+          <div class="card">${gridRelianceInner}</div>
+          ${storageDetailsCard}
+        </div>
+        ` : `
+        <div class="storage-details">
+          ${generationCard}
+          ${storageDetailsCard}
+          <div class="card" style="grid-column:1/-1">${gridRelianceInner}</div>
+        </div>
+        `}
 
         <div style="margin-top:28px;padding-top:24px;border-top:1px solid var(--color-border-light);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
           <div>
@@ -191,6 +242,11 @@ function renderContent(container, navigate, isAutonomy) {
   document.getElementById('pv-cta-adjust-btn')
     ?.addEventListener('click', () => navigate('step1'));
 
+  document.getElementById('select-appliances-btn')
+    ?.addEventListener('click', () => navigate('addAppliances'));
+
+  if (essentialsView) bindInteractiveProfile(container, navigate, appliances, activeNames);
+
   if (isAutonomy) bindBackupHoursControl(container, navigate);
 
   document.querySelectorAll('.confidence-tooltip-wrap').forEach(wrap => {
@@ -210,6 +266,33 @@ function renderContent(container, navigate, isAutonomy) {
   } else if (!invBattOnly) {
     drawGenChart(solar, months);
   }
+}
+
+// Checking/unchecking an appliance narrows sizing down to just the checked
+// subset (via state.solarAppliances), recomputes the whole results object,
+// and re-renders both this section and Cost Savings in place so the system
+// spec and the money numbers stay in sync as the user experiments.
+function bindInteractiveProfile(container, navigate, appliances, activeNames) {
+  container.querySelectorAll('.js-profile-row[data-name]').forEach(row => {
+    row.addEventListener('click', () => {
+      const name = row.dataset.name;
+      if (activeNames.has(name)) activeNames.delete(name);
+      else activeNames.add(name);
+
+      const allSelected = activeNames.size === appliances.length;
+      setState({ solarAppliances: allSelected ? null : [...activeNames] });
+
+      computeResults();
+      renderSolarPVSystem(container, navigate);
+
+      const csSection = document.getElementById('section-costSavings');
+      if (csSection) renderCostSavings(csSection, navigate);
+    });
+  });
+
+  container.querySelectorAll('.js-update-appliances').forEach(btn => {
+    btn.addEventListener('click', () => navigate('addAppliances'));
+  });
 }
 
 function bindBackupHoursControl(container, navigate) {
@@ -241,7 +324,7 @@ function refreshSpecCards() {
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
   set('spec-solar-kwp',    invBattOnly ? '--.-- kWp'         : `${solar.panel_kwp} kWp`);
-  set('spec-solar-count',  invBattOnly ? 'Capacity · -- panels' : `Capacity · ${solar.panel_count} panels`);
+  set('spec-solar-count',  invBattOnly ? 'Capacity · -- panels' : `Capacity · ${solar.panel_count} panels · ${solar.panelWattage} W`);
   set('spec-inverter-kva', `${solar.inverter_kva} kVA`);
   set('spec-battery-kwh',  `${battery.battery_kwh} kWh`);
   set('spec-battery-units',`Storage · ${battery.battery_units_48v} units`);
